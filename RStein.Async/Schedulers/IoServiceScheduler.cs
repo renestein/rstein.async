@@ -10,37 +10,67 @@ namespace RStein.Async.Schedulers
   public class IoServiceScheduler : TaskScheduler, IDisposable
   {
     public const int REQUIRED_WORK_CANCEL_TOKEN_VALUE = 1;
+    public const int POLL_ONE_MAX_TASKS = 1;
+    public const int UNLIMITED_MAX_TASKS = -1;
     private readonly BlockingCollection<Task> m_tasks;
     private volatile int m_workCounter;
     private readonly object m_workLockObject;
     private readonly object m_serviceLockObject;
-    private ThreadLocal<bool> m_isServiceThreadMark;
-    private CancellationTokenSource m_stopCancelTokenSource;
+    private readonly ThreadLocal<bool> m_isServiceThreadMark;
+    private readonly CancellationTokenSource m_stopCancelTokenSource;
     private CancellationTokenSource m_workCancelTokenSource;
     private volatile bool m_isDisposed;
 
     public IoServiceScheduler()
     {
       m_tasks = new BlockingCollection<Task>();
+      m_isServiceThreadMark = new ThreadLocal<bool>();
       m_stopCancelTokenSource = new CancellationTokenSource();
       m_workLockObject = new object();
       m_serviceLockObject = new object();
       m_workCounter = 0;
     }
 
-
-    public virtual void Run()
+    public virtual int Run()
     {
       checkIfDisposed();
-      try
+      return runTasks(isWorkPresent());
+    }
+
+
+    public virtual void Dispatch(Action action)
+    {
+      checkIfDisposed();
+      if (action == null)
       {
-        markCurrentThreadAsServiceThread();
-        runAllTasks(isWorkPresent());
+        throw new ArgumentNullException("action");
       }
-      finally
+
+      var task = new Task(action);
+      TryExecuteTaskInline(task, taskWasPreviouslyQueued: false);
+    }
+
+
+    public virtual int Poll()
+    {
+      checkIfDisposed();
+      return runTasks();
+    }
+
+    public virtual int PollOne()
+    {
+      checkIfDisposed();
+      return runTasks(maxTasks: POLL_ONE_MAX_TASKS);
+    }
+
+    public virtual void Post(Action action)
+    {
+      if (action == null)
       {
-        clearCurrentThreadAsServiceMark();
+        throw new ArgumentNullException("action");
       }
+      var newTask = new Task(action);
+      QueueTask(newTask);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -83,6 +113,11 @@ namespace RStein.Async.Schedulers
       }
 
       handleWorkAdded(work);
+    }
+
+    private bool isInServiceThread()
+    {
+      return m_isServiceThreadMark.Value;
     }
 
     private void doStop()
@@ -139,12 +174,12 @@ namespace RStein.Async.Schedulers
     protected override void QueueTask(Task task)
     {
       m_tasks.Add(task);
-      m_isServiceThreadMark = new ThreadLocal<bool>();
+      
     }
 
     protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      if (!m_isServiceThreadMark.Value)
+      if (!isInServiceThread())
       {
         return false;
       }
@@ -158,17 +193,33 @@ namespace RStein.Async.Schedulers
       return m_tasks.ToArray();
     }
 
-    private void runAllTasks(bool waitForWorkCancel = false)
+    private int runTasks(bool waitForWorkCancel = false, int maxTasks = UNLIMITED_MAX_TASKS)
+    {
+      try
+      {
+        markCurrentThreadAsServiceThread();
+        return runTasksCore(waitForWorkCancel, maxTasks);
+      }
+      finally
+      {
+        clearCurrentThreadAsServiceMark();
+      }
+    }
+
+    private int runTasksCore(bool waitForWorkCancel, int maxTasks)
     {
       var usedCancelToken = waitForWorkCancel
         ? CancellationTokenSource.CreateLinkedTokenSource(m_stopCancelTokenSource.Token, m_workCancelTokenSource.Token).Token
         : m_stopCancelTokenSource.Token;
 
+      int tasksExecuted = 0;
       try
       {
         Task task;
-        while (m_tasks.TryTake(out task, Timeout.Infinite, usedCancelToken))
+        while (!taskLimitReached(tasksExecuted, maxTasks) &&
+              m_tasks.TryTake(out task, Timeout.Infinite, usedCancelToken))
         {
+          tasksExecuted++;
           TryExecuteTask(task);
         }
       }
@@ -176,6 +227,18 @@ namespace RStein.Async.Schedulers
       {
         Trace.WriteLine(e);
       }
+      return tasksExecuted;
+    }
+
+    private bool taskLimitReached(int tasksExecuted, int maxTasks)
+    {
+      if ((maxTasks == UNLIMITED_MAX_TASKS) ||
+         (tasksExecuted < maxTasks))
+      {
+        return false;
+      }
+
+      return true;
     }
 
     private bool isWorkPresent()
