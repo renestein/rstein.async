@@ -54,7 +54,7 @@ namespace RStein.Async.Schedulers
       }
 
       var task = new Task(action);
-      task.Start(this);
+      TryExecuteTaskInline(task, false);
       return task;
     }
 
@@ -80,10 +80,10 @@ namespace RStein.Async.Schedulers
       }
 
       bool oldIsInServiceThread = m_isServiceThreadMark.Value;
-      
+
       try
       {
-        return Dispatch(action);
+        Dispatch(action);
       }
       finally
       {
@@ -267,6 +267,7 @@ namespace RStein.Async.Schedulers
           Task task;
           while (tryGetTask(usedCancelToken,  out task))
           {
+            prepareTask(task);
             searchForTask = true;
             tasksExecuted++;
             TryExecuteTaskInline(task, true);
@@ -292,8 +293,15 @@ namespace RStein.Async.Schedulers
       return tasksExecuted;
     }
 
+    private void prepareTask(Task task)
+    {
+      
+    }
+
     private bool tryGetTask(CancellationToken cancellationToken, out Task task)
     {
+      CancellationToken usedCancelToken;
+      
       if (cancellationToken != CancellationToken.None)
       {
         return m_tasks.TryTake(out task, Timeout.Infinite, cancellationToken);
