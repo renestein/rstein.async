@@ -83,6 +83,7 @@ namespace RStein.Async.Schedulers
       
       try
       {
+        m_isServiceThreadMark.Value = false;
         return Dispatch(action);
       }
       finally

@@ -101,8 +101,8 @@ namespace RStein.Async.Tests
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
         .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
           
-      var tasksRunCount = m_scheduler.Run();
-      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, tasksRunCount);
+      var executedTasksCount = m_scheduler.Run();
+      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasksCount);
 
     }
   }
