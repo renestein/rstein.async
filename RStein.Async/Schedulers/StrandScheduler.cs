@@ -21,6 +21,7 @@ namespace RStein.Async.Schedulers
       }
       
       m_originalScheduler = originalScheduler;
+      m_tasks = new ConcurrentQueue<Task>();      
     }
 
     public override int MaximumConcurrencyLevel
