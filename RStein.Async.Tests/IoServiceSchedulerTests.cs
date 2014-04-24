@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RStein.Async.Misc;
 using RStein.Async.Schedulers;
@@ -365,7 +367,7 @@ namespace RStein.Async.Tests
 
     //Unsafe test
     [TestMethod]
-    public void RunOne_When_Work_Canceled_And_Zero_Tasks_Then_Method_DoesNotReturn()
+    public void RunOne_When_Work_Canceled_And_Zero_Tasks_Then_Method_Does_Not_Return()
     {
       const int SCHEDULE_WORK_AFTER_MS = 3000;
       const double RUN_MIN_DURATION_S = 2.0;
@@ -386,7 +388,7 @@ namespace RStein.Async.Tests
 
     //Unsafe test
     [TestMethod]
-    public void RunOne_When_And_Zero_Tasks_And_Scheduler_Disposed_Then_Method_Returns_Zero()
+    public void RunOne_When_Zero_Tasks_And_Scheduler_Disposed_Then_Method_Returns_Zero()
     {
 
       const int STOP_SCHEDULER_AFTER_MS = 3000;
@@ -482,23 +484,199 @@ namespace RStein.Async.Tests
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasksCount);
 
     }
-        
+
 
     //Unsafe test
     [TestMethod]
     public void Poll_When_Work_Exists_And_Zero_Tasks_Then_Method_Return_Immediately()
     {
 
-      const int EXPECTED_ZERO_TASKS =  0;
+      const int EXPECTED_ZERO_TASKS = 0;
       var work = new Work(m_scheduler);
-      
+
       var numberOfTasks = m_scheduler.Poll();
-      
+
       Assert.AreEqual(EXPECTED_ZERO_TASKS, numberOfTasks);
 
     }
 
-    
+    [TestMethod]
+    public void PollOne_When_One_Task_Added_Then_Returns_One()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 1;
+      m_scheduler.Dispatch(() =>
+      {
+      });
+
+      var result = m_scheduler.PollOne();
+      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, result);
+    }
+
+    [TestMethod]
+    public void PollOne_When_One_Task_Added_Then_Task_Is_Executed()
+    {
+      bool wasTaskCalled = false;
+      m_scheduler.Dispatch(() =>
+      {
+        wasTaskCalled = true;
+      });
+
+      m_scheduler.PollOne();
+      Assert.IsTrue(wasTaskCalled);
+    }
+
+    [TestMethod]
+    public void PollOne_When_More_Tasks_Added_Then_Only_First_Task_Is_Executed()
+    {
+      bool wasTask1Called = false;
+      bool wasTask2Called = false;
+      m_scheduler.Dispatch(() =>
+      {
+        wasTask1Called = true;
+      });
+
+      m_scheduler.Dispatch(() =>
+      {
+        wasTask2Called = true;
+      });
+
+      m_scheduler.PollOne();
+      Assert.IsTrue(wasTask1Called && !wasTask2Called);
+
+    }
+
+    [TestMethod]
+    public void PollOne_When_Two_Tasks_Added_Then_Returns_One()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 2;
+      const int NUMBER_OF_RUNNED_TASKS = 1;
+
+      Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
+
+      var executedTasksCount = m_scheduler.PollOne();
+      Assert.AreEqual(NUMBER_OF_RUNNED_TASKS, executedTasksCount);
+
+    }
+
+    [TestMethod]
+    public void PollOne_When_One_Task_Added_And_Cancel_Work_Then_Returns_One()
+    {
+      const int NUMBER_OF_RUNNED_TASKS = 1;
+      m_scheduler.Dispatch(() =>
+      {
+      });
+
+      cancelWorkAfterTimeout();
+      var result = m_scheduler.PollOne();
+      Assert.AreEqual(NUMBER_OF_RUNNED_TASKS, result);
+    }
+
+
+    [TestMethod]
+    public void PollOne_When_One_Task_Added_And_Cancel_Work_Then_Task_Is_Executed()
+    {
+      bool wasTaskCalled = false;
+      m_scheduler.Dispatch(() =>
+      {
+        wasTaskCalled = true;
+      });
+
+      cancelWorkAfterTimeout();
+      m_scheduler.PollOne();
+      Assert.IsTrue(wasTaskCalled);
+    }
+
+
+    [TestMethod]
+    public void PollOne_When_More_Tasks_Added_And_Cancel_Work_Then_Only_First_Task_Is_Executed()
+    {
+      bool wasTask1Called = false;
+      bool wasTask2Called = false;
+      m_scheduler.Dispatch(() =>
+      {
+        wasTask1Called = true;
+      });
+
+      m_scheduler.Dispatch(() =>
+      {
+        wasTask2Called = true;
+      });
+
+      cancelWorkAfterTimeout();
+      m_scheduler.PollOne();
+      Assert.IsTrue(wasTask1Called && !wasTask2Called);
+
+    }
+
+    [TestMethod]
+    public void PollOne_When_Two_Tasks_Added_And_Cancel_Work_Then_Returns_One()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 2;
+      const int RUNNED_TASKS = 1;
+
+      Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
+
+      cancelWorkAfterTimeout();
+      var executedTasksCount = m_scheduler.PollOne();
+      Assert.AreEqual(RUNNED_TASKS, executedTasksCount);
+
+    }
+    //Unsafe test
+    [TestMethod]
+    public void PollOne_When_Zero_Tasks_Then_Method_Return_Immediately()
+    {
+      const int EXPECTED_ZERO_TASKS = 0;
+      const double RUN_MIN_DURATION_S = 2.0;
+
+      var executedTasks = m_scheduler.PollOne();
+
+
+      Assert.AreEqual(EXPECTED_ZERO_TASKS, executedTasks);
+
+    }
+
+    [TestMethod]
+    public async Task Dispatch_When_Non_Service_Thread_Task_Is_Queued()
+    {
+      const int INVALID_THREAD_ID = -1;
+
+      var executingThreadId = INVALID_THREAD_ID;
+      var dispatchThreadId = Thread.CurrentThread.ManagedThreadId;
+
+      var task = m_scheduler.Dispatch(() => executingThreadId = Thread.CurrentThread.ManagedThreadId);
+      ThreadPool.QueueUserWorkItem(_ => m_scheduler.RunOne());
+      await task;
+      Assert.AreNotEqual(INVALID_THREAD_ID, executingThreadId);
+      Assert.AreNotEqual(dispatchThreadId, executingThreadId);
+    }
+
+    [TestMethod]
+    public async Task Dispatch_When_Service_Thread_Task_Is_Executed_Inline()
+    {
+      const int INVALID_THREAD_ID = -1;
+
+      var executingThreadId = INVALID_THREAD_ID;
+      var dispatchThreadId = INVALID_THREAD_ID;
+
+      var task = m_scheduler.Dispatch(() =>
+                                      {
+                                        dispatchThreadId = Thread.CurrentThread.ManagedThreadId;
+                                        m_scheduler.Dispatch(() => executingThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
+                                      });
+      
+      ThreadPool.QueueUserWorkItem(_ => m_scheduler.RunOne());
+      await task;
+      Assert.AreNotEqual(INVALID_THREAD_ID, dispatchThreadId);
+      Assert.AreNotEqual(INVALID_THREAD_ID, executingThreadId);
+      Assert.AreEqual(dispatchThreadId, executingThreadId);
+    }
+
 
     private void scheduleTaskAfterDelay(int? sleepMs = null)
     {
