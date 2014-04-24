@@ -827,14 +827,14 @@ namespace RStein.Async.Tests
                         {
 
                         });
-      
+
     }
 
     [TestMethod]
     [ExpectedException(typeof(ObjectDisposedException))]
     public void Wrap_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
-      
+
       m_scheduler.Dispose();
       m_scheduler.Wrap(() =>
                       {
@@ -851,7 +851,7 @@ namespace RStein.Async.Tests
       m_scheduler.WrapAsTask(() =>
                             {
                             });
-      
+
     }
 
     [TestMethod]
@@ -862,11 +862,31 @@ namespace RStein.Async.Tests
 
     }
 
+    [TestMethod]
+    public async Task Run_When_Called_From_Multiple_Threads_Then_All_Tasks_Executed()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 100;
+      const int DEFAULT_TASK_SLEEP = 100;
+      const int NUMBER_OF_WORKER_THREAD = 3;
+      var countDownEvent = new CountdownEvent(NUMBER_OF_WORKER_THREAD);
 
+      int executedTasks = 0;
 
+      var allTasks = Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS).Select(_ => m_scheduler.Post(()=>Thread.Sleep(DEFAULT_TASK_SLEEP))).ToArray();
 
+      Enumerable.Range(0, NUMBER_OF_WORKER_THREAD).Select(_ => ThreadPool.QueueUserWorkItem(__=>
+                                                                                            {
+                                                                                               int tasksExecutedInThisThread = m_scheduler.Run();
+                                                                                               Interlocked.Add(ref executedTasks, tasksExecutedInThisThread);
+                                                                                              countDownEvent.Signal();
+                                                                                            })).ToArray();
 
+      await Task.WhenAll(allTasks);
+      countDownEvent.Wait();
 
+      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasks);
+      
+    }
 
     private void scheduleTaskAfterDelay(int? sleepMs = null)
     {
