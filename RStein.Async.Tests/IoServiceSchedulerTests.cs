@@ -669,7 +669,7 @@ namespace RStein.Async.Tests
                                         dispatchThreadId = Thread.CurrentThread.ManagedThreadId;
                                         m_scheduler.Dispatch(() => executingThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
                                       });
-      
+
       ThreadPool.QueueUserWorkItem(_ => m_scheduler.Run());
       await task;
       Assert.AreNotEqual(INVALID_THREAD_ID, dispatchThreadId);
@@ -734,14 +734,44 @@ namespace RStein.Async.Tests
                                    {
                                      runOneThreadId = Thread.CurrentThread.ManagedThreadId;
                                      m_scheduler.RunOne();
-                                     stillWaitForTaskCts.Cancel();                                     
+                                     stillWaitForTaskCts.Cancel();
                                    });
 
       stillWaitForTaskCts.Token.WaitHandle.WaitOne();
-      
+
       Assert.AreNotEqual(executingThreadId, INVALID_THREAD_ID);
-      Assert.AreNotEqual(runOneThreadId, INVALID_THREAD_ID);      
-      Assert.AreNotEqual(wrapCallThread, executingThreadId);      
+      Assert.AreNotEqual(runOneThreadId, INVALID_THREAD_ID);
+      Assert.AreNotEqual(wrapCallThread, executingThreadId);
+      Assert.AreNotEqual(wrapCallThread, runOneThreadId);
+      Assert.AreEqual(runOneThreadId, executingThreadId);
+    }
+
+    [TestMethod]
+    public async Task WrapAsTask_When_Invoked_Wrapped_Action_Then_Action_Is_Executed_In_Scheduler_Thread()
+    {
+      const int INVALID_THREAD_ID = -1;
+
+      var executingThreadId = INVALID_THREAD_ID;
+      var runOneThreadId = INVALID_THREAD_ID;
+      var wrapCallThread = Thread.CurrentThread.ManagedThreadId;
+
+      var wrappedTaskFunc = m_scheduler.WrapAsTask(() =>
+      {
+        executingThreadId = Thread.CurrentThread.ManagedThreadId;
+      });
+
+
+      ThreadPool.QueueUserWorkItem(_ =>
+      {
+        runOneThreadId = Thread.CurrentThread.ManagedThreadId;
+        m_scheduler.RunOne();
+      });
+
+      await wrappedTaskFunc();
+
+      Assert.AreNotEqual(executingThreadId, INVALID_THREAD_ID);
+      Assert.AreNotEqual(runOneThreadId, INVALID_THREAD_ID);
+      Assert.AreNotEqual(wrapCallThread, executingThreadId);
       Assert.AreNotEqual(wrapCallThread, runOneThreadId);
       Assert.AreEqual(runOneThreadId, executingThreadId);
     }

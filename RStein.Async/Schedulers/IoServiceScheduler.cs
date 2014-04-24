@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -329,7 +328,7 @@ namespace RStein.Async.Schedulers
           }
 
           usedCancellationToken = CancellationToken.None;
-          searchForTask = true;
+          searchForTask = !tasksLimitReached();
         }
       }
 
