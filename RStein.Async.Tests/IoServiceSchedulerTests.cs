@@ -642,7 +642,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task Dispatch_When_Non_Service_Thread_Task_Is_Queued()
+    public async Task Dispatch_When_Non_Service_Thread_Then_Task_Is_Queued()
     {
       const int INVALID_THREAD_ID = -1;
 
@@ -657,7 +657,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task Dispatch_When_Service_Thread_Task_Is_Executed_Inline()
+    public async Task Dispatch_When_Service_Thread_Then_Task_Is_Executed_Inline()
     {
       const int INVALID_THREAD_ID = -1;
 
@@ -678,7 +678,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task Post_When_Non_Service_Thread_Task_Is_Queued()
+    public async Task Post_When_Non_Service_Thread_Then_Task_Is_Queued()
     {
       const int INVALID_THREAD_ID = -1;
 
@@ -693,7 +693,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task Post_When_Service_Thread_Task_Is_Queued()
+    public async Task Post_When_Service_Thread_Then_Task_Is_Queued()
     {
       const int INVALID_THREAD_ID = -1;
 
@@ -712,6 +712,38 @@ namespace RStein.Async.Tests
       Assert.AreNotEqual(INVALID_THREAD_ID, dispatchThreadId);
       Assert.AreNotEqual(INVALID_THREAD_ID, executingThreadId);
       Assert.AreNotEqual(dispatchThreadId, executingThreadId);
+    }
+
+    [TestMethod]
+    public void Wrap_When_Invoked_Wrapped_Action_Then_Action_Is_Executed_In_Scheduler_Thread()
+    {
+      const int INVALID_THREAD_ID = -1;
+
+      var executingThreadId = INVALID_THREAD_ID;
+      var runOneThreadId = INVALID_THREAD_ID;
+      var wrapCallThread = Thread.CurrentThread.ManagedThreadId;
+      var stillWaitForTaskCts = new CancellationTokenSource();
+
+      var wrappedAction = m_scheduler.Wrap(() =>
+                                           {
+                                             executingThreadId = Thread.CurrentThread.ManagedThreadId;
+                                           });
+
+      wrappedAction();
+      ThreadPool.QueueUserWorkItem(_ =>
+                                   {
+                                     runOneThreadId = Thread.CurrentThread.ManagedThreadId;
+                                     m_scheduler.RunOne();
+                                     stillWaitForTaskCts.Cancel();                                     
+                                   });
+
+      stillWaitForTaskCts.Token.WaitHandle.WaitOne();
+      
+      Assert.AreNotEqual(executingThreadId, INVALID_THREAD_ID);
+      Assert.AreNotEqual(runOneThreadId, INVALID_THREAD_ID);      
+      Assert.AreNotEqual(wrapCallThread, executingThreadId);      
+      Assert.AreNotEqual(wrapCallThread, runOneThreadId);
+      Assert.AreEqual(runOneThreadId, executingThreadId);
     }
 
     private void scheduleTaskAfterDelay(int? sleepMs = null)
