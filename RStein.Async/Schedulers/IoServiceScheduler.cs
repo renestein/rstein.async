@@ -114,7 +114,7 @@ namespace RStein.Async.Schedulers
     }
 
 
-    public virtual void Dispose()
+    public void Dispose()
     {
       lock (m_serviceLockObject)
       {
@@ -142,7 +142,7 @@ namespace RStein.Async.Schedulers
     {
       if (disposing)
       {
-        doStop();
+        doStop();        
       }
     }
 

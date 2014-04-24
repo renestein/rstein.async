@@ -423,6 +423,82 @@ namespace RStein.Async.Tests
       Assert.IsTrue(numberOfExecutedTasks < NUMBER_OF_TASKS);
     }
 
+    [TestMethod]
+    public void Poll_When_One_Task_Added_Then_Returns_One()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 1;
+      m_scheduler.Dispatch(() =>
+      {
+      });
+
+      var result = m_scheduler.Poll();
+      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, result);
+    }
+
+    [TestMethod]
+    public void Poll_When_One_Task_Added_Then_Task_Is_Executed()
+    {
+      bool wasTaskCalled = false;
+      m_scheduler.Dispatch(() =>
+      {
+        wasTaskCalled = true;
+      });
+
+      m_scheduler.Poll();
+      Assert.IsTrue(wasTaskCalled);
+    }
+
+    [TestMethod]
+    public void Poll_When_More_Tasks_Added_Then_All_Tasks_Are_Executed()
+    {
+      bool wasTask1Called = false;
+      bool wasTask2Called = false;
+      m_scheduler.Dispatch(() =>
+      {
+        wasTask1Called = true;
+      });
+
+      m_scheduler.Dispatch(() =>
+      {
+        wasTask2Called = true;
+      });
+
+      m_scheduler.Poll();
+      Assert.IsTrue(wasTask1Called && wasTask2Called);
+
+    }
+
+    [TestMethod]
+    public void Poll_When_Two_Tasks_Added_Then_Returns_Two()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 2;
+
+      Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
+
+      var executedTasksCount = m_scheduler.Poll();
+      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasksCount);
+
+    }
+        
+
+    //Unsafe test
+    [TestMethod]
+    public void Poll_When_Work_Exists_And_Zero_Tasks_Then_Method_Return_Immediately()
+    {
+
+      const int EXPECTED_ZERO_TASKS =  0;
+      var work = new Work(m_scheduler);
+      
+      var numberOfTasks = m_scheduler.Poll();
+      
+      Assert.AreEqual(EXPECTED_ZERO_TASKS, numberOfTasks);
+
+    }
+
+    
 
     private void scheduleTaskAfterDelay(int? sleepMs = null)
     {

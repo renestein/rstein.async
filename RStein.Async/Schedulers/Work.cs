@@ -3,17 +3,17 @@ using System.Threading;
 
 namespace RStein.Async.Schedulers
 {
-  public class Work : IDisposable
+  public sealed class Work : IDisposable
   {
     private CancellationTokenSource m_cancelTokenSource;
-    
+
     public Work(IoServiceScheduler scheduler)
     {
-      m_cancelTokenSource = new CancellationTokenSource();      
+      m_cancelTokenSource = new CancellationTokenSource();
       scheduler.AddWork(this);
     }
 
-    public CancellationToken CancelToken
+    internal CancellationToken CancelToken
     {
       get
       {
@@ -23,7 +23,16 @@ namespace RStein.Async.Schedulers
 
     public void Dispose()
     {
-      m_cancelTokenSource.Cancel();
+      Dispose(true);
+    }
+
+    private void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        m_cancelTokenSource.Cancel();
+      }
+
     }
   }
 }
