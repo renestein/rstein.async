@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RStein.Async.Misc;
@@ -120,7 +121,7 @@ namespace RStein.Async.Tests
       {
       });
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       var result = m_scheduler.Run();
       Assert.AreEqual(1, result);
     }
@@ -128,7 +129,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Run_When_Zero_Tasks_Added_And_Cancel_Work_Then_Returns_Zero()
     {
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       var result = m_scheduler.Run();
       Assert.AreEqual(0, result);
     }
@@ -142,7 +143,7 @@ namespace RStein.Async.Tests
         wasTaskCalled = true;
       });
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       m_scheduler.Run();
       Assert.IsTrue(wasTaskCalled);
     }
@@ -163,7 +164,7 @@ namespace RStein.Async.Tests
         wasTask2Called = true;
       });
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       m_scheduler.Run();
       Assert.IsTrue(wasTask1Called && wasTask2Called);
 
@@ -179,7 +180,7 @@ namespace RStein.Async.Tests
         {
         })).ToArray();
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       var executedTasksCount = m_scheduler.Run();
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasksCount);
 
@@ -194,7 +195,7 @@ namespace RStein.Async.Tests
 
       var time = StopWatchUtils.MeasureActionTime(() =>
                                                   {
-                                                    cancelWorkAfterTimout(WORK_CANCEL_DELAY_MS);
+                                                    cancelWorkAfterTimeout(WORK_CANCEL_DELAY_MS);
                                                     m_scheduler.Run();
                                                   });
 
@@ -244,7 +245,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public void Run_When_More_Tasks_Added_Then_Only_First_Task_Is_Executed()
+    public void RunOne_When_More_Tasks_Added_Then_Only_First_Task_Is_Executed()
     {
       bool wasTask1Called = false;
       bool wasTask2Called = false;
@@ -282,14 +283,14 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void RunOne_When_One_Task_Added_And_Cancel_Work_Then_Returns_One()
     {
-
+      const int NUMBER_OF_RUNNED_TASKS = 1;
       m_scheduler.Dispatch(() =>
       {
       });
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       var result = m_scheduler.RunOne();
-      Assert.AreEqual(1, result);
+      Assert.AreEqual(NUMBER_OF_RUNNED_TASKS, result);
     }
 
 
@@ -302,7 +303,7 @@ namespace RStein.Async.Tests
         wasTaskCalled = true;
       });
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       m_scheduler.RunOne();
       Assert.IsTrue(wasTaskCalled);
     }
@@ -323,7 +324,7 @@ namespace RStein.Async.Tests
         wasTask2Called = true;
       });
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       m_scheduler.RunOne();
       Assert.IsTrue(wasTask1Called && !wasTask2Called);
 
@@ -340,7 +341,7 @@ namespace RStein.Async.Tests
         {
         })).ToArray();
 
-      cancelWorkAfterTimout();
+      cancelWorkAfterTimeout();
       var executedTasksCount = m_scheduler.RunOne();
       Assert.AreEqual(RUNNED_TASKS, executedTasksCount);
 
@@ -383,6 +384,45 @@ namespace RStein.Async.Tests
 
     }
 
+    //Unsafe test
+    [TestMethod]
+    public void RunOne_When_And_Zero_Tasks_And_Scheduler_Disposed_Then_Method_Returns_Zero()
+    {
+
+      const int STOP_SCHEDULER_AFTER_MS = 3000;
+      const int EXPECTED_ZERO_TASKS = 0;
+      ThreadPool.QueueUserWorkItem(_ =>
+                                   {
+                                     Thread.Sleep(STOP_SCHEDULER_AFTER_MS);
+                                     m_scheduler.Dispose();
+                                   });
+
+      var tasksCount = m_scheduler.RunOne();
+      Assert.AreEqual(EXPECTED_ZERO_TASKS, tasksCount);
+    }
+
+    [TestMethod]
+    public void Run_When_Tasks_Added_And_Scheduler_Disposed_Then_Some_Tasks_Are_Not_Executed()
+    {
+
+      const int STOP_SCHEDULER_AFTER_MS = 3000;
+      const int SIMULATE_TASK_WORK_INTERVAL_MS = 100;
+      const int NUMBER_OF_TASKS = 100;
+      Enumerable.Range(0, NUMBER_OF_TASKS).Select(_ => m_scheduler.Dispatch(() => Thread.Sleep(SIMULATE_TASK_WORK_INTERVAL_MS))).ToArray();
+
+
+      ThreadPool.QueueUserWorkItem(_ =>
+      {
+        Thread.Sleep(STOP_SCHEDULER_AFTER_MS);
+        m_scheduler.Dispose();
+      });
+
+
+      var numberOfExecutedTasks = m_scheduler.Run();
+      TestContext.WriteLine("Number of executed tasks: {0}", numberOfExecutedTasks);
+      Assert.IsTrue(numberOfExecutedTasks < NUMBER_OF_TASKS);
+    }
+
 
     private void scheduleTaskAfterDelay(int? sleepMs = null)
     {
@@ -400,7 +440,7 @@ namespace RStein.Async.Tests
     }
 
 
-    private void cancelWorkAfterTimout(int? sleepMs = null)
+    private void cancelWorkAfterTimeout(int? sleepMs = null)
     {
       const int DEFAULT_SLEEP = 1000;
       var sleepTime = sleepMs ?? DEFAULT_SLEEP;

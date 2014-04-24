@@ -125,7 +125,7 @@ namespace RStein.Async.Schedulers
 
         try
         {
-          Dispose(false);
+          Dispose(true);
           m_isDisposed = true;
 
         }
@@ -205,9 +205,19 @@ namespace RStein.Async.Schedulers
       {
         var cancellationTokenSource = m_workCancelTokenSource;
 
+        if (cancelNow)
+        {
+          if (cancellationTokenSource != null)
+          {
+            cancellationTokenSource.Cancel();
+          }
+
+          return;
+        }
+
         m_workCounter--;
 
-        if (cancelNow || (m_workCounter == 0))
+        if (m_workCounter == 0)
         {
           cancellationTokenSource.Cancel();
         }
