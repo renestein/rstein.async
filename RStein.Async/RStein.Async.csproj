@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Misc\StopWatchUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schedulers\IoServiceScheduler.cs" />
     <Compile Include="Schedulers\StrandScheduler.cs" />

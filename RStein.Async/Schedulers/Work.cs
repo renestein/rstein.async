@@ -10,6 +10,7 @@ namespace RStein.Async.Schedulers
     public Work(IoServiceScheduler scheduler)
     {
       m_cancelTokenSource = new CancellationTokenSource();      
+      scheduler.AddWork(this);
     }
 
     public CancellationToken CancelToken

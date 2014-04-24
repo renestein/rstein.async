@@ -17,7 +17,7 @@ namespace RStein.Async.Schedulers
     private volatile int m_workCounter;
     private readonly object m_workLockObject;
     private readonly object m_serviceLockObject;
-    private readonly ThreadLocal<bool> m_isServiceThreadMark;
+    private readonly ThreadLocal<bool> m_isServiceThreadFlag;
     private readonly CancellationTokenSource m_stopCancelTokenSource;
     private CancellationTokenSource m_workCancelTokenSource;
     private volatile bool m_isDisposed;
@@ -25,7 +25,7 @@ namespace RStein.Async.Schedulers
     public IoServiceScheduler()
     {
       m_tasks = new BlockingCollection<Task>();
-      m_isServiceThreadMark = new ThreadLocal<bool>();
+      m_isServiceThreadFlag = new ThreadLocal<bool>();
       m_stopCancelTokenSource = new CancellationTokenSource();
       m_workLockObject = new object();
       m_serviceLockObject = new object();
@@ -35,13 +35,13 @@ namespace RStein.Async.Schedulers
     public virtual int Run()
     {
       checkIfDisposed();
-      return runTasks(isWorkPresent());
+      return runTasks(withWorkkCancelToken());
     }
 
     public virtual int RunOne()
     {
       checkIfDisposed();
-      return runTasks(isWorkPresent(), POLLONE_RUNONE_MAX_TASKS);
+      return runTasks(withGlobalCancelToken(), POLLONE_RUNONE_MAX_TASKS);
 
     }
 
@@ -61,13 +61,13 @@ namespace RStein.Async.Schedulers
     public virtual int Poll()
     {
       checkIfDisposed();
-      return runTasks(ignoreWork());
+      return runTasks(withoutCancelToken());
     }
 
     public virtual int PollOne()
     {
       checkIfDisposed();
-      return runTasks(ignoreWork(), maxTasks: POLLONE_RUNONE_MAX_TASKS);
+      return runTasks(withoutCancelToken(), maxTasks: POLLONE_RUNONE_MAX_TASKS);
     }
 
     public virtual Task Post(Action action)
@@ -79,18 +79,18 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("action");
       }
 
-      bool oldIsInServiceThread = m_isServiceThreadMark.Value;
-      
+      bool oldIsInServiceThread = m_isServiceThreadFlag.Value;
+
       try
       {
-        m_isServiceThreadMark.Value = false;
+        clearCurrentThreadAsServiceFlag();
         return Dispatch(action);
       }
       finally
       {
-        m_isServiceThreadMark.Value = oldIsInServiceThread;
+        m_isServiceThreadFlag.Value = oldIsInServiceThread;
       }
-      
+
     }
 
     public virtual Action Wrap(Action action)
@@ -127,7 +127,7 @@ namespace RStein.Async.Schedulers
         {
           Dispose(false);
           m_isDisposed = true;
-          GC.SuppressFinalize(this);
+
         }
         catch (Exception ex)
         {
@@ -158,22 +158,23 @@ namespace RStein.Async.Schedulers
 
     private bool isInServiceThread()
     {
-      return m_isServiceThreadMark.Value;
+      return m_isServiceThreadFlag.Value;
     }
 
     private void doStop()
     {
       m_stopCancelTokenSource.Cancel();
+      handleWorkCanceled(cancelNow: true);
     }
 
     private void clearCurrentThreadAsServiceFlag()
     {
-      m_isServiceThreadMark.Value = false;
+      m_isServiceThreadFlag.Value = false;
     }
 
     private void markCurrentThreadAsServiceThread()
     {
-      m_isServiceThreadMark.Value = true;
+      m_isServiceThreadFlag.Value = true;
     }
 
     private void handleWorkAdded(Work work)
@@ -183,11 +184,13 @@ namespace RStein.Async.Schedulers
         m_workCounter++;
         if (isNewWorkCancelTokenRequired())
         {
-          Debug.Assert(m_workCancelTokenSource.Token.IsCancellationRequested);
+          Debug.Assert(m_workCancelTokenSource == null ||
+                      m_workCancelTokenSource.Token.IsCancellationRequested);
+
           m_workCancelTokenSource = new CancellationTokenSource();
         }
 
-        work.CancelToken.Register(handleWorkCanceled);
+        work.CancelToken.Register(() => handleWorkCanceled());
       }
     }
 
@@ -196,7 +199,7 @@ namespace RStein.Async.Schedulers
       return (m_workCounter == REQUIRED_WORK_CANCEL_TOKEN_VALUE);
     }
 
-    private void handleWorkCanceled()
+    private void handleWorkCanceled(bool cancelNow = false)
     {
       lock (m_workLockObject)
       {
@@ -204,7 +207,7 @@ namespace RStein.Async.Schedulers
 
         m_workCounter--;
 
-        if (m_workCounter == 0)
+        if (cancelNow || (m_workCounter == 0))
         {
           cancellationTokenSource.Cancel();
         }
@@ -233,12 +236,12 @@ namespace RStein.Async.Schedulers
       return m_tasks.ToArray();
     }
 
-    private int runTasks(Tuple<bool, CancellationTokenSource> waitForWorkCancel, int maxTasks = UNLIMITED_MAX_TASKS)
+    private int runTasks(CancellationToken cancellationToken, int maxTasks = UNLIMITED_MAX_TASKS)
     {
       try
       {
         markCurrentThreadAsServiceThread();
-        return runTasksCore(waitForWorkCancel, maxTasks);
+        return runTasksCore(cancellationToken, maxTasks);
       }
       finally
       {
@@ -246,33 +249,34 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    private int runTasksCore(Tuple<bool, CancellationTokenSource> waitForWorkCancel, int maxTasks)
+    private int runTasksCore(CancellationToken cancellationToken, int maxTasks)
     {
-
-      var shouldUseWorkCancelToken = waitForWorkCancel.Item1;
-      var currentWorkCancelTokenSource = shouldUseWorkCancelToken ? waitForWorkCancel.Item2 : null;
-
-      var usedCancelToken = shouldUseWorkCancelToken
-        ? CancellationTokenSource.CreateLinkedTokenSource(m_stopCancelTokenSource.Token, currentWorkCancelTokenSource.Token).Token
-        : CancellationToken.None;
 
       int tasksExecuted = 0;
       bool searchForTask = true;
 
+      var usedCancellationToken = cancellationToken;
+
       while (!tasksLimitReached(tasksExecuted, maxTasks) && searchForTask)
       {
         searchForTask = false;
+        m_stopCancelTokenSource.Token.ThrowIfCancellationRequested();
 
         try
         {
           Task task;
-          while (tryGetTask(usedCancelToken,  out task))
+          if (!tryGetTask(usedCancellationToken, out task))
           {
-            searchForTask = true;
-            tasksExecuted++;
-            TryExecuteTaskInline(task, true);
-            m_stopCancelTokenSource.Token.ThrowIfCancellationRequested();
+            continue;
           }
+
+          searchForTask = true;
+          m_stopCancelTokenSource.Token.ThrowIfCancellationRequested();
+
+          TryExecuteTaskInline(task, true);
+          tasksExecuted++;
+
+          m_stopCancelTokenSource.Token.ThrowIfCancellationRequested();
         }
 
         catch (OperationCanceledException e)
@@ -284,7 +288,7 @@ namespace RStein.Async.Schedulers
             break;
           }
 
-          usedCancelToken = CancellationToken.None;
+          usedCancellationToken = CancellationToken.None;
           searchForTask = true;
         }
       }
@@ -314,18 +318,34 @@ namespace RStein.Async.Schedulers
       return true;
     }
 
-    private Tuple<bool, CancellationTokenSource> isWorkPresent()
+    private CancellationToken withWorkkCancelToken()
     {
       lock (m_workLockObject)
       {
-        var isWorkPresent = m_workCancelTokenSource != null;
-        return Tuple.Create(isWorkPresent, m_workCancelTokenSource);
+
+        return (existsWork()
+          ? m_workCancelTokenSource.Token
+          : withoutCancelToken());
+
       }
     }
 
-    private Tuple<bool, CancellationTokenSource> ignoreWork()
+    private CancellationToken withGlobalCancelToken()
     {
-      return Tuple.Create(false, (CancellationTokenSource)null);
+      return m_stopCancelTokenSource.Token;
+    }
+
+    private bool existsWork()
+    {
+      lock (m_workLockObject)
+      {
+        return (m_workCancelTokenSource != null);
+      }
+    }
+
+    private CancellationToken withoutCancelToken()
+    {
+      return CancellationToken.None;
     }
 
     private void checkIfDisposed()
