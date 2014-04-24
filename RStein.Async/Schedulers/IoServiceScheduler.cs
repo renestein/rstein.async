@@ -12,6 +12,7 @@ namespace RStein.Async.Schedulers
     public const int REQUIRED_WORK_CANCEL_TOKEN_VALUE = 1;
     public const int POLLONE_RUNONE_MAX_TASKS = 1;
     public const int UNLIMITED_MAX_TASKS = -1;
+
     private readonly BlockingCollection<Task> m_tasks;
     private volatile int m_workCounter;
     private readonly object m_workLockObject;
@@ -94,6 +95,7 @@ namespace RStein.Async.Schedulers
 
     public virtual Action Wrap(Action action)
     {
+      checkIfDisposed();
       if (action == null)
       {
         throw new ArgumentNullException("action");
@@ -104,6 +106,7 @@ namespace RStein.Async.Schedulers
 
     public virtual Func<Task> WrapAsTask(Action action)
     {
+      checkIfDisposed();
       if (action == null)
       {
         throw new ArgumentNullException("action");

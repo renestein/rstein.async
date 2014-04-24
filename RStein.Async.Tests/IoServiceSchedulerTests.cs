@@ -776,6 +776,98 @@ namespace RStein.Async.Tests
       Assert.AreEqual(runOneThreadId, executingThreadId);
     }
 
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Run_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.Run();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void RunOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.RunOne();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Poll_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.Poll();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void PollOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.PollOne();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Dispatch_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.Dispatch(() =>
+                          {
+                          });
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Post_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.Post(() =>
+                        {
+
+                        });
+      
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Wrap_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      
+      m_scheduler.Dispose();
+      m_scheduler.Wrap(() =>
+                      {
+
+                      });
+
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void WrapAsTask_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.WrapAsTask(() =>
+                            {
+                            });
+      
+    }
+
+    [TestMethod]
+    public void Dispose_Repeated_Call_Does_Not_Throw()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.Dispose();
+
+    }
+
+
+
+
+
+
+
     private void scheduleTaskAfterDelay(int? sleepMs = null)
     {
 
