@@ -670,13 +670,49 @@ namespace RStein.Async.Tests
                                         m_scheduler.Dispatch(() => executingThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
                                       });
       
-      ThreadPool.QueueUserWorkItem(_ => m_scheduler.RunOne());
+      ThreadPool.QueueUserWorkItem(_ => m_scheduler.Run());
       await task;
       Assert.AreNotEqual(INVALID_THREAD_ID, dispatchThreadId);
       Assert.AreNotEqual(INVALID_THREAD_ID, executingThreadId);
       Assert.AreEqual(dispatchThreadId, executingThreadId);
     }
 
+    [TestMethod]
+    public async Task Post_When_Non_Service_Thread_Task_Is_Queued()
+    {
+      const int INVALID_THREAD_ID = -1;
+
+      var executingThreadId = INVALID_THREAD_ID;
+      var postThreadId = Thread.CurrentThread.ManagedThreadId;
+
+      var task = m_scheduler.Post(() => executingThreadId = Thread.CurrentThread.ManagedThreadId);
+      ThreadPool.QueueUserWorkItem(_ => m_scheduler.RunOne());
+      await task;
+      Assert.AreNotEqual(INVALID_THREAD_ID, executingThreadId);
+      Assert.AreNotEqual(postThreadId, executingThreadId);
+    }
+
+    [TestMethod]
+    public async Task Post_When_Service_Thread_Task_Is_Queued()
+    {
+      const int INVALID_THREAD_ID = -1;
+
+      var executingThreadId = INVALID_THREAD_ID;
+      var dispatchThreadId = INVALID_THREAD_ID;
+
+      var task = m_scheduler.Dispatch(() =>
+      {
+        dispatchThreadId = Thread.CurrentThread.ManagedThreadId;
+        m_scheduler.Post(() => executingThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
+      });
+
+      ThreadPool.QueueUserWorkItem(_ => m_scheduler.RunOne());
+      m_scheduler.RunOne();
+      await task;
+      Assert.AreNotEqual(INVALID_THREAD_ID, dispatchThreadId);
+      Assert.AreNotEqual(INVALID_THREAD_ID, executingThreadId);
+      Assert.AreNotEqual(dispatchThreadId, executingThreadId);
+    }
 
     private void scheduleTaskAfterDelay(int? sleepMs = null)
     {
