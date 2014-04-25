@@ -6,7 +6,6 @@ namespace RStein.Async.Schedulers
 {
   public class ExternalProxyScheduler : TaskScheduler, IExternalProxyScheduler, IDisposable
   {
-
     private readonly ITaskScheduler m_realScheduler;
 
     public ExternalProxyScheduler(ITaskScheduler realScheduler)
@@ -34,7 +33,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        return m_realScheduler.MaximumconcurrencyLevel;
+        return m_realScheduler.MaximumConcurrencyLevel;
       }
     }
 

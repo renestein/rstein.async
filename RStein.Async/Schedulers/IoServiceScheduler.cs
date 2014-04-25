@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Schedulers
 {
-  public class IoServiceScheduler : ITaskScheduler, IDisposable
+  public class IoServiceScheduler : ITaskScheduler
   {
     public const int REQUIRED_WORK_CANCEL_TOKEN_VALUE = 1;
     public const int POLLONE_RUNONE_MAX_TASKS = 1;
@@ -33,7 +33,7 @@ namespace RStein.Async.Schedulers
       m_workCounter = 0;
     }
 
-    public int MaximumConcurrencyLevel
+    public virtual int MaximumConcurrencyLevel
     {
       get
       {
@@ -60,7 +60,7 @@ namespace RStein.Async.Schedulers
       if (action == null)
       {
         throw new ArgumentNullException("action");
-      }            
+      }
 
       var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, getTplScheduler());
       return task;
@@ -255,7 +255,7 @@ namespace RStein.Async.Schedulers
     public virtual void QueueTask(Task task)
     {
       m_tasks.Add(task);
-     
+
 
     }
 
@@ -276,7 +276,7 @@ namespace RStein.Async.Schedulers
       try
       {
         m_isServiceThreadFlags.Value.ExecutedOperationsCount++;
-        taskExecutedNow = m_proxyScheduler.DoTryExecuteTask(task);        
+        taskExecutedNow = m_proxyScheduler.DoTryExecuteTask(task);
       }
       finally
       {
@@ -294,13 +294,6 @@ namespace RStein.Async.Schedulers
       return m_tasks.ToArray();
     }
 
-    public int MaximumconcurrencyLevel
-    {
-      get
-      {
-        return Int32.MaxValue;
-      }
-    }
 
     public void SetProxyScheduler(IExternalProxyScheduler scheduler)
     {
