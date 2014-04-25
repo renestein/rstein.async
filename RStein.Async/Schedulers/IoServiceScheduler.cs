@@ -12,6 +12,7 @@ namespace RStein.Async.Schedulers
     public const int REQUIRED_WORK_CANCEL_TOKEN_VALUE = 1;
     public const int POLLONE_RUNONE_MAX_TASKS = 1;
     public const int UNLIMITED_MAX_TASKS = -1;
+    private const string PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE = "ProxyScheduler i already set and cconot be modified!";
 
     private readonly BlockingCollection<Task> m_tasks;
     private volatile int m_workCounter;
@@ -37,6 +38,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        checkIfDisposed();
         return Int32.MaxValue;
       }
     }
@@ -254,14 +256,15 @@ namespace RStein.Async.Schedulers
 
     public virtual void QueueTask(Task task)
     {
+      checkIfDisposed();
       m_tasks.Add(task);
-
 
     }
 
     public virtual bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
 
+      checkIfDisposed();
       if (!isInServiceThread())
       {
         return false;
@@ -291,18 +294,28 @@ namespace RStein.Async.Schedulers
 
     public virtual IEnumerable<Task> GetScheduledTasks()
     {
+      checkIfDisposed();
       return m_tasks.ToArray();
     }
 
 
     public void SetProxyScheduler(IExternalProxyScheduler scheduler)
     {
-      if (scheduler == null)
+      lock (m_serviceLockObject)
       {
-        throw new ArgumentNullException("scheduler");
-      }
+        checkIfDisposed();
+        if (scheduler == null)
+        {
+          throw new ArgumentNullException("scheduler");
+        }
+      
+        if (m_proxyScheduler != null)
+        {
+          throw new InvalidOperationException(PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE);
+        }
 
-      m_proxyScheduler = scheduler;
+        m_proxyScheduler = scheduler;
+      }
     }
 
     private int runTasks(CancellationToken cancellationToken, int maxTasks = UNLIMITED_MAX_TASKS)

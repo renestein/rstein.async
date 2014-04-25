@@ -10,7 +10,7 @@ namespace RStein.Async.Tests
 {
 
   [TestClass]
-  public class IoServiceSchedulerTests
+  public class IoServiceSchedulerTests : ITaskSchedulerTests
   {
     public IoServiceSchedulerTests()
     {
@@ -19,6 +19,15 @@ namespace RStein.Async.Tests
     private TestContext testContextInstance;
     private IoServiceScheduler m_scheduler;
     private ExternalProxyScheduler m_proxyScheduler;
+    
+    protected override ITaskScheduler Scheduler
+    {
+      get
+      {
+        return m_scheduler;
+      }
+    }
+
 
     public TestContext TestContext
     {
@@ -38,6 +47,7 @@ namespace RStein.Async.Tests
     {
       m_scheduler = new IoServiceScheduler();
       m_proxyScheduler = new ExternalProxyScheduler(m_scheduler);
+      
     }
 
 
@@ -49,7 +59,6 @@ namespace RStein.Async.Tests
       m_proxyScheduler = null;
 
     }
-
 
 
     [TestMethod]
@@ -193,6 +202,7 @@ namespace RStein.Async.Tests
     }
 
     //Unsafe test
+
     [TestMethod]
     public void Run_When_Work_Exists_And_Zero_Tasks_Then_Method_Does_Not_Return()
     {
@@ -210,6 +220,7 @@ namespace RStein.Async.Tests
     }
 
     //Unsafe test
+
     [TestMethod]
     public void Run_When_Work_Canceled_And_Zero_Tasks_Then_Method_Returns_Immediately()
     {
@@ -352,7 +363,9 @@ namespace RStein.Async.Tests
       Assert.AreEqual(RUNNED_TASKS, executedTasksCount);
 
     }
+
     //Unsafe test
+
     [TestMethod]
     public void RunOne_When_Zero_Tasks_Then_Method_Does_Not_Return()
     {
@@ -370,6 +383,7 @@ namespace RStein.Async.Tests
     }
 
     //Unsafe test
+
     [TestMethod]
     public void RunOne_When_Work_Canceled_And_Zero_Tasks_Then_Method_Does_Not_Return()
     {
@@ -391,6 +405,7 @@ namespace RStein.Async.Tests
     }
 
     //Unsafe test
+
     [TestMethod]
     public void RunOne_When_Zero_Tasks_And_Scheduler_Disposed_Then_Method_Returns_Zero()
     {
@@ -491,6 +506,7 @@ namespace RStein.Async.Tests
 
 
     //Unsafe test
+
     [TestMethod]
     public void Poll_When_Work_Exists_And_Zero_Tasks_Then_Method_Return_Immediately()
     {
@@ -631,7 +647,9 @@ namespace RStein.Async.Tests
       Assert.AreEqual(RUNNED_TASKS, executedTasksCount);
 
     }
+
     //Unsafe test
+
     [TestMethod]
     public void PollOne_When_Zero_Tasks_Then_Method_Return_Immediately()
     {
@@ -856,15 +874,7 @@ namespace RStein.Async.Tests
                             {
                             });
 
-    }
-
-    [TestMethod]
-    public void Dispose_Repeated_Call_Does_Not_Throw()
-    {
-      m_scheduler.Dispose();
-      m_scheduler.Dispose();
-
-    }
+    }   
 
     [TestMethod]
     public async Task Run_When_Called_From_Multiple_Threads_Then_All_Tasks_Executed()
