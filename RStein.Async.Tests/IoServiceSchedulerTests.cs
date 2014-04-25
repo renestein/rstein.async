@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,6 +18,7 @@ namespace RStein.Async.Tests
 
     private TestContext testContextInstance;
     private IoServiceScheduler m_scheduler;
+    private ExternalProxyScheduler m_proxyScheduler;
 
     public TestContext TestContext
     {
@@ -37,13 +37,17 @@ namespace RStein.Async.Tests
     public void IoServiceSchedulerTestsInitialize()
     {
       m_scheduler = new IoServiceScheduler();
+      m_proxyScheduler = new ExternalProxyScheduler(m_scheduler);
     }
 
 
     [TestCleanup()]
     public void MyTestCleanup()
     {
+      m_proxyScheduler.Dispose();
       m_scheduler = null;
+      m_proxyScheduler = null;
+
     }
 
 

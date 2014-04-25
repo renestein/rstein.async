@@ -1,54 +1,54 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿//using System;
+//using System.Collections.Concurrent;
+//using System.Collections.Generic;
+//using System.Threading.Tasks;
 
-namespace RStein.Async.Schedulers
-{
-  public class StrandSchedulerDecorator : TaskScheduler
-  {
-    private const int MAX_CONCURRENCY = 1;
-    private readonly TaskScheduler m_originalScheduler;
+//namespace RStein.Async.Schedulers
+//{
+//  public class StrandSchedulerDecorator
+//  {
+//    private const int MAX_CONCURRENCY = 1;
+//    private readonly System.Threading.Tasks.TaskScheduler m_originalScheduler;
     
 
-    private ConcurrentQueue<Task> m_tasks;
+//    private ConcurrentQueue<Task> m_tasks;
 
-    public StrandSchedulerDecorator(TaskScheduler originalScheduler)
-    {
-      if (originalScheduler == null)
-      {
-        throw new ArgumentNullException("originalScheduler");
-      }
+//    public StrandSchedulerDecorator(System.Threading.Tasks.TaskScheduler originalScheduler)
+//    {
+//      if (originalScheduler == null)
+//      {
+//        throw new ArgumentNullException("originalScheduler");
+//      }
       
-      m_originalScheduler = originalScheduler;
-      m_tasks = new ConcurrentQueue<Task>();      
-    }
+//      m_originalScheduler = originalScheduler;
+//      m_tasks = new ConcurrentQueue<Task>();      
+//    }
 
-    public override int MaximumConcurrencyLevel
-    {
-      get
-      {
-        return MAX_CONCURRENCY;
-      }
-    }
+//    public virtual int MaximumConcurrencyLevel
+//    {
+//      get
+//      {
+//        return MAX_CONCURRENCY;
+//      }
+//    }
 
 
-    protected override void QueueTask(Task task)
-    {
-      m_tasks.Enqueue(task);
-    }
+//    public override void QueueTask(Task task)
+//    {
+//      m_tasks.Enqueue(task);
+//    }
 
-    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-    {
-      m_tasks.Enqueue(task);
-      return false;
+//    public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+//    {
+//      m_tasks.Enqueue(task);
+//      return false;
 
-    }
-    
+//    }
 
-    protected override IEnumerable<Task> GetScheduledTasks()
-    {
-      return m_tasks.ToArray();
-    }
-  }
-}
+
+//    public override IEnumerable<Task> GetScheduledTasks()
+//    {
+//      return m_tasks.ToArray();
+//    }
+//  }
+//}

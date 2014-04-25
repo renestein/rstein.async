@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Schedulers
 {
-  public class IoServiceScheduler : TaskScheduler, IDisposable
+  public class IoServiceScheduler : ITaskScheduler, IDisposable
   {
     public const int REQUIRED_WORK_CANCEL_TOKEN_VALUE = 1;
     public const int POLLONE_RUNONE_MAX_TASKS = 1;
@@ -21,6 +21,7 @@ namespace RStein.Async.Schedulers
     private readonly CancellationTokenSource m_stopCancelTokenSource;
     private CancellationTokenSource m_workCancelTokenSource;
     private volatile bool m_isDisposed;
+    private IExternalProxyScheduler m_proxyScheduler;
 
     public IoServiceScheduler()
     {
@@ -30,6 +31,14 @@ namespace RStein.Async.Schedulers
       m_workLockObject = new object();
       m_serviceLockObject = new object();
       m_workCounter = 0;
+    }
+
+    public int MaximumConcurrencyLevel
+    {
+      get
+      {
+        return Int32.MaxValue;
+      }
     }
 
     public virtual int Run()
@@ -51,10 +60,9 @@ namespace RStein.Async.Schedulers
       if (action == null)
       {
         throw new ArgumentNullException("action");
-      }
+      }            
 
-      var task = new Task(action);
-      task.Start(this);
+      var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, getTplScheduler());
       return task;
     }
 
@@ -158,6 +166,12 @@ namespace RStein.Async.Schedulers
       handleWorkAdded(work);
     }
 
+    private TaskScheduler getTplScheduler()
+    {
+      Debug.Assert(m_proxyScheduler != null);
+      return m_proxyScheduler as TaskScheduler;
+    }
+
     private bool isInServiceThread()
     {
       return m_isServiceThreadFlags.Value.IsServiceThread;
@@ -169,9 +183,9 @@ namespace RStein.Async.Schedulers
       handleWorkCanceled(cancelNow: true);
     }
 
-    private void setAllCurrentThreadAsServiceFlags(int maxTasks)
+    private void setCurrentThreadAsServiceAllFlags(int maxTasks)
     {
-      resetAllThreadAsServiceFlags();
+      resetThreadAsServiceAllFlags();
       setThreadAsServiceFlag();
       m_isServiceThreadFlags.Value.MaxOperationsAllowed = maxTasks;
     }
@@ -181,7 +195,7 @@ namespace RStein.Async.Schedulers
       m_isServiceThreadFlags.Value.IsServiceThread = true;
     }
 
-    private void resetAllThreadAsServiceFlags()
+    private void resetThreadAsServiceAllFlags()
     {
       m_isServiceThreadFlags.Value.ResetData();
     }
@@ -238,13 +252,14 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    protected override void QueueTask(Task task)
+    public virtual void QueueTask(Task task)
     {
       m_tasks.Add(task);
+     
 
     }
 
-    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+    public virtual bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
 
       if (!isInServiceThread())
@@ -261,8 +276,7 @@ namespace RStein.Async.Schedulers
       try
       {
         m_isServiceThreadFlags.Value.ExecutedOperationsCount++;
-        taskExecutedNow = TryExecuteTask(task);
-        
+        taskExecutedNow = m_proxyScheduler.DoTryExecuteTask(task);        
       }
       finally
       {
@@ -275,22 +289,40 @@ namespace RStein.Async.Schedulers
       return taskExecutedNow;
     }
 
-    protected override IEnumerable<Task> GetScheduledTasks()
+    public virtual IEnumerable<Task> GetScheduledTasks()
     {
       return m_tasks.ToArray();
+    }
+
+    public int MaximumconcurrencyLevel
+    {
+      get
+      {
+        return Int32.MaxValue;
+      }
+    }
+
+    public void SetProxyScheduler(IExternalProxyScheduler scheduler)
+    {
+      if (scheduler == null)
+      {
+        throw new ArgumentNullException("scheduler");
+      }
+
+      m_proxyScheduler = scheduler;
     }
 
     private int runTasks(CancellationToken cancellationToken, int maxTasks = UNLIMITED_MAX_TASKS)
     {
       try
       {
-        setAllCurrentThreadAsServiceFlags(maxTasks);
+        setCurrentThreadAsServiceAllFlags(maxTasks);
         return runTasksCore(cancellationToken);
       }
       finally
       {
 
-        resetAllThreadAsServiceFlags();
+        resetThreadAsServiceAllFlags();
       }
     }
 
