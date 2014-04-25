@@ -9,22 +9,21 @@ namespace RStein.Async.Schedulers
 {
   public class IoServiceThreadPoolScheduler : ITaskScheduler
   {
-    private readonly IoServiceScheduler m_innerScheduler;
+    private readonly IoServiceScheduler m_ioService;
     private IEnumerable<Thread> m_threads;
     private readonly Work m_ioServiceWork;
-    private IExternalProxyScheduler m_proxyScheduler;
 
-    public IoServiceThreadPoolScheduler(IoServiceScheduler innerScheduler, IExternalProxyScheduler proxyScheduler) 
-      : this(innerScheduler, Environment.ProcessorCount, proxyScheduler)
+    public IoServiceThreadPoolScheduler(IoServiceScheduler ioService) 
+      : this(ioService, Environment.ProcessorCount)
     {
      
     }
 
-    public IoServiceThreadPoolScheduler(IoServiceScheduler innerScheduler, int numberOfThreads, IExternalProxyScheduler proxyScheduler)
+    public IoServiceThreadPoolScheduler(IoServiceScheduler ioService, int numberOfThreads)
     {
-      if (innerScheduler == null)
+      if (ioService == null)
       {
-        throw new ArgumentNullException("innerScheduler");
+        throw new ArgumentNullException("ioService");
       }
       
       if (numberOfThreads < 1)
@@ -32,29 +31,28 @@ namespace RStein.Async.Schedulers
         throw  new ArgumentOutOfRangeException("numberOfThreads");
       }
 
-      m_innerScheduler = innerScheduler;
-      m_proxyScheduler = proxyScheduler;
-      m_ioServiceWork = new Work(m_innerScheduler);
+      m_ioService = ioService;
+      m_ioServiceWork = new Work(m_ioService);
       initThreads(numberOfThreads);
     }
 
 
     public virtual void QueueTask(Task task)
     {
-      m_innerScheduler.QueueTask(task);
+      m_ioService.QueueTask(task);
     }
 
-    public bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+    public virtual bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      return m_innerScheduler.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
+      return m_ioService.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
     }
 
-    public IEnumerable<Task> GetScheduledTasks()
+    public virtual IEnumerable<Task> GetScheduledTasks()
     {
-      return m_innerScheduler.GetScheduledTasks();
+      return m_ioService.GetScheduledTasks();
     }
 
-    public int MaximumConcurrencyLevel
+    public virtual int MaximumConcurrencyLevel
     {
       get
       {
@@ -63,9 +61,9 @@ namespace RStein.Async.Schedulers
       
     }
 
-    public void SetProxyScheduler(IExternalProxyScheduler scheduler)
+    public virtual void SetProxyScheduler(IExternalProxyScheduler scheduler)
     {
-      m_innerScheduler.SetProxyScheduler(scheduler);
+      m_ioService.SetProxyScheduler(scheduler);
     }
 
     public void Dispose()
@@ -84,7 +82,7 @@ namespace RStein.Async.Schedulers
                                            {
                                              try
                                              {
-                                               m_innerScheduler.Run();
+                                               m_ioService.Run();
                                              }
                                              catch (Exception ex)
                                              {
