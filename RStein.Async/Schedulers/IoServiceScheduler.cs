@@ -20,7 +20,7 @@ namespace RStein.Async.Schedulers
     private readonly CancellationTokenSource m_stopCancelTokenSource;
     private CancellationTokenSource m_workCancelTokenSource;
 
-    public IoServiceScheduler(bool isDisposed)
+    public IoServiceScheduler()
     {
       m_tasks = new BlockingCollection<Task>();
       m_isServiceThreadFlags = new ThreadLocal<IoSchedulerThreadServiceFlags>(() => new IoSchedulerThreadServiceFlags());

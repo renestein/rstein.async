@@ -60,7 +60,7 @@ namespace RStein.Async.Tests
     void SetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       Scheduler.Dispose();
-      Scheduler.SetProxyScheduler(null);
+      Scheduler.ProxyScheduler = null;
     }
 
     [TestMethod]
