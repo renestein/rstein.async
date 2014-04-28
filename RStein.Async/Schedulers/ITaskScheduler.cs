@@ -30,7 +30,7 @@ namespace RStein.Async.Schedulers
 
   public abstract class TaskSchedulerBase : ITaskScheduler
   {
-    private const string PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE = "ProxyScheduler i already set and cconot be modified!";
+    private const string PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE = "ProxyScheduler is already set and cconot be modified!";
 
     private bool m_disposed;
     private readonly object m_serviceLockObject;

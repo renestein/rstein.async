@@ -24,7 +24,7 @@ namespace RStein.Async.Schedulers
       return TryExecuteTask(task);
     }
 
-    public TaskScheduler AsRealScheduler()
+    public virtual TaskScheduler AsRealScheduler()
     {
       return this;
     }

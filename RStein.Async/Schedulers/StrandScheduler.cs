@@ -22,7 +22,8 @@ namespace RStein.Async.Schedulers
     private const int MAX_CONCURRENCY_IN_STRAND = 1;
     private readonly ITaskScheduler m_originalScheduler;
     private readonly ThreadSafeSwitch m_canExecuteTaskSwitch;
-    private ConcurrentQueue<Task> m_tasks;
+    private readonly ConcurrentQueue<Task> m_tasks;
+
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
@@ -86,9 +87,10 @@ namespace RStein.Async.Schedulers
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-
+      
       checkIfDisposed();
-      var tryAddTaskResult = TryAddTask(task, taskWasPreviouslyQueued);
+      
+      var tryAddTaskResult = tryProcessTask(task, taskWasPreviouslyQueued);
 
       if (tryAddTaskResult == TryAddTaskResult.Rejected)
       {
@@ -123,27 +125,26 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    private TryAddTaskResult TryAddTask(Task task, bool taskWasPreviouslyQueued)
+    private TryAddTaskResult tryProcessTask(Task task, bool taskWasPreviouslyQueued)
     {
 
-      if (isOriginalSchedulerInImplicitStrand())
-      {
+      var exceptionFromInnerTaskschedulerRaised = false;
+      var lockTaken = false;
 
-      }
-      bool exceptionFromInnerTaskschedulerRaised = false;
-      bool lockTaken = m_canExecuteTaskSwitch.TrySet();
-
-      if (!lockTaken)
+      if (!isOriginalSchedulerInImplicitStrand())
       {
-        return TryAddTaskResult.Rejected;
+        lockTaken = m_canExecuteTaskSwitch.TrySet();
+
+        if (!lockTaken)
+        {
+          return TryAddTaskResult.Rejected;
+        }
       }
 
       try
-      {
-        addTaskContinuationHandler(task, taskWasPreviouslyQueued);
-        bool taskExecutedInline = m_originalScheduler.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
-        return taskExecutedInline ? TryAddTaskResult.ExecutedInline : TryAddTaskResult.Added;
-
+      {        
+        addTaskContinuationHandler(task, taskWasPreviouslyQueued, lockTaken);
+        return executeTaskOnInnerScheduler(task, taskWasPreviouslyQueued);
       }
       catch (Exception ex)
       {
@@ -153,11 +154,17 @@ namespace RStein.Async.Schedulers
       }
       finally
       {
-        if (exceptionFromInnerTaskschedulerRaised)
+        if (exceptionFromInnerTaskschedulerRaised && lockTaken)
         {
           resetTaskLock();
         }
       }
+    }
+
+    private TryAddTaskResult executeTaskOnInnerScheduler(Task task, bool taskWasPreviouslyQueued)
+    {
+      bool taskExecutedInline = m_originalScheduler.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
+      return taskExecutedInline ? TryAddTaskResult.ExecutedInline : TryAddTaskResult.Added;
     }
 
     private bool isOriginalSchedulerInImplicitStrand()
@@ -165,7 +172,7 @@ namespace RStein.Async.Schedulers
       return (m_originalScheduler.MaximumConcurrencyLevel == MAX_CONCURRENCY_IN_STRAND);
     }
 
-    private void addTaskContinuationHandler(Task task, bool taskWasPreviouslyQueued)
+    private void addTaskContinuationHandler(Task task, bool taskWasPreviouslyQueued, bool withLock)
     {
       task.ContinueWith(previousTask =>
                         {
@@ -179,8 +186,13 @@ namespace RStein.Async.Schedulers
                           }
                           finally
                           {
-                            resetTaskLock();
+                            if (withLock)
+                            {
+                              resetTaskLock();
+                            }
+
                           }
+
                           tryExecuteNextTask();
                         });
     }
@@ -191,7 +203,7 @@ namespace RStein.Async.Schedulers
       bool result = m_tasks.TryDequeue(out task);
       Debug.Assert(result);
       Debug.Assert(ReferenceEquals(task, previousTask));
-    }
+    }   
 
     private void resetTaskLock()
     {

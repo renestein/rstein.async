@@ -15,7 +15,7 @@ namespace RStein.Async.Schedulers
 
     private readonly BlockingCollection<Task> m_tasks;
     private volatile int m_workCounter;
-    private readonly object m_workLockObject;    
+    private readonly object m_workLockObject;
     private readonly ThreadLocal<IoSchedulerThreadServiceFlags> m_isServiceThreadFlags;
     private readonly CancellationTokenSource m_stopCancelTokenSource;
     private CancellationTokenSource m_workCancelTokenSource;
@@ -25,7 +25,7 @@ namespace RStein.Async.Schedulers
       m_tasks = new BlockingCollection<Task>();
       m_isServiceThreadFlags = new ThreadLocal<IoSchedulerThreadServiceFlags>(() => new IoSchedulerThreadServiceFlags());
       m_stopCancelTokenSource = new CancellationTokenSource();
-      m_workLockObject = new object();      
+      m_workLockObject = new object();
       m_workCounter = 0;
     }
 
@@ -138,7 +138,7 @@ namespace RStein.Async.Schedulers
 
       handleWorkAdded(work);
     }
-    
+
 
     private bool isInServiceThread()
     {
@@ -264,7 +264,7 @@ namespace RStein.Async.Schedulers
       return m_tasks.ToArray();
     }
 
-    
+
     private int runTasks(CancellationToken cancellationToken, int maxTasks = UNLIMITED_MAX_TASKS)
     {
       try
