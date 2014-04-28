@@ -7,34 +7,29 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Schedulers
 {
-  public class IoServiceScheduler : ITaskScheduler
+  public class IoServiceScheduler : TaskSchedulerBase
   {
     public const int REQUIRED_WORK_CANCEL_TOKEN_VALUE = 1;
     public const int POLLONE_RUNONE_MAX_TASKS = 1;
     public const int UNLIMITED_MAX_TASKS = -1;
-    private const string PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE = "ProxyScheduler i already set and cconot be modified!";
 
     private readonly BlockingCollection<Task> m_tasks;
     private volatile int m_workCounter;
-    private readonly object m_workLockObject;
-    private readonly object m_serviceLockObject;
+    private readonly object m_workLockObject;    
     private readonly ThreadLocal<IoSchedulerThreadServiceFlags> m_isServiceThreadFlags;
     private readonly CancellationTokenSource m_stopCancelTokenSource;
     private CancellationTokenSource m_workCancelTokenSource;
-    private volatile bool m_isDisposed;
-    private IExternalProxyScheduler m_proxyScheduler;
 
-    public IoServiceScheduler()
+    public IoServiceScheduler(bool isDisposed)
     {
       m_tasks = new BlockingCollection<Task>();
       m_isServiceThreadFlags = new ThreadLocal<IoSchedulerThreadServiceFlags>(() => new IoSchedulerThreadServiceFlags());
       m_stopCancelTokenSource = new CancellationTokenSource();
-      m_workLockObject = new object();
-      m_serviceLockObject = new object();
+      m_workLockObject = new object();      
       m_workCounter = 0;
     }
 
-    public virtual int MaximumConcurrencyLevel
+    public override int MaximumConcurrencyLevel
     {
       get
       {
@@ -64,7 +59,7 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("action");
       }
 
-      var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, getTplScheduler());
+      var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
       return task;
     }
 
@@ -126,31 +121,7 @@ namespace RStein.Async.Schedulers
     }
 
 
-    public void Dispose()
-    {
-      lock (m_serviceLockObject)
-      {
-        if (m_isDisposed)
-        {
-          return;
-        }
-
-        try
-        {
-          Dispose(true);
-          m_isDisposed = true;
-
-        }
-        catch (Exception ex)
-        {
-          Trace.WriteLine(ex);
-        }
-
-      }
-
-    }
-
-    protected virtual void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
       if (disposing)
       {
@@ -167,12 +138,7 @@ namespace RStein.Async.Schedulers
 
       handleWorkAdded(work);
     }
-
-    private TaskScheduler getTplScheduler()
-    {
-      Debug.Assert(m_proxyScheduler != null);
-      return m_proxyScheduler as TaskScheduler;
-    }
+    
 
     private bool isInServiceThread()
     {
@@ -254,14 +220,14 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public virtual void QueueTask(Task task)
+    public override void QueueTask(Task task)
     {
       checkIfDisposed();
       m_tasks.Add(task);
 
     }
 
-    public virtual bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+    public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
 
       checkIfDisposed();
@@ -279,7 +245,7 @@ namespace RStein.Async.Schedulers
       try
       {
         m_isServiceThreadFlags.Value.ExecutedOperationsCount++;
-        taskExecutedNow = m_proxyScheduler.DoTryExecuteTask(task);
+        taskExecutedNow = ProxyScheduler.DoTryExecuteTask(task);
       }
       finally
       {
@@ -292,32 +258,13 @@ namespace RStein.Async.Schedulers
       return taskExecutedNow;
     }
 
-    public virtual IEnumerable<Task> GetScheduledTasks()
+    public override IEnumerable<Task> GetScheduledTasks()
     {
       checkIfDisposed();
       return m_tasks.ToArray();
     }
 
-
-    public void SetProxyScheduler(IExternalProxyScheduler scheduler)
-    {
-      lock (m_serviceLockObject)
-      {
-        checkIfDisposed();
-        if (scheduler == null)
-        {
-          throw new ArgumentNullException("scheduler");
-        }
-      
-        if (m_proxyScheduler != null)
-        {
-          throw new InvalidOperationException(PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE);
-        }
-
-        m_proxyScheduler = scheduler;
-      }
-    }
-
+    
     private int runTasks(CancellationToken cancellationToken, int maxTasks = UNLIMITED_MAX_TASKS)
     {
       try
@@ -427,14 +374,6 @@ namespace RStein.Async.Schedulers
     private CancellationToken withoutCancelToken()
     {
       return CancellationToken.None;
-    }
-
-    private void checkIfDisposed()
-    {
-      if (m_isDisposed)
-      {
-        throw new ObjectDisposedException(GetType().FullName);
-      }
     }
   }
 }

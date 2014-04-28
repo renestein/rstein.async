@@ -16,12 +16,17 @@ namespace RStein.Async.Schedulers
       }
 
       m_realScheduler = realScheduler;
-      m_realScheduler.SetProxyScheduler(this);
+      m_realScheduler.ProxyScheduler = this;
     }
 
     public virtual bool DoTryExecuteTask(Task task)
     {
       return TryExecuteTask(task);
+    }
+
+    public TaskScheduler AsRealScheduler()
+    {
+      return this;
     }
 
     public void Dispose()

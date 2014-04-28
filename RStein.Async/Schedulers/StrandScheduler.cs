@@ -2,12 +2,13 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.Threading;
 
 namespace RStein.Async.Schedulers
 {
-  public class StrandSchedulerDecorator : ITaskScheduler
+  public class StrandSchedulerDecorator : TaskSchedulerBase
   {
     [Flags]
     private enum TryAddTaskResult
@@ -20,8 +21,7 @@ namespace RStein.Async.Schedulers
 
     private const int MAX_CONCURRENCY_IN_STRAND = 1;
     private readonly ITaskScheduler m_originalScheduler;
-    private ThreadSafeSwitch m_canExecuteTaskSwitch;
-
+    private readonly ThreadSafeSwitch m_canExecuteTaskSwitch;
     private ConcurrentQueue<Task> m_tasks;
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
@@ -38,27 +38,56 @@ namespace RStein.Async.Schedulers
 
     }
 
-    public virtual int MaximumConcurrencyLevel
+    public override int MaximumConcurrencyLevel
     {
       get
       {
+        checkIfDisposed();
         return MAX_CONCURRENCY_IN_STRAND;
       }
     }
-    public void SetProxyScheduler(IExternalProxyScheduler scheduler)
-    {
-      m_originalScheduler.SetProxyScheduler(scheduler);
 
+    public override IExternalProxyScheduler ProxyScheduler
+    {
+      get
+      {
+        checkIfDisposed();
+        return base.ProxyScheduler;
+      }
+      set
+      {
+        checkIfDisposed();
+        m_originalScheduler.ProxyScheduler = value;
+        base.ProxyScheduler = value;
+      }
     }
 
-    public virtual void QueueTask(Task task)
+    public virtual Task Dispatch(Action action)
     {
+      checkIfDisposed();
+      var myTask = new Task(action);
+      Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+      return myTask;
+    }
+
+    public virtual Task Post(Action action)
+    {
+      checkIfDisposed();
+      var task = Dispatch(action);
+      return task;
+    }
+
+    public override void QueueTask(Task task)
+    {
+      checkIfDisposed();
       m_tasks.Enqueue(task);
       tryExecuteNextTask();
     }
 
-    public virtual bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+    public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
+
+      checkIfDisposed();
       var tryAddTaskResult = TryAddTask(task, taskWasPreviouslyQueued);
 
       if (tryAddTaskResult == TryAddTaskResult.Rejected)
@@ -80,14 +109,18 @@ namespace RStein.Async.Schedulers
 
     }
 
-    public virtual IEnumerable<Task> GetScheduledTasks()
+    public override IEnumerable<Task> GetScheduledTasks()
     {
+      checkIfDisposed();
       return m_tasks.ToArray();
     }
 
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-      throw new NotImplementedException();
+      if (disposing)
+      {
+        Post(() => Trace.WriteLine("Running dispose task")).Wait();
+      }
     }
 
     private TryAddTaskResult TryAddTask(Task task, bool taskWasPreviouslyQueued)
@@ -120,8 +153,7 @@ namespace RStein.Async.Schedulers
       }
       finally
       {
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-        if (lockTaken && exceptionFromInnerTaskschedulerRaised)
+        if (exceptionFromInnerTaskschedulerRaised)
         {
           resetTaskLock();
         }
@@ -148,17 +180,17 @@ namespace RStein.Async.Schedulers
                           finally
                           {
                             resetTaskLock();
-                          }                          
+                          }
                           tryExecuteNextTask();
                         });
     }
 
     private void popQueuedTask(Task previousTask)
     {
-      Task task = null;
+      Task task;
       bool result = m_tasks.TryDequeue(out task);
       Debug.Assert(result);
-      Debug.Assert(Object.ReferenceEquals(task, previousTask));
+      Debug.Assert(ReferenceEquals(task, previousTask));
     }
 
     private void resetTaskLock()
