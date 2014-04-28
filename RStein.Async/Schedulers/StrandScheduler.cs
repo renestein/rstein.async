@@ -18,7 +18,7 @@ namespace RStein.Async.Schedulers
       Rejected = 4
     }
 
-    private const int MAX_CONCURRENCY = 1;
+    private const int MAX_CONCURRENCY_IN_STRAND = 1;
     private readonly ITaskScheduler m_originalScheduler;
     private ThreadSafeSwitch m_canExecuteTaskSwitch;
 
@@ -42,7 +42,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        return MAX_CONCURRENCY;
+        return MAX_CONCURRENCY_IN_STRAND;
       }
     }
     public void SetProxyScheduler(IExternalProxyScheduler scheduler)
@@ -92,6 +92,11 @@ namespace RStein.Async.Schedulers
 
     private TryAddTaskResult TryAddTask(Task task, bool taskWasPreviouslyQueued)
     {
+
+      if (isOriginalSchedulerInImplicitStrand())
+      {
+
+      }
       bool exceptionFromInnerTaskschedulerRaised = false;
       bool lockTaken = m_canExecuteTaskSwitch.TrySet();
 
@@ -121,19 +126,29 @@ namespace RStein.Async.Schedulers
           resetTaskLock();
         }
       }
+    }
 
-      return TryAddTaskResult.Rejected;
+    private bool isOriginalSchedulerInImplicitStrand()
+    {
+      return (m_originalScheduler.MaximumConcurrencyLevel == MAX_CONCURRENCY_IN_STRAND);
     }
 
     private void addTaskContinuationHandler(Task task, bool taskWasPreviouslyQueued)
     {
       task.ContinueWith(previousTask =>
                         {
-                          if (taskWasPreviouslyQueued)
+                          try
                           {
-                            popQueuedTask(previousTask);
+
+                            if (taskWasPreviouslyQueued)
+                            {
+                              popQueuedTask(previousTask);
+                            }
                           }
-                          resetTaskLock();
+                          finally
+                          {
+                            resetTaskLock();
+                          }                          
                           tryExecuteNextTask();
                         });
     }
