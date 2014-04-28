@@ -10,7 +10,7 @@ namespace RStein.Async.Schedulers
   public class IoServiceThreadPoolScheduler : ITaskScheduler
   {
     private const int EXPECTED_MIMINUM_THREADS = 1;
-    private readonly IoServiceScheduler m_ioService;
+    private readonly IoServiceScheduler m_ioService;    
 
     private List<Thread> m_threads;
     private readonly Work m_ioServiceWork;

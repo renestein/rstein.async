@@ -9,7 +9,7 @@ namespace RStein.Async.Schedulers
     void QueueTask(Task task);
     bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued);
     IEnumerable<Task> GetScheduledTasks();
-    int MaximumConcurrencyLevel{get;}
+    int MaximumConcurrencyLevel {get;}
     void SetProxyScheduler(IExternalProxyScheduler scheduler);
   }
 }

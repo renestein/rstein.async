@@ -653,11 +653,9 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void PollOne_When_Zero_Tasks_Then_Method_Return_Immediately()
     {
-      const int EXPECTED_ZERO_TASKS = 0;
-      const double RUN_MIN_DURATION_S = 2.0;
+      const int EXPECTED_ZERO_TASKS = 0;      
 
       var executedTasks = m_scheduler.PollOne();
-
 
       Assert.AreEqual(EXPECTED_ZERO_TASKS, executedTasks);
 
