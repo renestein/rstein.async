@@ -274,7 +274,6 @@ namespace RStein.Async.Schedulers
       }
       finally
       {
-
         resetThreadAsServiceAllFlags();
       }
     }

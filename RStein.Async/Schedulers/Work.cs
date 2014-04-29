@@ -5,7 +5,7 @@ namespace RStein.Async.Schedulers
 {
   public sealed class Work : IDisposable
   {
-    private CancellationTokenSource m_cancelTokenSource;
+    private readonly CancellationTokenSource m_cancelTokenSource;
 
     public Work(IoServiceScheduler scheduler)
     {

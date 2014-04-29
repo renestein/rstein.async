@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using RStein.Async.Tasks;
 using RStein.Async.Threading;
 
 namespace RStein.Async.Schedulers
@@ -23,7 +24,9 @@ namespace RStein.Async.Schedulers
     private readonly ITaskScheduler m_originalScheduler;
     private readonly ThreadSafeSwitch m_canExecuteTaskSwitch;
     private readonly ConcurrentQueue<Task> m_tasks;
-
+    private readonly ThreadLocal<bool> m_postOnCallStack;
+    private CancellationTokenSource m_delayedTaskDequeueCts;
+    public int DelayedTasksDequeueMs = 1;
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
@@ -36,6 +39,8 @@ namespace RStein.Async.Schedulers
 
       m_tasks = new ConcurrentQueue<Task>();
       m_canExecuteTaskSwitch = new ThreadSafeSwitch();
+      m_postOnCallStack = new ThreadLocal<bool>(() => false);
+      m_delayedTaskDequeueCts = new CancellationTokenSource();
 
     }
 
@@ -66,30 +71,67 @@ namespace RStein.Async.Schedulers
     public virtual Task Dispatch(Action action)
     {
       checkIfDisposed();
-      var myTask = new Task(action);
-      Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
-      return myTask;
+
+      if (isCurrentThreadInThisStrand())
+      {
+        return TaskEx.TaskFromSynchronnousAction(action);
+      }
+
+      return Post(action);
     }
 
     public virtual Task Post(Action action)
     {
       checkIfDisposed();
-      var task = Dispatch(action);
-      return task;
+      try
+      {
+        setPostMethodContext();
+        return Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+      }
+      finally
+      {
+        resetPostMethodContext();
+      }
+
     }
+
+    public virtual bool RunningInThisThread()
+    {
+      return isCurrentThreadInThisStrand();
+    }
+
+    private void resetPostMethodContext()
+    {
+      m_postOnCallStack.Value = false;
+    }
+
 
     public override void QueueTask(Task task)
     {
       checkIfDisposed();
       m_tasks.Enqueue(task);
-      tryExecuteNextTask();
+
+      if (!isCurrentThreadInPostMethodContext())
+      {
+        tryExecuteNextTask();
+      }
+      else
+      {
+        Task.Delay(DelayedTasksDequeueMs, m_delayedTaskDequeueCts.Token)
+          .ContinueWith(_ => tryExecuteNextTask(), ProxyScheduler.AsRealScheduler());
+      }
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      
+
       checkIfDisposed();
-      
+
+      if (isCurrentThreadInPostMethodContext())
+      {
+        return false;
+      }
+
       var tryAddTaskResult = tryProcessTask(task, taskWasPreviouslyQueued);
 
       if (tryAddTaskResult == TryAddTaskResult.Rejected)
@@ -111,6 +153,16 @@ namespace RStein.Async.Schedulers
 
     }
 
+    public virtual Action Wrap(Action action)
+    {
+      return () => Dispatch(action);
+    }
+
+    public virtual Func<Task> WrapAsTask(Action action)
+    {
+      return () => Dispatch(action);
+    }
+
     public override IEnumerable<Task> GetScheduledTasks()
     {
       checkIfDisposed();
@@ -122,6 +174,7 @@ namespace RStein.Async.Schedulers
       if (disposing)
       {
         Post(() => Trace.WriteLine("Running dispose task")).Wait();
+        m_postOnCallStack.Dispose();
       }
     }
 
@@ -142,7 +195,7 @@ namespace RStein.Async.Schedulers
       }
 
       try
-      {        
+      {
         addTaskContinuationHandler(task, taskWasPreviouslyQueued, lockTaken);
         return executeTaskOnInnerScheduler(task, taskWasPreviouslyQueued);
       }
@@ -203,7 +256,7 @@ namespace RStein.Async.Schedulers
       bool result = m_tasks.TryDequeue(out task);
       Debug.Assert(result);
       Debug.Assert(ReferenceEquals(task, previousTask));
-    }   
+    }
 
     private void resetTaskLock()
     {
@@ -220,5 +273,27 @@ namespace RStein.Async.Schedulers
         TryExecuteTaskInline(nextTask, taskWasPreviouslyQueued: true);
       }
     }
+
+    private bool isCurrentThreadInThisStrand()
+    {
+      Task currentTask;
+      if (!m_tasks.TryDequeue(out currentTask))
+      {
+        return false;
+      }
+
+      return currentTask.Id == Task.CurrentId;
+    }
+
+    private void setPostMethodContext()
+    {
+      m_postOnCallStack.Value = true;
+    }
+
+    private bool isCurrentThreadInPostMethodContext()
+    {
+      return m_postOnCallStack.Value;
+    }
+
   }
 }

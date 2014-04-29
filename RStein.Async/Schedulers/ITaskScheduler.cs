@@ -120,7 +120,7 @@ namespace RStein.Async.Schedulers
     }
     public abstract void QueueTask(Task task);
     public abstract bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued);
-    public abstract IEnumerable<Task> GetScheduledTasks();    
+    public abstract IEnumerable<Task> GetScheduledTasks();
 
     protected abstract void Dispose(bool disposing);
 
