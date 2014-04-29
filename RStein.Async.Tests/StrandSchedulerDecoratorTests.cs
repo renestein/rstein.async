@@ -5,7 +5,7 @@ using RStein.Async.Schedulers;
 namespace RStein.Async.Tests
 {
   [TestClass]
-  public class StrandSchedulerTests : IAutonomousSchedulerTests
+  public class StrandSchedulerDecoratorTests : IAutonomousSchedulerTests
   {
     public const int NUMBER_OF_THREAD = 4;
     private ITaskScheduler m_strandScheduler;
