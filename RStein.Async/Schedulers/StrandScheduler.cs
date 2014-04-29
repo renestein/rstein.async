@@ -20,13 +20,14 @@ namespace RStein.Async.Schedulers
       Rejected = 4
     }
 
+    private const int DELAYED_TASKS_DEQUEUE_MS = 1;
     private const int MAX_CONCURRENCY_IN_STRAND = 1;
     private readonly ITaskScheduler m_originalScheduler;
     private readonly ThreadSafeSwitch m_canExecuteTaskSwitch;
     private readonly ConcurrentQueue<Task> m_tasks;
     private readonly ThreadLocal<bool> m_postOnCallStack;
-    private CancellationTokenSource m_delayedTaskDequeueCts;
-    public int DelayedTasksDequeueMs = 1;
+    private readonly CancellationTokenSource m_delayedTaskDequeueCts;
+    
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
@@ -117,7 +118,7 @@ namespace RStein.Async.Schedulers
       }
       else
       {
-        Task.Delay(DelayedTasksDequeueMs, m_delayedTaskDequeueCts.Token)
+        Task.Delay(DELAYED_TASKS_DEQUEUE_MS, m_delayedTaskDequeueCts.Token)
           .ContinueWith(_ => tryExecuteNextTask(), ProxyScheduler.AsRealScheduler());
       }
     }
