@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Itenso.TimePeriod">
+      <HintPath>..\packages\TimePeriodLibrary.NET.2.0.0\lib\net35\Desktop.Release\Itenso.TimePeriod.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -62,6 +65,9 @@
       <Project>{7761eb08-f0a0-4e93-9cdf-090e59f7ff2b}</Project>
       <Name>RStein.Async</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

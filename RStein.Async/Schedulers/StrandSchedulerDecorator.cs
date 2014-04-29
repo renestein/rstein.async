@@ -204,7 +204,7 @@ namespace RStein.Async.Schedulers
       try
       {
         addTaskContinuationHandler(task, taskWasPreviouslyQueued, lockTaken);
-        return executeTaskOnInnerScheduler(task, taskWasPreviouslyQueued);
+        return executeTaskOnInnerScheduler(task);
       }
       catch (Exception ex)
       {
@@ -236,7 +236,7 @@ namespace RStein.Async.Schedulers
 
     }
 
-    private TryAddTaskResult executeTaskOnInnerScheduler(Task task, bool taskWasPreviouslyQueued)
+    private TryAddTaskResult executeTaskOnInnerScheduler(Task task)
     {
       bool taskExecutedInline = m_originalScheduler.TryExecuteTaskInline(task, false);
 

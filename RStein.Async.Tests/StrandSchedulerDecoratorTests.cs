@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Itenso.TimePeriod;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RStein.Async.Misc;
 using RStein.Async.Schedulers;
@@ -56,43 +58,67 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task WithTaskFactory_When_Tasks_Added_All_Tasks_Executed_Sequentially()
+    public async Task WithTaskFactory_When_Tasks_Added_Then_All_Tasks_Executed_Sequentially()
     {
       const int numberOfTasks = 10;
       const int DEFAULT_THREAD_SLEEP = 200;
       var tasks = Enumerable.Range(0, numberOfTasks)
-                .Select(i => CurrentTaskFactory.StartNew(() =>
-                                                         {
-                                                           Thread.Sleep(DEFAULT_THREAD_SLEEP);
-                                                           return DateTime.Now;
-                                                         }))
-                .ToArray();
+        .Select(i => CurrentTaskFactory.StartNew(() =>
+                                                 {
+                                                   Thread.Sleep(DEFAULT_THREAD_SLEEP);
+                                                   return DateTime.Now;
+                                                 }))
+        .ToArray();
 
       await Task.WhenAll(tasks);
 
       var allTasksExecutedSequentially = tasks.Aggregate(
-                                              new
-                                              {
-                                                Result = true,
-                                                PreviousTask = (Task<DateTime>)null
-                                              },
-                                              (prevResult, currentTask) =>
-                                              {
-                                                if (!prevResult.Result)
-                                                {
-                                                  return prevResult;
-                                                }
+                                                         new
+                                                         {
+                                                           Result = true,
+                                                           PreviousTask = (Task<DateTime>)null
+                                                         },
+        (prevResult, currentTask) =>
+        {
+          if (!prevResult.Result)
+          {
+            return prevResult;
+          }
 
-                                                return new
-                                                       {
-                                                         Result = (prevResult.PreviousTask != null
-                                                           ? currentTask.Result > prevResult.PreviousTask.Result : prevResult.Result),
-                                                         PreviousTask = currentTask
-                                                       };
-                                              },
-                                              resultPair => resultPair.Result);
+          return new
+                 {
+                   Result = (prevResult.PreviousTask != null
+                     ? currentTask.Result > prevResult.PreviousTask.Result : prevResult.Result),
+                   PreviousTask = currentTask
+                 };
+        },
+        resultPair => resultPair.Result);
 
       Assert.IsTrue(allTasksExecutedSequentially);
+    }
+
+    [TestMethod]
+    public async Task WithTaskFactory_When_Tasks_Added_Then_Execution_Time_Of_The_Tasks_Does_Not_Intersect()
+    {
+      const int numberOfTasks = 1000;
+      const int DEFAULT_THREAD_SLEEP = 200;
+
+      var tasks = Enumerable.Range(0, numberOfTasks)
+        .Select(i => CurrentTaskFactory.StartNew(() =>
+                                                 {
+                                                   var startTime = DateTime.Now;
+                                                   var duration = StopWatchUtils.MeasureActionTime(() => Thread.Sleep(DEFAULT_THREAD_SLEEP));
+                                                   return new TimeRange(startTime, duration, isReadOnly: true);
+                                                 }))
+        .ToArray();
+
+      await Task.WhenAll(tasks);
+
+      var timeRanges = tasks.Select(task => task.Result);
+      var timePeriodCollection = new TimePeriodCollection(timeRanges);
+      var timePeriodIntersector = new TimePeriodIntersector<TimeRange>();
+      var intersectPeriods = timePeriodIntersector.IntersectPeriods(timePeriodCollection);
+      Assert.IsTrue(!intersectPeriods.Any());
     }
   }
 }
