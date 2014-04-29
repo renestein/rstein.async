@@ -203,7 +203,7 @@ namespace RStein.Async.Schedulers
 
       try
       {
-        addTaskContinuationHandler(task, taskWasPreviouslyQueued, lockTaken);
+        addTaskContinuation(task, taskWasPreviouslyQueued, lockTaken);
         return executeTaskOnInnerScheduler(task);
       }
       catch (Exception ex)
@@ -254,7 +254,7 @@ namespace RStein.Async.Schedulers
       return (m_originalScheduler.MaximumConcurrencyLevel == MAX_CONCURRENCY_IN_STRAND);
     }
 
-    private void addTaskContinuationHandler(Task task, bool taskWasPreviouslyQueued, bool withLock)
+    private void addTaskContinuation(Task task, bool taskWasPreviouslyQueued, bool withLock)
     {
       task.ContinueWith(previousTask =>
                         {
