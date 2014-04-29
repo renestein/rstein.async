@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.Tasks;
@@ -27,7 +28,7 @@ namespace RStein.Async.Schedulers
     private readonly ConcurrentQueue<Task> m_tasks;
     private readonly ThreadLocal<bool> m_postOnCallStack;
     private readonly CancellationTokenSource m_delayedTaskDequeueCts;
-
+    private readonly ConditionalWeakTable<Task, ThreadSafeSwitch> m_tasksAlreadyQueuedTable;
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
@@ -42,7 +43,7 @@ namespace RStein.Async.Schedulers
       m_canExecuteTaskSwitch = new ThreadSafeSwitch();
       m_postOnCallStack = new ThreadLocal<bool>(() => false);
       m_delayedTaskDequeueCts = new CancellationTokenSource();
-
+      m_tasksAlreadyQueuedTable = new ConditionalWeakTable<Task, ThreadSafeSwitch>();
     }
 
     public override int MaximumConcurrencyLevel
@@ -100,6 +101,13 @@ namespace RStein.Async.Schedulers
     public override void QueueTask(Task task)
     {
       checkIfDisposed();
+
+      if (taskAlreadyQueued(task))
+      {
+        return;
+      }
+
+
       m_tasks.Enqueue(task);
 
       if (!isCurrentThreadInPostMethodContext())
@@ -111,6 +119,13 @@ namespace RStein.Async.Schedulers
         Task.Delay(DELAYED_TASKS_DEQUEUE_MS, m_delayedTaskDequeueCts.Token)
           .ContinueWith(_ => tryExecuteNextTask(), TaskScheduler.Default);
       }
+    }
+
+    private bool taskAlreadyQueued(Task task)
+    {
+      ThreadSafeSwitch taskAlreadyQueued;
+      return m_tasksAlreadyQueuedTable.TryGetValue(task, out taskAlreadyQueued);
+
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
@@ -132,6 +147,7 @@ namespace RStein.Async.Schedulers
 
       if (tryAddTaskResult == TryAddTaskResult.Added)
       {
+        m_tasksAlreadyQueuedTable.GetOrCreateValue(task).TrySet();
         return false;
       }
 
