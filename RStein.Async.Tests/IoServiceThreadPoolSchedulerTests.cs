@@ -11,10 +11,10 @@ namespace RStein.Async.Tests
   public class IoServiceThreadPoolSchedulerTests : IAutonomousSchedulerTests
   {
     private IoServiceScheduler m_ioService;
-    private IoServiceThreadPoolScheduler m_threadPool;
+    private ITaskScheduler m_threadPool;
     private ExternalProxyScheduler m_externalScheduler;
-    
-    public override IExternalProxyScheduler ProxyScheduler
+
+    protected override IExternalProxyScheduler ProxyScheduler
     {
       get
       {
@@ -38,14 +38,14 @@ namespace RStein.Async.Tests
       m_externalScheduler = new ExternalProxyScheduler(m_threadPool);      
       base.InitializeTest();
     }
-  
-  
-    [TestCleanup]
-    public void IoServiceThreadPoolSchedulerTestsCleanup()
+
+
+    public override void CleanupTest()
     {
       m_threadPool.Dispose();
+      base.CleanupTest();
     }
-
+    
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
     public void Ctor_When_Io_Service_Is_Null_Then_Throws_ArgumentException()

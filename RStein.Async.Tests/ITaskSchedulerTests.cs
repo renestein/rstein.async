@@ -20,6 +20,17 @@ namespace RStein.Async.Tests
     }
 
 
+    [TestCleanup]
+    public void ITaskSchedulerTestsCleanup()
+    {
+      CleanupTest();
+    }
+
+    public virtual void CleanupTest()
+    {
+      Scheduler.Dispose();
+    }
+
     public virtual void InitializeTest()
     {
 

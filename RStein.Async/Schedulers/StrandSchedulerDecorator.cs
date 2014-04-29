@@ -83,17 +83,7 @@ namespace RStein.Async.Schedulers
 
     public virtual Task Post(Action action)
     {
-      checkIfDisposed();
-      try
-      {
-        setPostMethodContext();
-        return Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
-      }
-      finally
-      {
-        resetPostMethodContext();
-      }
-
+      return Post(action, SchedulerRunCanceledToken);
     }
 
     public virtual bool RunningInThisThread()
@@ -119,7 +109,7 @@ namespace RStein.Async.Schedulers
       else
       {
         Task.Delay(DELAYED_TASKS_DEQUEUE_MS, m_delayedTaskDequeueCts.Token)
-          .ContinueWith(_ => tryExecuteNextTask(), ProxyScheduler.AsRealScheduler());
+          .ContinueWith(_ => tryExecuteNextTask(), TaskScheduler.Default);
       }
     }
 
@@ -137,11 +127,6 @@ namespace RStein.Async.Schedulers
 
       if (tryAddTaskResult == TryAddTaskResult.Rejected)
       {
-        if (!taskWasPreviouslyQueued)
-        {
-          m_tasks.Enqueue(task);
-        }
-
         return false;
       }
 
@@ -174,13 +159,20 @@ namespace RStein.Async.Schedulers
     {
       if (disposing)
       {
-        Post(() => Trace.WriteLine("Running dispose task")).Wait();
+        Post(() =>
+             {
+               Trace.WriteLine("Running dispose task");
+               SchedulerRunCancellationTokenSource.Cancel();
+             }, CancellationToken.None).Wait();
+
         m_postOnCallStack.Dispose();
       }
     }
 
     private TryAddTaskResult tryProcessTask(Task task, bool taskWasPreviouslyQueued)
     {
+
+
 
       var exceptionFromInnerTaskschedulerRaised = false;
       var lockTaken = false;
@@ -215,10 +207,32 @@ namespace RStein.Async.Schedulers
       }
     }
 
+    private Task Post(Action action, CancellationToken cancelToken)
+    {
+      checkIfDisposed();
+      try
+      {
+        setPostMethodContext();
+        return Task.Factory.StartNew(action, cancelToken, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+      }
+      finally
+      {
+        resetPostMethodContext();
+      }
+
+    }
+
     private TryAddTaskResult executeTaskOnInnerScheduler(Task task, bool taskWasPreviouslyQueued)
     {
-      bool taskExecutedInline = m_originalScheduler.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
-      return taskExecutedInline ? TryAddTaskResult.ExecutedInline : TryAddTaskResult.Added;
+      bool taskExecutedInline = m_originalScheduler.TryExecuteTaskInline(task, false);
+
+      if (taskExecutedInline)
+      {
+        return TryAddTaskResult.ExecutedInline;
+      }
+
+      m_originalScheduler.QueueTask(task);
+      return TryAddTaskResult.Added;
     }
 
     private bool isOriginalSchedulerInImplicitStrand()
@@ -253,6 +267,8 @@ namespace RStein.Async.Schedulers
 
     private void popQueuedTask(Task previousTask)
     {
+
+
       Task task;
       bool result = m_tasks.TryDequeue(out task);
       Debug.Assert(result);
@@ -267,6 +283,7 @@ namespace RStein.Async.Schedulers
 
     private void tryExecuteNextTask()
     {
+
       Task nextTask;
 
       if (m_tasks.TryPeek(out nextTask))

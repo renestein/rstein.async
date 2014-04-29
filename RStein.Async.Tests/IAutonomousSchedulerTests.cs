@@ -10,24 +10,24 @@ namespace RStein.Async.Tests
   public abstract class IAutonomousSchedulerTests : ITaskSchedulerTests
   {
 
-    private TaskFactory m_taskFactory;
+    private TaskFactory m_currentTaskFactory;
 
-    public abstract IExternalProxyScheduler ProxyScheduler
+    protected abstract IExternalProxyScheduler ProxyScheduler
     {
       get;
     }
 
-    public TaskFactory TaskFactory
+    public TaskFactory CurrentTaskFactory
     {
       get
       {
-        return m_taskFactory;
+        return m_currentTaskFactory;
       }
     }
     
     public override void InitializeTest()
     {
-      m_taskFactory = new TaskFactory(ProxyScheduler.AsRealScheduler());
+      m_currentTaskFactory = new TaskFactory(ProxyScheduler.AsRealScheduler());
       base.InitializeTest();
     }
 
@@ -36,7 +36,7 @@ namespace RStein.Async.Tests
     public async Task WithTaskFactory_When_One_Task_Is_Queued_Then_Task_is_Executed()
     {
       bool wasTaskExecuted = false;
-      await TaskFactory.StartNew(() => wasTaskExecuted = true);
+      await CurrentTaskFactory.StartNew(() => wasTaskExecuted = true);
 
       Assert.IsTrue(wasTaskExecuted);
 
@@ -50,7 +50,7 @@ namespace RStein.Async.Tests
       int numberOfTasksExecuted = 0;
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
-        .Select<int, Task<int>>(_ => TaskFactory.StartNew(() => Interlocked.Increment(ref numberOfTasksExecuted))).ToArray();
+        .Select(_ => CurrentTaskFactory.StartNew(() => Interlocked.Increment(ref numberOfTasksExecuted))).ToArray();
 
       await Task.WhenAll(tasks);
 
@@ -69,7 +69,7 @@ namespace RStein.Async.Tests
       var waitForSignalCts = new CancellationTokenSource();
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
-        .Select<int, Task<int>>(taskIndex => TaskFactory.StartNew(() =>
+        .Select(taskIndex => CurrentTaskFactory.StartNew(() =>
                                                     {
 
                                                       waitForSignalCts.Token.WaitHandle.WaitOne();

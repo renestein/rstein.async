@@ -40,7 +40,7 @@ namespace RStein.Async.Tests
         testContextInstance = value;
       }
     }
-    
+
     public override void InitializeTest()
     {
       m_scheduler = new IoServiceScheduler();
@@ -48,16 +48,12 @@ namespace RStein.Async.Tests
       base.InitializeTest();
     }
 
-  
-    [TestCleanup()]
-    public void MyTestCleanup()
+    public override void CleanupTest()
     {
+      m_scheduler.Dispose();
       m_proxyScheduler.Dispose();
-      m_scheduler = null;
-      m_proxyScheduler = null;
-
+      base.CleanupTest();
     }
-
 
     [TestMethod]
     public void Run_When_Zero_Tasks_Added_Then_Returns_Zero()
