@@ -46,7 +46,7 @@ namespace RStein.Async.Tests
     public async Task WithTaskFactory_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
     {
 
-      const int NUMBER_OF_TASKS = 1000;
+      const int NUMBER_OF_TASKS = 10000;
       int numberOfTasksExecuted = 0;
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)

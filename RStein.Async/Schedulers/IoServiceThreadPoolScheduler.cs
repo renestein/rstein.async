@@ -4,14 +4,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Server;
 
 namespace RStein.Async.Schedulers
 {
   public class IoServiceThreadPoolScheduler : TaskSchedulerBase
   {
+    public const string POOL_THREAD_NAME_FORMAT = "IoServiceThreadPoolSchedulerThread#{0}";
     private const int EXPECTED_MIMINUM_THREADS = 1;
-    private readonly IoServiceScheduler m_ioService;
 
+    private readonly IoServiceScheduler m_ioService;
     private List<Thread> m_threads;
     private readonly Work m_ioServiceWork;
 
@@ -100,18 +102,25 @@ namespace RStein.Async.Schedulers
     private void initThreads(int numberOfThreads)
     {
       m_threads = Enumerable.Range(0, numberOfThreads)
-        .Select(threadNumber => new Thread(() =>
-                                           {
-                                             try
-                                             {
-                                               m_ioService.Run();
-                                             }
-                                             catch (Exception ex)
-                                             {
-                                               Trace.WriteLine(ex);
-                                               Environment.FailFast(null, ex);
-                                             }
-                                           })).ToList();
+        .Select(threadNumber =>
+                {
+                  var poolThread = new Thread(() =>
+                                    {
+                                      try
+                                      {
+                                        m_ioService.Run();
+                                      }
+                                      catch (Exception ex)
+                                      {
+                                        Trace.WriteLine(ex);
+                                        Environment.FailFast(null, ex);
+                                      }
+                                    });
+
+                  poolThread.Name = String.Format(POOL_THREAD_NAME_FORMAT, threadNumber);
+                  return poolThread;
+
+                }).ToList();
 
       m_threads.ForEach(thread => thread.Start());
     }

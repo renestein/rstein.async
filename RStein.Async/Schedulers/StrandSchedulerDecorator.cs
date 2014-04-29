@@ -28,7 +28,7 @@ namespace RStein.Async.Schedulers
     private readonly ConcurrentQueue<Task> m_tasks;
     private readonly ThreadLocal<bool> m_postOnCallStack;
     private readonly CancellationTokenSource m_delayedTaskDequeueCts;
-    private readonly ConditionalWeakTable<Task, ThreadSafeSwitch> m_tasksAlreadyQueuedTable;
+    private readonly ConditionalWeakTable<Task, ThreadSafeSwitch> m_alreadyQueuedTasksTable;
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
@@ -43,7 +43,7 @@ namespace RStein.Async.Schedulers
       m_canExecuteTaskSwitch = new ThreadSafeSwitch();
       m_postOnCallStack = new ThreadLocal<bool>(() => false);
       m_delayedTaskDequeueCts = new CancellationTokenSource();
-      m_tasksAlreadyQueuedTable = new ConditionalWeakTable<Task, ThreadSafeSwitch>();
+      m_alreadyQueuedTasksTable = new ConditionalWeakTable<Task, ThreadSafeSwitch>();
     }
 
     public override int MaximumConcurrencyLevel
@@ -124,7 +124,7 @@ namespace RStein.Async.Schedulers
     private bool taskAlreadyQueued(Task task)
     {
       ThreadSafeSwitch taskAlreadyQueued;
-      return m_tasksAlreadyQueuedTable.TryGetValue(task, out taskAlreadyQueued);
+      return m_alreadyQueuedTasksTable.TryGetValue(task, out taskAlreadyQueued);
 
     }
 
@@ -133,7 +133,7 @@ namespace RStein.Async.Schedulers
 
       checkIfDisposed();
 
-      if (isCurrentThreadInPostMethodContext())
+      if (!taskWasPreviouslyQueued || isCurrentThreadInPostMethodContext())
       {
         return false;
       }
@@ -147,7 +147,7 @@ namespace RStein.Async.Schedulers
 
       if (tryAddTaskResult == TryAddTaskResult.Added)
       {
-        m_tasksAlreadyQueuedTable.GetOrCreateValue(task).TrySet();
+        m_alreadyQueuedTasksTable.GetOrCreateValue(task).TrySet();
         return false;
       }
 
