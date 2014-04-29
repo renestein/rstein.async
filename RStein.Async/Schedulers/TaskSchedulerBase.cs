@@ -21,6 +21,7 @@ namespace RStein.Async.Schedulers
       m_disposed = false;
       m_serviceLockObject = new Object();
       m_serviceCompletetcs = new TaskCompletionSource<object>();
+      m_schedulerCancellationTokenSource = new CancellationTokenSource();
     }
 
     protected object GetServiceLockObject

@@ -172,8 +172,6 @@ namespace RStein.Async.Schedulers
     private TryAddTaskResult tryProcessTask(Task task, bool taskWasPreviouslyQueued)
     {
 
-
-
       var exceptionFromInnerTaskschedulerRaised = false;
       var lockTaken = false;
 
@@ -267,8 +265,6 @@ namespace RStein.Async.Schedulers
 
     private void popQueuedTask(Task previousTask)
     {
-
-
       Task task;
       bool result = m_tasks.TryDequeue(out task);
       Debug.Assert(result);
@@ -283,7 +279,6 @@ namespace RStein.Async.Schedulers
 
     private void tryExecuteNextTask()
     {
-
       Task nextTask;
 
       if (m_tasks.TryPeek(out nextTask))

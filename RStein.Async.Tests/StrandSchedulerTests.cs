@@ -8,24 +8,26 @@ namespace RStein.Async.Tests
   public class StrandSchedulerTests : IAutonomousSchedulerTests
   {
     public const int NUMBER_OF_THREAD = 4;
-    private ITaskScheduler m_strandScheduler;    
+    private ITaskScheduler m_strandScheduler;
     private ExternalProxyScheduler m_externalScheduler;
+    private ITaskScheduler m_innerScheduler;
 
     public override void InitializeTest()
     {
-      m_strandScheduler = new StrandSchedulerDecorator(GetInnerScheduler());
-      m_externalScheduler = new ExternalProxyScheduler(m_strandScheduler);
+      m_innerScheduler = CreateInnerScheduler();
+      m_strandScheduler = new StrandSchedulerDecorator(m_innerScheduler);
+      m_externalScheduler = new ExternalProxyScheduler(m_strandScheduler);      
       base.InitializeTest();
     }
 
     public override void CleanupTest()
     {
       m_strandScheduler.Dispose();
-      GetInnerScheduler().Dispose();
+      m_innerScheduler.Dispose();
       base.CleanupTest();
     }
 
-    protected virtual ITaskScheduler GetInnerScheduler()
+    protected virtual ITaskScheduler CreateInnerScheduler()
     {
       var ioService = new IoServiceScheduler();
       return new IoServiceThreadPoolScheduler(ioService, NUMBER_OF_THREAD);
