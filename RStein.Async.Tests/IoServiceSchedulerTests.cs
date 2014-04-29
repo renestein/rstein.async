@@ -19,7 +19,7 @@ namespace RStein.Async.Tests
     private TestContext testContextInstance;
     private IoServiceScheduler m_scheduler;
     private ExternalProxyScheduler m_proxyScheduler;
-    
+
     protected override ITaskScheduler Scheduler
     {
       get
@@ -40,17 +40,15 @@ namespace RStein.Async.Tests
         testContextInstance = value;
       }
     }
-
-
-    [TestInitialize()]
-    public void IoServiceSchedulerTestsInitialize()
+    
+    public override void InitializeTest()
     {
       m_scheduler = new IoServiceScheduler();
       m_proxyScheduler = new ExternalProxyScheduler(m_scheduler);
-      
+      base.InitializeTest();
     }
 
-
+  
     [TestCleanup()]
     public void MyTestCleanup()
     {
@@ -653,13 +651,100 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void PollOne_When_Zero_Tasks_Then_Method_Return_Immediately()
     {
-      const int EXPECTED_ZERO_TASKS = 0;      
+      const int EXPECTED_ZERO_TASKS = 0;
 
       var executedTasks = m_scheduler.PollOne();
 
       Assert.AreEqual(EXPECTED_ZERO_TASKS, executedTasks);
 
     }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Run_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.Run();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void RunOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.RunOne();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Poll_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.Poll();
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void PollOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_scheduler.Dispose();
+      m_scheduler.PollOne();
+    }
+
+    [TestMethod]
+    public async Task Run_When_Called_From_Multiple_Threads_Then_All_Tasks_Executed()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 100;
+      const int DEFAULT_TASK_SLEEP = 100;
+      const int NUMBER_OF_WORKER_THREAD = 3;
+      var countDownEvent = new CountdownEvent(NUMBER_OF_WORKER_THREAD);
+
+      int executedTasks = 0;
+
+      var allTasks = Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS).Select(_ => m_scheduler.Post(() => Thread.Sleep(DEFAULT_TASK_SLEEP))).ToArray();
+
+      Enumerable.Range(0, NUMBER_OF_WORKER_THREAD).Select(_ => ThreadPool.QueueUserWorkItem(__ =>
+                                                                                            {
+                                                                                              int tasksExecutedInThisThread = m_scheduler.Run();
+                                                                                              Interlocked.Add(ref executedTasks, tasksExecutedInThisThread);
+                                                                                              countDownEvent.Signal();
+                                                                                            })).ToArray();
+
+      await Task.WhenAll(allTasks);
+      countDownEvent.Wait();
+
+      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasks);
+
+    }
+
+    private void scheduleTaskAfterDelay(int? sleepMs = null)
+    {
+
+      const int DEFAULT_SLEEP = 1000;
+      var sleepTime = sleepMs ?? DEFAULT_SLEEP;
+
+      ThreadPool.QueueUserWorkItem(_ =>
+                                   {
+                                     Thread.Sleep(sleepTime);
+                                     m_scheduler.Post(() =>
+                                     {
+                                     });
+                                   });
+    }
+
+
+    private void cancelWorkAfterTimeout(int? sleepMs = null)
+    {
+      const int DEFAULT_SLEEP = 1000;
+      var sleepTime = sleepMs ?? DEFAULT_SLEEP;
+      var work = new Work(m_scheduler);
+      ThreadPool.QueueUserWorkItem(_ =>
+                                   {
+                                     Thread.Sleep(sleepTime);
+                                     work.Dispose();
+                                   });
+    }
+
 
     [TestMethod]
     public async Task Dispatch_When_Non_Service_Thread_Then_Task_Is_Queued()
@@ -721,10 +806,10 @@ namespace RStein.Async.Tests
       var dispatchThreadId = INVALID_THREAD_ID;
 
       var task = m_scheduler.Dispatch(() =>
-      {
-        dispatchThreadId = Thread.CurrentThread.ManagedThreadId;
-        m_scheduler.Post(() => executingThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
-      });
+                                      {
+                                        dispatchThreadId = Thread.CurrentThread.ManagedThreadId;
+                                        m_scheduler.Post(() => executingThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
+                                      });
 
       ThreadPool.QueueUserWorkItem(_ => m_scheduler.RunOne());
       m_scheduler.RunOne();
@@ -776,16 +861,16 @@ namespace RStein.Async.Tests
       var wrapCallThread = Thread.CurrentThread.ManagedThreadId;
 
       var wrappedTaskFunc = m_scheduler.WrapAsTask(() =>
-      {
-        executingThreadId = Thread.CurrentThread.ManagedThreadId;
-      });
+                                                   {
+                                                     executingThreadId = Thread.CurrentThread.ManagedThreadId;
+                                                   });
 
 
       ThreadPool.QueueUserWorkItem(_ =>
-      {
-        runOneThreadId = Thread.CurrentThread.ManagedThreadId;
-        m_scheduler.RunOne();
-      });
+                                   {
+                                     runOneThreadId = Thread.CurrentThread.ManagedThreadId;
+                                     m_scheduler.RunOne();
+                                   });
 
       await wrappedTaskFunc();
 
@@ -798,44 +883,12 @@ namespace RStein.Async.Tests
 
     [TestMethod]
     [ExpectedException(typeof(ObjectDisposedException))]
-    public void Run_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
-    {
-      m_scheduler.Dispose();
-      m_scheduler.Run();
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
-    public void RunOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
-    {
-      m_scheduler.Dispose();
-      m_scheduler.RunOne();
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
-    public void Poll_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
-    {
-      m_scheduler.Dispose();
-      m_scheduler.Poll();
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
-    public void PollOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
-    {
-      m_scheduler.Dispose();
-      m_scheduler.PollOne();
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
     public void Dispatch_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
       m_scheduler.Dispatch(() =>
-                          {
-                          });
+                             {
+                             });
     }
 
     [TestMethod]
@@ -844,9 +897,9 @@ namespace RStein.Async.Tests
     {
       m_scheduler.Dispose();
       m_scheduler.Post(() =>
-                        {
+                         {
 
-                        });
+                         });
 
     }
 
@@ -857,9 +910,9 @@ namespace RStein.Async.Tests
 
       m_scheduler.Dispose();
       m_scheduler.Wrap(() =>
-                      {
+                         {
 
-                      });
+                         });
 
     }
 
@@ -869,63 +922,9 @@ namespace RStein.Async.Tests
     {
       m_scheduler.Dispose();
       m_scheduler.WrapAsTask(() =>
-                            {
-                            });
+                               {
+                               });
 
-    }   
-
-    [TestMethod]
-    public async Task Run_When_Called_From_Multiple_Threads_Then_All_Tasks_Executed()
-    {
-      const int NUMBER_OF_SCHEDULED_TASKS = 100;
-      const int DEFAULT_TASK_SLEEP = 100;
-      const int NUMBER_OF_WORKER_THREAD = 3;
-      var countDownEvent = new CountdownEvent(NUMBER_OF_WORKER_THREAD);
-
-      int executedTasks = 0;
-
-      var allTasks = Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS).Select(_ => m_scheduler.Post(()=>Thread.Sleep(DEFAULT_TASK_SLEEP))).ToArray();
-
-      Enumerable.Range(0, NUMBER_OF_WORKER_THREAD).Select(_ => ThreadPool.QueueUserWorkItem(__=>
-                                                                                            {
-                                                                                               int tasksExecutedInThisThread = m_scheduler.Run();
-                                                                                               Interlocked.Add(ref executedTasks, tasksExecutedInThisThread);
-                                                                                              countDownEvent.Signal();
-                                                                                            })).ToArray();
-
-      await Task.WhenAll(allTasks);
-      countDownEvent.Wait();
-
-      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasks);
-      
-    }
-
-    private void scheduleTaskAfterDelay(int? sleepMs = null)
-    {
-
-      const int DEFAULT_SLEEP = 1000;
-      var sleepTime = sleepMs ?? DEFAULT_SLEEP;
-
-      ThreadPool.QueueUserWorkItem(_ =>
-                                   {
-                                     Thread.Sleep(sleepTime);
-                                     m_scheduler.Post(() =>
-                                     {
-                                     });
-                                   });
-    }
-
-
-    private void cancelWorkAfterTimeout(int? sleepMs = null)
-    {
-      const int DEFAULT_SLEEP = 1000;
-      var sleepTime = sleepMs ?? DEFAULT_SLEEP;
-      var work = new Work(m_scheduler);
-      ThreadPool.QueueUserWorkItem(_ =>
-                                   {
-                                     Thread.Sleep(sleepTime);
-                                     work.Dispose();
-                                   });
     }
   }
 }

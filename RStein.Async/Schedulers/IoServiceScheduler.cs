@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Schedulers
 {
-  public class IoServiceScheduler : TaskSchedulerBase
+  public class IoServiceScheduler : TaskSchedulerBase, IAsioTaskService
   {
     public const int REQUIRED_WORK_CANCEL_TOKEN_VALUE = 1;
     public const int POLLONE_RUNONE_MAX_TASKS = 1;

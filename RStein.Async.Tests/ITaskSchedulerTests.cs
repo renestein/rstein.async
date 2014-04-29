@@ -12,9 +12,20 @@ namespace RStein.Async.Tests
     {
       get;
     }
+    
+    [TestInitialize]
+    public void ITaskSchedulerTestsInitialize()
+    {
+      InitializeTest();
+    }
 
 
-    [TestMethod]
+    public virtual void InitializeTest()
+    {
+
+    }
+    
+   [TestMethod]
     [ExpectedException(typeof(ObjectDisposedException))]
     public void QueueTask_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
@@ -62,6 +73,15 @@ namespace RStein.Async.Tests
       Scheduler.Dispose();
       Scheduler.ProxyScheduler = null;
     }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    void GetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      Scheduler.Dispose();
+      var proxyScheduler = Scheduler.ProxyScheduler;
+    }
+
 
     [TestMethod]
     public void Dispose_Repeated_Call_Does_Not_Throw()

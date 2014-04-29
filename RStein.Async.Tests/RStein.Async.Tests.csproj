@@ -50,6 +50,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="IAutonomousSchedulerTests.cs" />
     <Compile Include="IoServiceSchedulerTests.cs" />
     <Compile Include="ITaskSchedulerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

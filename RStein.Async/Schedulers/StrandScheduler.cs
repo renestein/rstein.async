@@ -9,7 +9,7 @@ using RStein.Async.Threading;
 
 namespace RStein.Async.Schedulers
 {
-  public class StrandSchedulerDecorator : TaskSchedulerBase
+  public class StrandSchedulerDecorator : TaskSchedulerBase, IAsioTaskService
   {
     [Flags]
     private enum TryAddTaskResult
@@ -27,7 +27,7 @@ namespace RStein.Async.Schedulers
     private readonly ConcurrentQueue<Task> m_tasks;
     private readonly ThreadLocal<bool> m_postOnCallStack;
     private readonly CancellationTokenSource m_delayedTaskDequeueCts;
-    
+
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
