@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
@@ -100,12 +101,14 @@ namespace RStein.Async.Tests
     [TestMethod]
     public async Task WithTaskFactory_When_Tasks_Added_Then_Execution_Time_Of_The_Tasks_Does_Not_Intersect()
     {
-      const int numberOfTasks = 1000;
+      const int numberOfTasks = 100;
       const int DEFAULT_THREAD_SLEEP = 200;
+      const int BEGIN_TASK_THREAD_SLEEP = 1;
 
       var tasks = Enumerable.Range(0, numberOfTasks)
         .Select(i => CurrentTaskFactory.StartNew(() =>
                                                  {
+                                                   Thread.Sleep(BEGIN_TASK_THREAD_SLEEP);
                                                    var startTime = DateTime.Now;
                                                    var duration = StopWatchUtils.MeasureActionTime(() => Thread.Sleep(DEFAULT_THREAD_SLEEP));
                                                    return new TimeRange(startTime, duration, isReadOnly: true);
@@ -119,6 +122,40 @@ namespace RStein.Async.Tests
       var timePeriodIntersector = new TimePeriodIntersector<TimeRange>();
       var intersectPeriods = timePeriodIntersector.IntersectPeriods(timePeriodCollection);
       Assert.IsTrue(!intersectPeriods.Any());
+    }
+
+    [TestMethod]
+    public async Task WithTaskFactory_When_Tasks_Added_And_Acquiring_DummyLock_Then_All_Tasks_Executed_Sequentially()
+    {
+      const int numberOfTasks = 100;
+      const int DEFAULT_THREAD_SLEEP = 2;
+      var lockRoot = new object();      
+
+      var tasks = Enumerable.Range(0, numberOfTasks)
+        .Select(i => CurrentTaskFactory.StartNew(() =>
+                                                 {                                                   
+                                                   bool lockTaken = false;
+                                                   Monitor.TryEnter(lockRoot, ref lockTaken);
+                                                   try
+                                                   {
+                                                     Thread.Sleep(DEFAULT_THREAD_SLEEP);
+                                                   }
+                                                   finally
+                                                   {
+                                                     if (lockTaken)
+                                                     {
+                                                       Monitor.Exit(lockRoot);
+                                                     }
+
+                                                   }
+                                                   return lockTaken;
+
+                                                 }))
+        .ToArray();
+
+      await Task.WhenAll(tasks);
+      bool executedSequentially = tasks.All(task => task.Result);
+      Assert.IsTrue(executedSequentially);
     }
   }
 }
