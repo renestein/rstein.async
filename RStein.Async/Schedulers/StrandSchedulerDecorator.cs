@@ -309,7 +309,7 @@ namespace RStein.Async.Schedulers
     private bool isCurrentThreadInThisStrand()
     {
       Task currentTask;
-      if (!m_tasks.TryDequeue(out currentTask))
+      if (!m_tasks.TryPeek(out currentTask))
       {
         return false;
       }
