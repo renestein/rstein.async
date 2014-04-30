@@ -123,10 +123,10 @@ namespace RStein.Async.Schedulers
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      return SafeTryExecuteTaskInline(task, taskWasPreviouslyQueued, callFromStrand: false);
+      return safeTryExecuteTaskInline(task, taskWasPreviouslyQueued, callFromStrand: false);
     }
 
-    private bool SafeTryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued, bool callFromStrand = false)
+    private bool safeTryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued, bool callFromStrand = false)
     {
       checkIfDisposed();
 
@@ -308,7 +308,7 @@ namespace RStein.Async.Schedulers
 
       if (m_tasks.TryPeek(out nextTask) && !taskAlreadyQueued(nextTask))
       {
-        SafeTryExecuteTaskInline(nextTask, taskWasPreviouslyQueued: true, callFromStrand: true);
+        safeTryExecuteTaskInline(nextTask, taskWasPreviouslyQueued: true, callFromStrand: true);
       }
     }
 
