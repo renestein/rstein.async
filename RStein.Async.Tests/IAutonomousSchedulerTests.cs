@@ -24,14 +24,14 @@ namespace RStein.Async.Tests
         return m_currentTaskFactory;
       }
     }
-    
+
     public override void InitializeTest()
     {
       m_currentTaskFactory = new TaskFactory(ProxyScheduler.AsRealScheduler());
       base.InitializeTest();
     }
 
-  
+
     [TestMethod]
     public async Task WithTaskFactory_When_One_Task_Is_Queued_Then_Task_is_Executed()
     {
@@ -84,6 +84,17 @@ namespace RStein.Async.Tests
 
       Assert.AreEqual(NUMBER_OF_TASKS, numberOfTasksExecuted);
 
+    }
+
+    [TestMethod]
+    public void  Dispose_Does_Not_Throw()
+    {
+
+      const int NUMBER_OF_TASKS = 1000;
+      const int DELAY_TASK_CAN_CONTINUE_SIGNAL_S = 1;
+      
+      Scheduler.Dispose();
+      
     }
   }
 }
