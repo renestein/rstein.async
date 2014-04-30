@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -275,9 +276,146 @@ namespace RStein.Async.Tests
       bool wasActionExecuted = false;
       var wrappedAction = m_strandScheduler.WrapAsTask(() => wasActionExecuted = true);
 
-      await wrappedAction();      
+      await wrappedAction();
 
       Assert.IsTrue(wasActionExecuted);
+    }
+
+    [TestMethod]
+    public async Task Post_When_Inside_Strand_Then_Ordering_Of_Post_Calls_Is_Maintained()
+    {
+      await postOrderingCommon(insideStrand: true, dispatchMethod: false);
+    }
+
+    [TestMethod]
+    public async Task Post_When_Outside_Strand_Then_Ordering_Of_Post_Calls_Is_Maintained()
+    {
+      await postOrderingCommon(insideStrand: false, dispatchMethod: false);
+    }
+
+    [TestMethod]
+    public async Task Dispatch_When_Outside_Strand_Then_Ordering_Of_Post_Calls_Is_Maintained()
+    {
+      await postOrderingCommon(insideStrand: false, dispatchMethod: true);
+    }
+
+    [TestMethod]
+    public async Task Dispatch_When_Outside_Strand_Then_Ordering_Of_Dispatch_First_Post_Second_Calls_Is_Maintained()
+    {
+      await dispatchPostOrderingCommon(dispatchFirst: true);
+    }
+
+    [TestMethod]
+    public async Task Dispatch_When_Outside_Strand_Then_Ordering_Of_Post_First_Dispatch_Second_Calls_Is_Maintained()
+    {
+      await dispatchPostOrderingCommon(dispatchFirst: false);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Dispatch_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_strandScheduler.Dispose();
+      m_strandScheduler.Dispatch(() =>
+      {
+      });
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Post_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_strandScheduler.Dispose();
+      m_strandScheduler.Post(() =>
+      {
+
+      });
+
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void Wrap_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+
+      m_strandScheduler.Dispose();
+      m_strandScheduler.Wrap(() =>
+      {
+
+      });
+
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void WrapAsTask_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_strandScheduler.Dispose();
+      m_strandScheduler.WrapAsTask(() =>
+      {
+      });
+
+    }
+    private async Task postOrderingCommon(bool insideStrand, bool dispatchMethod)
+    {
+      Task postTask1 = null;
+      Task postTask2 = null;
+
+      var outerTaskRunner = insideStrand
+        ? (Func<Action, Task>)CurrentTaskFactory.StartNew
+        : Task.Run;
+
+      var innerTaskRunner = dispatchMethod
+        ? (Func<Action, Task>)m_strandScheduler.Dispatch
+        : m_strandScheduler.Post;
+
+      var executedTasks = new ConcurrentQueue<int?>();
+
+      var outerTask = outerTaskRunner(() =>
+                                      {
+                                        postTask1 = innerTaskRunner(() => executedTasks.Enqueue(Task.CurrentId));
+                                        postTask2 = innerTaskRunner(() => executedTasks.Enqueue(Task.CurrentId));
+                                      });
+
+      await outerTask;
+      await Task.WhenAll(postTask1, postTask2);
+
+      int? firstCompletedTaskId;
+      int? secondCompletedTaskId;
+      executedTasks.TryDequeue(out firstCompletedTaskId);
+      executedTasks.TryDequeue(out secondCompletedTaskId);
+
+      Assert.AreEqual(postTask1.Id, firstCompletedTaskId);
+      Assert.AreEqual(postTask2.Id, secondCompletedTaskId);
+    }
+
+    private async Task dispatchPostOrderingCommon(bool dispatchFirst)
+    {
+      Task postTask1 = null;
+      Task postTask2 = null;
+      var executedTasks = new ConcurrentQueue<int?>();
+
+
+      var outerTask = Task.Run(() =>
+                               {
+                                 postTask1 = dispatchFirst ? m_strandScheduler.Dispatch(() => executedTasks.Enqueue(Task.CurrentId))
+                                             : m_strandScheduler.Post(() => executedTasks.Enqueue(Task.CurrentId));
+
+                                 postTask2 = dispatchFirst ? m_strandScheduler.Post(() => executedTasks.Enqueue(Task.CurrentId))
+                                   : m_strandScheduler.Dispatch(() => executedTasks.Enqueue(Task.CurrentId));
+
+                               });
+
+      await outerTask;
+      await Task.WhenAll(postTask1, postTask2);
+
+      int? firstCompletedTaskId;
+      int? secondCompletedTaskId;
+      executedTasks.TryDequeue(out firstCompletedTaskId);
+      executedTasks.TryDequeue(out secondCompletedTaskId);
+
+      Assert.AreEqual(postTask1.Id, firstCompletedTaskId);
+      Assert.AreEqual(postTask2.Id, secondCompletedTaskId);
     }
   }
 }

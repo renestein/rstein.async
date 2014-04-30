@@ -88,10 +88,7 @@ namespace RStein.Async.Tests
 
     [TestMethod]
     public void  Dispose_Does_Not_Throw()
-    {
-
-      const int NUMBER_OF_TASKS = 1000;
-      const int DELAY_TASK_CAN_CONTINUE_SIGNAL_S = 1;
+    {      
       
       Scheduler.Dispose();
       
