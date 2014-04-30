@@ -239,7 +239,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public void Wrap_When_Wrapped_Action_Is_Not_Manually_Invoked_Then_Original_Action_Does_Not_Execute()
+    public void Wrap_When_Wrapped_Action_Is_Not_Invoked_Then_Original_Action_Does_Not_Execute()
     {
       bool wasActionExecuted = false;
       var wrappedAction = m_strandScheduler.Wrap(() => wasActionExecuted = true);
@@ -252,8 +252,31 @@ namespace RStein.Async.Tests
     {
       bool wasActionExecuted = false;
       var wrappedAction = m_strandScheduler.Wrap(() => wasActionExecuted = true);
+
       wrappedAction();
+
       m_strandScheduler.Dispose();
+      Assert.IsTrue(wasActionExecuted);
+    }
+
+    [TestMethod]
+    public void WrapAsTask_When_Wrapped_Action_Is_Not_Invoked_Then_Original_Action_Does_Not_Execute()
+    {
+      bool wasActionExecuted = false;
+      var wrappedAction = m_strandScheduler.WrapAsTask(() => wasActionExecuted = true);
+
+      m_strandScheduler.Dispose();
+      Assert.IsFalse(wasActionExecuted);
+    }
+
+    [TestMethod]
+    public async Task WrapAsTask_When_Wrapped_Action_Is_Invoked_Then_Original_Action_Executed()
+    {
+      bool wasActionExecuted = false;
+      var wrappedAction = m_strandScheduler.WrapAsTask(() => wasActionExecuted = true);
+
+      await wrappedAction();      
+
       Assert.IsTrue(wasActionExecuted);
     }
   }
