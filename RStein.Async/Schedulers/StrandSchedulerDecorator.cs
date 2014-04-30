@@ -18,7 +18,8 @@ namespace RStein.Async.Schedulers
       None = 0,
       Added = 1,
       ExecutedInline = 2,
-      Rejected = 4
+      Rejected = 4,
+      AlreadyAdded = 8
     }
 
     private const int DELAYED_TASKS_DEQUEUE_MS = 1;
@@ -107,7 +108,6 @@ namespace RStein.Async.Schedulers
         return;
       }
 
-
       m_tasks.Enqueue(task);
 
       if (!isCurrentThreadInPostMethodContext())
@@ -145,14 +145,7 @@ namespace RStein.Async.Schedulers
         return false;
       }
 
-      if (tryAddTaskResult == TryAddTaskResult.Added)
-      {
-        m_alreadyQueuedTasksTable.GetOrCreateValue(task).TrySet();
-        return false;
-      }
-
-      return true;
-
+      return (tryAddTaskResult == TryAddTaskResult.ExecutedInline);
     }
 
     public virtual Action Wrap(Action action)
@@ -201,8 +194,18 @@ namespace RStein.Async.Schedulers
         }
       }
 
+
+      bool canExecuteTask = false;
+      
+
       try
       {
+        canExecuteTask = m_alreadyQueuedTasksTable.GetOrCreateValue(task).TrySet();
+        if (!canExecuteTask)
+        {
+          return TryAddTaskResult.AlreadyAdded;
+        }
+
         addTaskContinuation(task, taskWasPreviouslyQueued, lockTaken);
         return executeTaskOnInnerScheduler(task);
       }
@@ -214,7 +217,7 @@ namespace RStein.Async.Schedulers
       }
       finally
       {
-        if (exceptionFromInnerTaskschedulerRaised && lockTaken)
+        if ((exceptionFromInnerTaskschedulerRaised || !canExecuteTask) && lockTaken)
         {
           resetTaskLock();
         }
@@ -297,7 +300,7 @@ namespace RStein.Async.Schedulers
     {
       Task nextTask;
 
-      if (m_tasks.TryPeek(out nextTask))
+      if (m_tasks.TryPeek(out nextTask) && !taskAlreadyQueued(nextTask))
       {
         TryExecuteTaskInline(nextTask, taskWasPreviouslyQueued: true);
       }
