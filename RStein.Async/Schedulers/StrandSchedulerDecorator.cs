@@ -22,7 +22,7 @@ namespace RStein.Async.Schedulers
       AlreadyAdded = 8
     }
 
-    private const int DELAYED_TASKS_DEQUEUE_MS = 1;
+    private const int DELAYED_TASKS_DEQUEUE_MS = 0;
     private const int MAX_CONCURRENCY_IN_STRAND = 1;
     private readonly ITaskScheduler m_originalScheduler;
     private readonly ThreadSafeSwitch m_canExecuteTaskSwitch;
@@ -121,19 +121,16 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    private bool taskAlreadyQueued(Task task)
-    {
-      ThreadSafeSwitch taskAlreadyQueued;
-      return m_alreadyQueuedTasksTable.TryGetValue(task, out taskAlreadyQueued);
-
-    }
-
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
+      return SafeTryExecuteTaskInline(task, taskWasPreviouslyQueued, callFromStrand: false);
+    }
 
+    private bool SafeTryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued, bool callFromStrand = false)
+    {
       checkIfDisposed();
 
-      if (!taskWasPreviouslyQueued || isCurrentThreadInPostMethodContext())
+      if (!callFromStrand || !taskWasPreviouslyQueued || isCurrentThreadInPostMethodContext())
       {
         return false;
       }
@@ -148,6 +145,11 @@ namespace RStein.Async.Schedulers
       return (tryAddTaskResult == TryAddTaskResult.ExecutedInline);
     }
 
+    private bool taskAlreadyQueued(Task task)
+    {
+      ThreadSafeSwitch taskAlreadyQueued;
+      return m_alreadyQueuedTasksTable.TryGetValue(task, out taskAlreadyQueued);
+    }
     public virtual Action Wrap(Action action)
     {
       return () => Dispatch(action);
@@ -168,11 +170,13 @@ namespace RStein.Async.Schedulers
     {
       if (disposing)
       {
-        Post(() =>
+        var disposeTask = Post(() =>
              {
                Trace.WriteLine("Running dispose task");
                SchedulerRunCancellationTokenSource.Cancel();
-             }, CancellationToken.None).Wait();
+             }, CancellationToken.None);
+
+        disposeTask.Wait();
 
         m_postOnCallStack.Dispose();
       }
@@ -302,7 +306,7 @@ namespace RStein.Async.Schedulers
 
       if (m_tasks.TryPeek(out nextTask) && !taskAlreadyQueued(nextTask))
       {
-        TryExecuteTaskInline(nextTask, taskWasPreviouslyQueued: true);
+        SafeTryExecuteTaskInline(nextTask, taskWasPreviouslyQueued: true, callFromStrand: true);
       }
     }
 

@@ -13,6 +13,8 @@ namespace RStein.Async.Tests
   public class StrandSchedulerDecoratorTests : IAutonomousSchedulerTests
   {
     public const int NUMBER_OF_THREADS = 4;
+    private const int INVALID_TASK_ID = 0;
+    private const int INVALID_THREAD_ID = -1;
     private StrandSchedulerDecorator m_strandScheduler;
     private ExternalProxyScheduler m_externalScheduler;
     private ITaskScheduler m_innerScheduler;
@@ -99,7 +101,7 @@ namespace RStein.Async.Tests
     public async Task WithTaskFactory_When_Tasks_Added_Then_Execution_Time_Of_The_Tasks_Does_Not_Intersect()
     {
       const int NUMBER_OF_TASKS = 100;
-      const int DEFAULT_THREAD_SLEEP = 200;
+      const int DEFAULT_THREAD_SLEEP = 20;
       const int BEGIN_TASK_THREAD_SLEEP = 1;
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
@@ -156,22 +158,103 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task Dispatch_When_Called_From_Same_Strand_Action_Is_Executed_Inline()
+    public async Task Dispatch_When_Called_Inside_Strand_Action_Is_Executed_Inline()
     {
-      const int INVALID_THREAD_ID = -1;
       var originalTaskThreadId = INVALID_THREAD_ID;
       var inDispatchTaskThreadId = INVALID_THREAD_ID;
 
       var task = CurrentTaskFactory.StartNew(() =>
                                   {
-                                     originalTaskThreadId = Thread.CurrentThread.ManagedThreadId;
-                                     m_strandScheduler.Dispatch(() => inDispatchTaskThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
+                                    originalTaskThreadId = Thread.CurrentThread.ManagedThreadId;
+                                    m_strandScheduler.Dispatch(() => inDispatchTaskThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
                                   });
 
       await task;
       Assert.AreNotEqual(INVALID_THREAD_ID, originalTaskThreadId);
       Assert.AreNotEqual(INVALID_THREAD_ID, inDispatchTaskThreadId);
       Assert.AreEqual(originalTaskThreadId, originalTaskThreadId);
+    }
+
+    [TestMethod]
+    public async Task Dispatch_When_Called_Outside_Strand_Action_Is_Posted()
+    {
+      var originalTaskId = INVALID_TASK_ID;
+      var inDispatchTaskId = INVALID_TASK_ID;
+      Task innerTask = null;
+      var outerTask = Task.Run(() =>
+      {
+        originalTaskId = Task.CurrentId.Value;
+        innerTask = m_strandScheduler.Dispatch(() => inDispatchTaskId = Task.CurrentId.Value);
+      });
+
+      await outerTask;
+      await innerTask;
+
+      Assert.AreNotEqual(INVALID_TASK_ID, originalTaskId);
+      Assert.AreNotEqual(INVALID_TASK_ID, inDispatchTaskId);
+      Assert.AreNotEqual(originalTaskId, inDispatchTaskId);
+    }
+
+
+    [TestMethod]
+    public async Task Post_When_Called_Outside_Strand_Action_Is_Posted()
+    {
+      var originalTaskId = INVALID_TASK_ID;
+      var inDispatchTaskId = INVALID_TASK_ID;
+
+      Task innerTask = null;
+      var outerTask = Task.Run(() =>
+      {
+        originalTaskId = Task.CurrentId.Value;
+        innerTask = m_strandScheduler.Post(() => inDispatchTaskId = Task.CurrentId.Value);
+      });
+
+      await outerTask;
+      await innerTask;
+
+      Assert.AreNotEqual(INVALID_TASK_ID, originalTaskId);
+      Assert.AreNotEqual(INVALID_TASK_ID, inDispatchTaskId);
+      Assert.AreNotEqual(originalTaskId, inDispatchTaskId);
+    }
+
+    [TestMethod]
+    public async Task Post_When_Called_Inside_Strand_Action_Is_Posted()
+    {
+      var originalTaskId = INVALID_TASK_ID;
+      var inDispatchTaskId = INVALID_TASK_ID;
+
+      Task innerTask = null;
+      var outerTask = CurrentTaskFactory.StartNew(() =>
+      {
+        originalTaskId = Task.CurrentId.Value;
+        innerTask = m_strandScheduler.Post(() => inDispatchTaskId = Task.CurrentId.Value);
+      });
+
+      await outerTask;
+      await innerTask;
+
+      Assert.AreNotEqual(INVALID_TASK_ID, originalTaskId);
+      Assert.AreNotEqual(INVALID_TASK_ID, inDispatchTaskId);
+      Assert.AreNotEqual(originalTaskId, inDispatchTaskId);
+    }
+
+    [TestMethod]
+    public void Wrap_When_Wrapped_Action_Is_Not_Manually_Invoked_Then_Original_Action_Does_Not_Execute()
+    {
+      bool wasActionExecuted = false;
+      var wrappedAction = m_strandScheduler.Wrap(() => wasActionExecuted = true);
+      m_strandScheduler.Dispose();
+      Assert.IsFalse(wasActionExecuted);
+    }
+
+    [TestMethod]
+    public void Wrap_When_Wrapped_Action_Is_Invoked_Then_Original_Action_Executed()
+    {
+      bool wasActionExecuted = false;
+      var wrappedAction = m_strandScheduler.Wrap(() => wasActionExecuted = true);
+      wrappedAction();
+      m_strandScheduler.Dispose();
+      Assert.IsTrue(wasActionExecuted);
     }
   }
 }
