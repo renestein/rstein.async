@@ -152,11 +152,13 @@ namespace RStein.Async.Schedulers
     }
     public virtual Action Wrap(Action action)
     {
+      checkIfDisposed();
       return () => Dispatch(action);
     }
 
     public virtual Func<Task> WrapAsTask(Action action)
     {
+      checkIfDisposed();
       return () => Dispatch(action);
     }
 

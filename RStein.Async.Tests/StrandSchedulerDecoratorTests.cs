@@ -337,7 +337,7 @@ namespace RStein.Async.Tests
     [ExpectedException(typeof(ObjectDisposedException))]
     public void Wrap_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
-
+      
       m_strandScheduler.Dispose();
       m_strandScheduler.Wrap(() =>
       {
