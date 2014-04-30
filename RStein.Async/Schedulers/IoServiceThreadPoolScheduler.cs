@@ -117,6 +117,7 @@ namespace RStein.Async.Schedulers
                                       }
                                     });
 
+                  poolThread.IsBackground = true;
                   poolThread.Name = String.Format(POOL_THREAD_NAME_FORMAT, threadNumber);
                   return poolThread;
 
