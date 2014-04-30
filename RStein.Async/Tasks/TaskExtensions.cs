@@ -21,6 +21,7 @@ namespace RStein.Async.Tasks
       
       try
       {
+        action();
         return PredefinedTasks.CompletedTask;
       }
       catch (Exception exception)

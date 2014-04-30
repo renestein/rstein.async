@@ -13,7 +13,7 @@ namespace RStein.Async.Tests
   public class StrandSchedulerDecoratorTests : IAutonomousSchedulerTests
   {
     public const int NUMBER_OF_THREADS = 4;
-    private ITaskScheduler m_strandScheduler;
+    private StrandSchedulerDecorator m_strandScheduler;
     private ExternalProxyScheduler m_externalScheduler;
     private ITaskScheduler m_innerScheduler;
 
@@ -153,6 +153,25 @@ namespace RStein.Async.Tests
       await Task.WhenAll(tasks);
       bool executedSequentially = tasks.All(task => task.Result);
       Assert.IsTrue(executedSequentially);
+    }
+
+    [TestMethod]
+    public async Task Dispatch_When_Called_From_Same_Strand_Action_Is_Executed_Inline()
+    {
+      const int INVALID_THREAD_ID = -1;
+      var originalTaskThreadId = INVALID_THREAD_ID;
+      var inDispatchTaskThreadId = INVALID_THREAD_ID;
+
+      var task = CurrentTaskFactory.StartNew(() =>
+                                  {
+                                     originalTaskThreadId = Thread.CurrentThread.ManagedThreadId;
+                                     m_strandScheduler.Dispatch(() => inDispatchTaskThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
+                                  });
+
+      await task;
+      Assert.AreNotEqual(INVALID_THREAD_ID, originalTaskThreadId);
+      Assert.AreNotEqual(INVALID_THREAD_ID, inDispatchTaskThreadId);
+      Assert.AreEqual(originalTaskThreadId, originalTaskThreadId);
     }
   }
 }
