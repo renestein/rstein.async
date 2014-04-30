@@ -14,7 +14,7 @@ namespace RStein.Async.Schedulers
     private readonly object m_serviceLockObject;
     private readonly TaskCompletionSource<object> m_serviceCompletetcs;
     private IExternalProxyScheduler m_proxyScheduler;
-    private CancellationTokenSource m_schedulerCancellationTokenSource;
+    private readonly CancellationTokenSource m_schedulerCancellationTokenSource;
 
     protected TaskSchedulerBase()
     {
