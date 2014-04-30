@@ -11,9 +11,8 @@ using RStein.Async.Schedulers;
 namespace RStein.Async.Tests
 {
   [TestClass]
-  public class StrandSchedulerDecoratorTests : IAutonomousSchedulerTests
+  public abstract class StrandSchedulerDecoratorTests : IAutonomousSchedulerTests
   {
-    public const int NUMBER_OF_THREADS = 4;
     private const int INVALID_TASK_ID = 0;
     private const int INVALID_THREAD_ID = -1;
     private StrandSchedulerDecorator m_strandScheduler;
@@ -28,18 +27,14 @@ namespace RStein.Async.Tests
       base.InitializeTest();
     }
 
+    protected abstract ITaskScheduler CreateInnerScheduler();
+    
     public override void CleanupTest()
     {
       m_strandScheduler.Dispose();
       m_innerScheduler.Dispose();
       m_externalScheduler.Dispose();
       base.CleanupTest();
-    }
-
-    protected virtual ITaskScheduler CreateInnerScheduler()
-    {
-      var ioService = new IoServiceScheduler();
-      return new IoServiceThreadPoolScheduler(ioService, NUMBER_OF_THREADS);
     }
 
     protected override ITaskScheduler Scheduler
