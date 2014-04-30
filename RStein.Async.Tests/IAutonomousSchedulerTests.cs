@@ -10,24 +10,24 @@ namespace RStein.Async.Tests
   public abstract class IAutonomousSchedulerTests : ITaskSchedulerTests
   {
 
-    private TaskFactory m_currentTaskFactory;
+    private TaskFactory m_testTaskFactory;
 
     protected abstract IExternalProxyScheduler ProxyScheduler
     {
       get;
     }
 
-    public TaskFactory CurrentTaskFactory
+    public TaskFactory TestTaskFactory
     {
       get
       {
-        return m_currentTaskFactory;
+        return m_testTaskFactory;
       }
     }
 
     public override void InitializeTest()
     {
-      m_currentTaskFactory = new TaskFactory(ProxyScheduler.AsRealScheduler());
+      m_testTaskFactory = new TaskFactory(ProxyScheduler.AsRealScheduler());
       base.InitializeTest();
     }
 
@@ -36,7 +36,7 @@ namespace RStein.Async.Tests
     public async Task WithTaskFactory_When_One_Task_Is_Queued_Then_Task_is_Executed()
     {
       bool wasTaskExecuted = false;
-      await CurrentTaskFactory.StartNew(() => wasTaskExecuted = true);
+      await TestTaskFactory.StartNew(() => wasTaskExecuted = true);
 
       Assert.IsTrue(wasTaskExecuted);
 
@@ -50,7 +50,7 @@ namespace RStein.Async.Tests
       int numberOfTasksExecuted = 0;
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
-        .Select(_ => CurrentTaskFactory.StartNew(() => Interlocked.Increment(ref numberOfTasksExecuted))).ToArray();
+        .Select(_ => TestTaskFactory.StartNew(() => Interlocked.Increment(ref numberOfTasksExecuted))).ToArray();
 
       await Task.WhenAll(tasks);
 
@@ -69,7 +69,7 @@ namespace RStein.Async.Tests
       var waitForSignalCts = new CancellationTokenSource();
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
-        .Select(taskIndex => CurrentTaskFactory.StartNew(() =>
+        .Select(taskIndex => TestTaskFactory.StartNew(() =>
                                                     {
 
                                                       waitForSignalCts.Token.WaitHandle.WaitOne();

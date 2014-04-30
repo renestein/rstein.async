@@ -59,7 +59,7 @@ namespace RStein.Async.Tests
       const int numberOfTasks = 10;
       const int DEFAULT_THREAD_SLEEP = 200;
       var tasks = Enumerable.Range(0, numberOfTasks)
-        .Select(i => CurrentTaskFactory.StartNew(() =>
+        .Select(i => TestTaskFactory.StartNew(() =>
                                                  {
                                                    Thread.Sleep(DEFAULT_THREAD_SLEEP);
                                                    return DateTime.Now;
@@ -101,7 +101,7 @@ namespace RStein.Async.Tests
       const int BEGIN_TASK_THREAD_SLEEP = 1;
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
-        .Select(i => CurrentTaskFactory.StartNew(() =>
+        .Select(i => TestTaskFactory.StartNew(() =>
                                                  {
                                                    Thread.Sleep(BEGIN_TASK_THREAD_SLEEP);
                                                    var startTime = DateTime.Now;
@@ -127,7 +127,7 @@ namespace RStein.Async.Tests
       var lockRoot = new object();
 
       var tasks = Enumerable.Range(0, numberOfTasks)
-        .Select(i => CurrentTaskFactory.StartNew(() =>
+        .Select(i => TestTaskFactory.StartNew(() =>
                                                  {
                                                    bool lockTaken = false;
                                                    Monitor.TryEnter(lockRoot, ref lockTaken);
@@ -159,7 +159,7 @@ namespace RStein.Async.Tests
       var originalTaskThreadId = INVALID_THREAD_ID;
       var inDispatchTaskThreadId = INVALID_THREAD_ID;
 
-      var task = CurrentTaskFactory.StartNew(() =>
+      var task = TestTaskFactory.StartNew(() =>
                                   {
                                     originalTaskThreadId = Thread.CurrentThread.ManagedThreadId;
                                     m_strandScheduler.Dispatch(() => inDispatchTaskThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
@@ -220,7 +220,7 @@ namespace RStein.Async.Tests
       var inDispatchTaskId = INVALID_TASK_ID;
 
       Task innerTask = null;
-      var outerTask = CurrentTaskFactory.StartNew(() =>
+      var outerTask = TestTaskFactory.StartNew(() =>
       {
         originalTaskId = Task.CurrentId.Value;
         innerTask = m_strandScheduler.Post(() => inDispatchTaskId = Task.CurrentId.Value);
@@ -357,7 +357,7 @@ namespace RStein.Async.Tests
       Task postTask2 = null;
 
       var outerTaskRunner = insideStrand
-        ? (Func<Action, Task>)CurrentTaskFactory.StartNew
+        ? (Func<Action, Task>)TestTaskFactory.StartNew
         : Task.Run;
 
       var innerTaskRunner = dispatchMethod
