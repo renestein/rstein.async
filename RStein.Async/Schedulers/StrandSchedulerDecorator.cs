@@ -276,7 +276,7 @@ namespace RStein.Async.Schedulers
                           }
 
                           tryExecuteNextTask();
-                        });
+                        }, TaskScheduler.Default);
     }
 
     private void popQueuedTask(Task previousTask)
