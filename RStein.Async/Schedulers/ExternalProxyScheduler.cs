@@ -44,6 +44,7 @@ namespace RStein.Async.Schedulers
 
     protected override void QueueTask(Task task)
     {
+      task.SetProxyScheduler(this);
       m_realScheduler.QueueTask(task);
     }
 
