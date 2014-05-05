@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Misc\StopWatchUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Schedulers\ConcurrentStrandSchedulerPair.cs" />
     <Compile Include="Schedulers\ExternalProxyScheduler.cs" />
     <Compile Include="Schedulers\IAsioTaskService.cs" />
     <Compile Include="Schedulers\IoServiceScheduler.cs" />

@@ -39,10 +39,10 @@ namespace RStein.Async.Schedulers
       }
 
       var externalProxyScheduler = GetProxyScheduler(task);
-      
+
       if (externalProxyScheduler == null)
       {
-        return false;        
+        return false;
       }
 
       return externalProxyScheduler.DoTryExecuteTask(task);

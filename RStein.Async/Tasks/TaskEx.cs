@@ -6,7 +6,6 @@ namespace RStein.Async.Tasks
   public static class TaskEx
   {
 
-
     public static Task TaskFromException(Exception exception)
     {
       var tcs = new TaskCompletionSource<Object>();
