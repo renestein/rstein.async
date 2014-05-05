@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Schedulers
 {
-  public static class TaskkWithProxySchedulerExtensions
+  public static class ProxySchedulerTaskExtensions
   {
     private static readonly TaskExternalProxyService _taskSchedulerExternalProxyService = new TaskExternalProxyService();
 
