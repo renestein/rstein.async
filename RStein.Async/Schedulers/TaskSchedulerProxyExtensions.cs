@@ -28,7 +28,7 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("task");
       }
 
-      _taskSchedulerExternalProxyService.GetSchedulerForTask(task);
+      return _taskSchedulerExternalProxyService.GetSchedulerForTask(task);
     }
 
     public static bool RunOnProxyScheduler(this Task task)
