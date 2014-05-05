@@ -49,6 +49,11 @@ namespace RStein.Async.Schedulers
 
     protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
+      if (!taskWasPreviouslyQueued)
+      {
+        task.SetProxyScheduler(this);
+      }
+      
       return m_realScheduler.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
     }
 

@@ -5,6 +5,8 @@ namespace RStein.Async.Tasks
 {
   public static class TaskEx
   {
+
+
     public static Task TaskFromException(Exception exception)
     {
       var tcs = new TaskCompletionSource<Object>();
@@ -18,7 +20,7 @@ namespace RStein.Async.Tasks
       {
         throw new ArgumentNullException("action");
       }
-      
+
       try
       {
         action();

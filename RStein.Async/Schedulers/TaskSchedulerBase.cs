@@ -40,8 +40,7 @@ namespace RStein.Async.Schedulers
     public virtual IExternalProxyScheduler ProxyScheduler
     {
       get
-      {
-        Debug.Assert(m_proxyScheduler != null);
+      {       
         return m_proxyScheduler;
       }
 

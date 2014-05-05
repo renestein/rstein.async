@@ -245,7 +245,7 @@ namespace RStein.Async.Schedulers
       try
       {
         m_isServiceThreadFlags.Value.ExecutedOperationsCount++;
-        taskExecutedNow = ProxyScheduler.DoTryExecuteTask(task);
+        taskExecutedNow = task.RunOnProxyScheduler();
       }
       finally
       {

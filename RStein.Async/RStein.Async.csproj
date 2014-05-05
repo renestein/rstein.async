@@ -48,11 +48,12 @@
     <Compile Include="Schedulers\IExternalProxyScheduler.cs" />
     <Compile Include="Schedulers\IoServiceThreadPoolScheduler.cs" />
     <Compile Include="Schedulers\ITaskScheduler.cs" />
+    <Compile Include="Schedulers\TaskSchedulerProxyService.cs" />
     <Compile Include="Schedulers\StrandSchedulerDecorator.cs" />
     <Compile Include="Schedulers\TaskSchedulerBase.cs" />
     <Compile Include="Schedulers\Work.cs" />
     <Compile Include="Tasks\PredefinedTasks.cs" />
-    <Compile Include="Tasks\TaskExtensions.cs" />
+    <Compile Include="Tasks\TaskEx.cs" />
     <Compile Include="Threading\ThreadSafeSwitch.cs" />
   </ItemGroup>
   <ItemGroup />
