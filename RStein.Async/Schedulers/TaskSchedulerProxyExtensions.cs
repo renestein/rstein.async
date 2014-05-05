@@ -18,7 +18,7 @@ namespace RStein.Async.Schedulers
       {
         throw new ArgumentNullException("externalProxyScheduler");
       }
-      _taskSchedulerExternalProxyService.AddTaskSchedulerPair(task, externalProxyScheduler);
+      _taskSchedulerExternalProxyService.AddTaskProxySchedulerPair(task, externalProxyScheduler);
     }
 
     public static IExternalProxyScheduler GetProxyScheduler(this Task task)
@@ -28,7 +28,7 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("task");
       }
 
-      return _taskSchedulerExternalProxyService.GetSchedulerForTask(task);
+      return _taskSchedulerExternalProxyService.GetProxySchedulerForTask(task);
     }
 
     public static bool RunOnProxyScheduler(this Task task)
@@ -39,6 +39,16 @@ namespace RStein.Async.Schedulers
       }
 
       return GetProxyScheduler(task).DoTryExecuteTask(task);
+    }
+
+    public static bool RemoveProxyScheduler(this Task task)
+    {
+      if (task == null)
+      {
+        throw new ArgumentNullException("task");
+      }
+
+      return _taskSchedulerExternalProxyService.RemoveProxySchedulerForTask(task);
     }
 
   }

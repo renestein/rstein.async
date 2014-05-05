@@ -21,7 +21,19 @@ namespace RStein.Async.Schedulers
 
     public virtual bool DoTryExecuteTask(Task task)
     {
-      return TryExecuteTask(task);
+      if (task == null)
+      {
+        throw new ArgumentNullException("task");
+      }
+
+      bool taskExecuted = TryExecuteTask(task);
+
+      if (taskExecuted)
+      {
+        task.RemoveProxyScheduler();
+      }
+
+      return taskExecuted;
     }
 
     public virtual TaskScheduler AsRealScheduler()
@@ -54,7 +66,7 @@ namespace RStein.Async.Schedulers
       {
         task.SetProxyScheduler(this);
       }
-      
+
       return m_realScheduler.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
     }
 
