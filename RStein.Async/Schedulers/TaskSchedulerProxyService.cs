@@ -37,8 +37,7 @@ namespace RStein.Async.Schedulers
       }
 
       IExternalProxyScheduler scheduler;
-      bool result = m_taskSchedulerDictionary.TryGetValue(task, out scheduler);
-      Debug.Assert(result);
+      bool result = m_taskSchedulerDictionary.TryGetValue(task, out scheduler);      
       return scheduler;
     }
 
