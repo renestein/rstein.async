@@ -61,7 +61,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task StrandScheduler_When_Added_Strand_And_Concurrent_Task_Then_Execution_Of_The_Strand_Tasks_Time_Does_Not_Intersect_With_Other_Tasks()
+    public async Task StrandScheduler_When_Added_Strand_And_Concurrent_Task_Then_Execution_Of_The_Strand_Tasks_Time_Does_Not_Overlap_With_Other_Tasks()
     {
       const int NUMBER_OF_STRAND_TASKS = 100;
       const int NUMBER_OF_CONCURRENT_TASKS = 1000;
@@ -84,7 +84,7 @@ namespace RStein.Async.Tests
 
       var strandTimePeriodCollection = new TimePeriodCollection(strandTimeRanges);
       var concurrentTimePeriodCollection = new TimePeriodCollection(concurrentTimeRanges);
-      bool strandTaskIntersectWithConcurrentTask = strandTimePeriodCollection.IntersectsWith(concurrentTimePeriodCollection);
+      bool strandTaskIntersectWithConcurrentTask = strandTimePeriodCollection.OverlapsWith(concurrentTimePeriodCollection);
 
       Assert.IsFalse(strandTaskIntersectWithConcurrentTask);
 
