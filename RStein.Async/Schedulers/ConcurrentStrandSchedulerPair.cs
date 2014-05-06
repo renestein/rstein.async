@@ -9,6 +9,12 @@ namespace RStein.Async.Schedulers
   {
     private readonly InterleaveTaskSource m_interleaveTaskSource;
 
+    public ConcurrentStrandSchedulerPair(int maxTasksConcurrency)
+      : this(null, maxTasksConcurrency)
+    {
+
+    }
+
     public ConcurrentStrandSchedulerPair(TaskScheduler controlScheduler, int maxTasksConcurrency)
     {
       m_interleaveTaskSource = new InterleaveTaskSource(controlScheduler, maxTasksConcurrency);
