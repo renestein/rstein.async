@@ -40,7 +40,7 @@ namespace RStein.Async.Schedulers
     public virtual IExternalProxyScheduler ProxyScheduler
     {
       get
-      {       
+      {
         return m_proxyScheduler;
       }
 

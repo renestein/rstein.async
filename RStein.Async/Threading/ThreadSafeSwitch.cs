@@ -6,6 +6,7 @@ namespace RStein.Async.Threading
   {
     private const int SWITCH_ON = 1;
     private const int SWITCH_OFF = 0;
+    private const int INVALID_VALUE = -1;
     private int m_safeSwitch;
 
     public ThreadSafeSwitch()
@@ -23,6 +24,15 @@ namespace RStein.Async.Threading
     {
       int oldValue = Interlocked.CompareExchange(ref m_safeSwitch, SWITCH_OFF, SWITCH_ON);
       return (oldValue == SWITCH_ON);
+    }
+
+    public bool Value
+    {
+      get
+      {
+        int oldValue = Interlocked.CompareExchange(ref m_safeSwitch, INVALID_VALUE, INVALID_VALUE);
+        return (oldValue == SWITCH_ON);
+      }
     }
   }
 }
