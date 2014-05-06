@@ -13,7 +13,7 @@ namespace RStein.Async.Tests
   [TestClass]
   public class ConcurrentStrandSchedulerPairTests
   {
-    private const int MAX_TASKS_CONCURRENCY = 1;
+    private const int MAX_TASKS_CONCURRENCY = 4;
     private const int DEFAULT_THREAD_SLEEP = 20;
     private const int BEGIN_TASK_THREAD_SLEEP = 1;
 
