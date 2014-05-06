@@ -47,7 +47,7 @@ namespace RStein.Async.Schedulers
       set
       {
         checkIfDisposed();
-        if (m_innerScheduler.ProxyScheduler != null)
+        if (m_innerScheduler.ProxyScheduler == null)
         {
           m_innerScheduler.ProxyScheduler = value;
         }

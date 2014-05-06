@@ -35,7 +35,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        return m_interleaveTaskSource.StrandProxyScheduler;
+        return m_interleaveTaskSource.StrandProxyAccumulateScheduler;
       }
     }
 
@@ -67,7 +67,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        return m_interleaveTaskSource.StrandProxyScheduler.AsRealScheduler();
+        return m_interleaveTaskSource.StrandProxyAccumulateScheduler.AsRealScheduler();
       }
     }
 
@@ -79,6 +79,7 @@ namespace RStein.Async.Schedulers
       }
 
       Dispose(true);
+      m_isDisposed = true;
     }
 
     private void Dispose(bool disposing)
@@ -98,7 +99,7 @@ namespace RStein.Async.Schedulers
       private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
       private AccumulateTasksSchedulerDecorator m_strandAccumulateScheduler;
 
-      private IExternalProxyScheduler m_strandProxyScheduler;
+      private IExternalProxyScheduler m_strandProxyAccumulateScheduler;
       private IExternalProxyScheduler m_concurrentProxyScheduler;
 
       private Task m_processTasksLoop;
@@ -107,6 +108,7 @@ namespace RStein.Async.Schedulers
       private CancellationTokenSource m_stopCts;
       private TaskCompletionSource<object> m_completedTcs;
       private bool m_isDisposed;
+      private IoServiceThreadPoolScheduler m_threadPoolScheduler;
 
       public InterleaveTaskSource(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
@@ -121,11 +123,11 @@ namespace RStein.Async.Schedulers
         }
       }
 
-      public IExternalProxyScheduler StrandProxyScheduler
+      public IExternalProxyScheduler StrandProxyAccumulateScheduler
       {
         get
         {
-          return m_strandProxyScheduler;
+          return m_strandProxyAccumulateScheduler;
         }
       }
 
@@ -161,11 +163,12 @@ namespace RStein.Async.Schedulers
 
 
         var ioService = new IoServiceScheduler();
-        var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioService, maxTasksConcurrency);
-        m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(threadPoolScheduler, taskAdded);
-        var strandScheduler = new StrandSchedulerDecorator(threadPoolScheduler);
+        m_threadPoolScheduler = new IoServiceThreadPoolScheduler(ioService, maxTasksConcurrency);
+        m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(m_threadPoolScheduler, taskAdded);
+        var strandScheduler = new StrandSchedulerDecorator(m_threadPoolScheduler);
+        var innerStrandProxyScheduler = new ExternalProxyScheduler(strandScheduler);
         m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, taskAdded);
-        m_strandProxyScheduler = new ExternalProxyScheduler(m_strandAccumulateScheduler);
+        m_strandProxyAccumulateScheduler = new ExternalProxyScheduler(m_strandAccumulateScheduler);
         m_concurrentProxyScheduler = new ExternalProxyScheduler(m_concurrentAccumulateScheduler);
         m_processTasksLoop = null;
         m_taskAdded = new ThreadSafeSwitch();
@@ -258,9 +261,11 @@ namespace RStein.Async.Schedulers
           isTaskLoopRequired();
           waitForCompletion();
           m_strandAccumulateScheduler.Dispose();
-          m_concurrentAccumulateScheduler.Dispose();          
+          m_concurrentAccumulateScheduler.Dispose();
+          m_threadPoolScheduler.Dispose();
+          
           if (m_ownControlTaskScheduler)
-          {            
+          {
             m_ioControlScheduler.Dispose();
           }
         }
