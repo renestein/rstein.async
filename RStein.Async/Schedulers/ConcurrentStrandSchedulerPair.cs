@@ -93,7 +93,7 @@ namespace RStein.Async.Schedulers
         m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(threadPoolScheduler, taskAdded);
         var strandScheduler = new StrandSchedulerDecorator(threadPoolScheduler);
         m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, taskAdded);
-        m_strandProxyScheduler = new ExternalProxyScheduler(m_concurrentAccumulateScheduler);
+        m_strandProxyScheduler = new ExternalProxyScheduler(m_strandAccumulateScheduler);
         m_concurrentProxyScheduler = new ExternalProxyScheduler(m_concurrentAccumulateScheduler);
         m_processTasksLoop = null;
         m_taskAdded = new ThreadSafeSwitch();
