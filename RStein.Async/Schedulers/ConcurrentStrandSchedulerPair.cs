@@ -227,6 +227,7 @@ namespace RStein.Async.Schedulers
           while (quuedTaskPair.Item1 > 0)
           {
             await quuedTaskPair.Item2;
+            quuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
           }
 
           await m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler().Item2;
@@ -254,11 +255,12 @@ namespace RStein.Async.Schedulers
         if (disposing)
         {
           m_stopCts.Cancel();
+          isTaskLoopRequired();
           waitForCompletion();
-          m_concurrentAccumulateScheduler.Dispose();
           m_strandAccumulateScheduler.Dispose();
+          m_concurrentAccumulateScheduler.Dispose();          
           if (m_ownControlTaskScheduler)
-          {
+          {            
             m_ioControlScheduler.Dispose();
           }
         }
