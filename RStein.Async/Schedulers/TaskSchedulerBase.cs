@@ -12,7 +12,7 @@ namespace RStein.Async.Schedulers
 
     private bool m_disposed;
     private readonly object m_serviceLockObject;
-    private readonly TaskCompletionSource<object> m_serviceCompletetcs;
+    private readonly TaskCompletionSource<object> m_serviceCompleteTcs;
     private IExternalProxyScheduler m_proxyScheduler;
     private readonly CancellationTokenSource m_schedulerCancellationTokenSource;
 
@@ -20,7 +20,7 @@ namespace RStein.Async.Schedulers
     {
       m_disposed = false;
       m_serviceLockObject = new Object();
-      m_serviceCompletetcs = new TaskCompletionSource<object>();
+      m_serviceCompleteTcs = new TaskCompletionSource<object>();
       m_schedulerCancellationTokenSource = new CancellationTokenSource();
     }
 
@@ -68,7 +68,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        return m_serviceCompletetcs.Task;
+        return m_serviceCompleteTcs.Task;
       }
     }
 
@@ -101,12 +101,12 @@ namespace RStein.Async.Schedulers
         {
           Dispose(true);
           m_disposed = true;
-          m_serviceCompletetcs.TrySetResult(null);
+          m_serviceCompleteTcs.TrySetResult(null);
         }
         catch (Exception ex)
         {
           Trace.WriteLine(ex);
-          m_serviceCompletetcs.TrySetException(ex);
+          m_serviceCompleteTcs.TrySetException(ex);
         }
 
       }

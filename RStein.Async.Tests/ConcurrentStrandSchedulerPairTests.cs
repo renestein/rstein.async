@@ -3,21 +3,77 @@ using RStein.Async.Schedulers;
 
 namespace RStein.Async.Tests
 {
+
   [TestClass]
-  public class ConcurrentStrandSchedulerPair_Strand_Tests : IAutonomousSchedulerTests
+  public class ConcurrentStrandSchedulerPairTests
   {
-    protected override ITaskScheduler Scheduler
+    private const int MAX_TASKS_CONCURRENCY = 4;
+
+    [TestClass]
+    public class ConcurrentStrandSchedulerPairTests_StrandSchedulerTests : IAutonomousSchedulerTests
     {
-      get
+
+      private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
+
+      public override void InitializeTest()
       {
-        throw new System.NotImplementedException();
+        m_concurrentStrandSchedulerPair = new ConcurrentStrandSchedulerPair(MAX_TASKS_CONCURRENCY);
+        base.InitializeTest();
+      }
+
+      public override void CleanupTest()
+      {
+        m_concurrentStrandSchedulerPair.Dispose();
+        base.CleanupTest();
+      }
+
+      protected override ITaskScheduler Scheduler
+      {
+        get
+        {
+          return m_concurrentStrandSchedulerPair.AsioStrandcheduler;
+        }
+      }
+      protected override IExternalProxyScheduler ProxyScheduler
+      {
+        get
+        {
+          return m_concurrentStrandSchedulerPair.StrandProxyScheduler;
+        }
       }
     }
-    protected override IExternalProxyScheduler ProxyScheduler
+
+    [TestClass]
+    public class ConcurrentStrandSchedulerPairTests_ConcurrentSchedulerTests : IAutonomousSchedulerTests
     {
-      get
+
+      private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
+
+      public override void InitializeTest()
       {
-        throw new System.NotImplementedException();
+        m_concurrentStrandSchedulerPair = new ConcurrentStrandSchedulerPair(MAX_TASKS_CONCURRENCY);
+        base.InitializeTest();
+      }
+
+      public override void CleanupTest()
+      {
+        m_concurrentStrandSchedulerPair.Dispose();
+        base.CleanupTest();
+      }
+
+      protected override ITaskScheduler Scheduler
+      {
+        get
+        {
+          return m_concurrentStrandSchedulerPair.AsioConcurrentScheduler;
+        }
+      }
+      protected override IExternalProxyScheduler ProxyScheduler
+      {
+        get
+        {
+          return m_concurrentStrandSchedulerPair.ConcurrentProxyScheduler;
+        }
       }
     }
   }

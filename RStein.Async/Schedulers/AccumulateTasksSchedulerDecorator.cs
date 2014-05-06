@@ -32,6 +32,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        checkIfDisposed();
         return m_innerScheduler.MaximumConcurrencyLevel;
       }
     }
@@ -40,10 +41,12 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        checkIfDisposed();
         return base.ProxyScheduler;
       }
       set
       {
+        checkIfDisposed();
         if (m_innerScheduler.ProxyScheduler != null)
         {
           m_innerScheduler.ProxyScheduler = value;
@@ -55,22 +58,26 @@ namespace RStein.Async.Schedulers
 
     public override void QueueTask(Task task)
     {
+      checkIfDisposed();
       m_tasks.Enqueue(task);
       m_newTaskQueuedAction(task);
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
+      checkIfDisposed();
       return false;
     }
 
     public override IEnumerable<Task> GetScheduledTasks()
     {
+      checkIfDisposed();
       return m_tasks.ToArray();
     }
 
     public virtual Tuple<int, Task> QueueAllTasksToInnerScheduler(Action<Task> beforeTaskQueuedAction = null, Action<Task> taskContinuation = null, Action<Task> afterTaskQueuedAction = null)
     {
+      checkIfDisposed();
       var currentTasks = new List<Task>();
       try
       {
@@ -115,7 +122,7 @@ namespace RStein.Async.Schedulers
 
     protected override void Dispose(bool disposing)
     {
-      Debug.Assert(m_tasks.Count == 0);
+      QueueAllTasksToInnerScheduler().Item2.Wait();
       m_innerScheduler.Dispose();
     }
   }
