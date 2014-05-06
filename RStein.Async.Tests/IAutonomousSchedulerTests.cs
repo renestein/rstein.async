@@ -85,13 +85,5 @@ namespace RStein.Async.Tests
       Assert.AreEqual(NUMBER_OF_TASKS, numberOfTasksExecuted);
 
     }
-
-    [TestMethod]
-    public void  Dispose_Does_Not_Throw()
-    {      
-      
-      Scheduler.Dispose();
-      
-    }
   }
 }

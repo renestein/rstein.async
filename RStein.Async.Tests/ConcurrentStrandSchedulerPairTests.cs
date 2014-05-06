@@ -13,7 +13,7 @@ namespace RStein.Async.Tests
   [TestClass]
   public class ConcurrentStrandSchedulerPairTests
   {
-    private const int MAX_TASKS_CONCURRENCY = 4;
+    private const int MAX_TASKS_CONCURRENCY = 1;
     private const int DEFAULT_THREAD_SLEEP = 20;
     private const int BEGIN_TASK_THREAD_SLEEP = 1;
 
@@ -33,7 +33,6 @@ namespace RStein.Async.Tests
     public void ConcurrentStrandSchedulerPairTestsTestCleanup()
     {
       m_concurrentStrandSchedulerPair.Dispose();
-
     }
 
     [TestMethod]
@@ -62,7 +61,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task StrandScheduler_When_Tasks_Are_Added_And_Concurrent_Task_Are_added_Then_Execution_Of_The_Strand_Tasks_Time_Does_Not_Intersect_With_AnotherTask()
+    public async Task StrandScheduler_When_Added_Strand_And_Concurrent_Task_Then_Execution_Of_The_Strand_Tasks_Time_Does_Not_Intersect_With_Other_Tasks()
     {
       const int NUMBER_OF_STRAND_TASKS = 100;
       const int NUMBER_OF_CONCURRENT_TASKS = 1000;
@@ -72,18 +71,84 @@ namespace RStein.Async.Tests
 
 
       var concurrentTasks = Enumerable.Range(0, NUMBER_OF_CONCURRENT_TASKS)
-        .Select(i => m_concurrentTaskFactory.StartNew(() => getTaskTimeRange()));
+        .Select(i => m_concurrentTaskFactory.StartNew(() => getTaskTimeRange())).ToArray();
+
+      strandTasks = strandTasks.ToArray();
 
       var allTasks = concurrentTasks.Union(strandTasks).ToArray();
 
       await Task.WhenAll(allTasks);
 
-      var timeRanges = allTasks.Select(task => task.Result);
-      var timePeriodCollection = new TimePeriodCollection(timeRanges);
-      var timePeriodIntersector = new TimePeriodIntersector<TimeRange>();
-      var intersectPeriods = timePeriodIntersector.IntersectPeriods(timePeriodCollection);
-      Assert.IsTrue(!intersectPeriods.Any());
+      var strandTimeRanges = strandTasks.Select(task => task.Result);
+      var concurrentTimeRanges = concurrentTasks.Select(task => task.Result);
 
+      var strandTimePeriodCollection = new TimePeriodCollection(strandTimeRanges);
+      var concurrentTimePeriodCollection = new TimePeriodCollection(concurrentTimeRanges);
+      bool strandTaskIntersectWithConcurrentTask = strandTimePeriodCollection.IntersectsWith(concurrentTimePeriodCollection);
+
+      Assert.IsFalse(strandTaskIntersectWithConcurrentTask);
+
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void ConcurrentProxyScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
+      var scheduler = m_concurrentStrandSchedulerPair.ConcurrentProxyScheduler;
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void StrandProxyScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
+      var scheduler = m_concurrentStrandSchedulerPair.StrandProxyScheduler;
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void AsioStrandcheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
+      var scheduler = m_concurrentStrandSchedulerPair.AsioStrandcheduler;
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void AsioConcurrentScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
+      var scheduler = m_concurrentStrandSchedulerPair.AsioConcurrentScheduler;
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void ConcurrentScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
+      var scheduler = m_concurrentStrandSchedulerPair.ConcurrentScheduler;
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ObjectDisposedException))]
+    public void StrandScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
+      var scheduler = m_concurrentStrandSchedulerPair.StrandScheduler;
+    }
+
+    [TestMethod]
+    public void Dispose_Repeated_Call_Does_Not_Throw()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
+      m_concurrentStrandSchedulerPair.Dispose();
+    }
+
+    [TestMethod]
+    public void Dispose_Does_Not_Throw()
+    {
+      m_concurrentStrandSchedulerPair.Dispose();
     }
 
     private TimeRange getTaskTimeRange()

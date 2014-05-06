@@ -100,5 +100,13 @@ namespace RStein.Async.Tests
       Scheduler.Dispose();
       Scheduler.Dispose();
     }
+
+    [TestMethod]
+    public void  Dispose_Does_Not_Throw()
+    {      
+      
+      Scheduler.Dispose();
+      
+    }
   }
 }

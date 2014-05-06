@@ -27,6 +27,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        checkIfDisposed();
         return m_interleaveTaskSource.ConcurrentProxyScheduler;
       }
     }
@@ -35,7 +36,8 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        return m_interleaveTaskSource.StrandProxyAccumulateScheduler;
+        checkIfDisposed();
+        return m_interleaveTaskSource.StrandProxyScheduler;
       }
     }
 
@@ -43,13 +45,16 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        checkIfDisposed();
         return m_interleaveTaskSource.AsioStrandcheduler;
       }
     }
+
     public ITaskScheduler AsioConcurrentScheduler
     {
       get
       {
+        checkIfDisposed();
         return m_interleaveTaskSource.AsioConcurrentScheduler;
       }
     }
@@ -59,6 +64,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        checkIfDisposed();
         return m_interleaveTaskSource.ConcurrentProxyScheduler.AsRealScheduler();
       }
     }
@@ -67,7 +73,8 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        return m_interleaveTaskSource.StrandProxyAccumulateScheduler.AsRealScheduler();
+        checkIfDisposed();
+        return m_interleaveTaskSource.StrandProxyScheduler.AsRealScheduler();
       }
     }
 
@@ -90,6 +97,14 @@ namespace RStein.Async.Schedulers
       }
     }
 
+    private void checkIfDisposed()
+    {
+      if (m_isDisposed)
+      {
+        throw new ObjectDisposedException(GetType().FullName);
+      }
+    }
+
     private class InterleaveTaskSource
     {
       private const int CONTROL_SCHEDULER_CONCURRENCY = 1;
@@ -99,7 +114,7 @@ namespace RStein.Async.Schedulers
       private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
       private AccumulateTasksSchedulerDecorator m_strandAccumulateScheduler;
 
-      private IExternalProxyScheduler m_strandProxyAccumulateScheduler;
+      private IExternalProxyScheduler m_strandProxyScheduler;
       private IExternalProxyScheduler m_concurrentProxyScheduler;
 
       private Task m_processTasksLoop;
@@ -123,11 +138,11 @@ namespace RStein.Async.Schedulers
         }
       }
 
-      public IExternalProxyScheduler StrandProxyAccumulateScheduler
+      public IExternalProxyScheduler StrandProxyScheduler
       {
         get
         {
-          return m_strandProxyAccumulateScheduler;
+          return m_strandProxyScheduler;
         }
       }
 
@@ -168,7 +183,7 @@ namespace RStein.Async.Schedulers
         var strandScheduler = new StrandSchedulerDecorator(m_threadPoolScheduler);
         var innerStrandProxyScheduler = new ExternalProxyScheduler(strandScheduler);
         m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, taskAdded);
-        m_strandProxyAccumulateScheduler = new ExternalProxyScheduler(m_strandAccumulateScheduler);
+        m_strandProxyScheduler = new ExternalProxyScheduler(m_strandAccumulateScheduler);
         m_concurrentProxyScheduler = new ExternalProxyScheduler(m_concurrentAccumulateScheduler);
         m_processTasksLoop = null;
         m_taskAdded = new ThreadSafeSwitch();
@@ -225,12 +240,12 @@ namespace RStein.Async.Schedulers
         {
           m_taskAdded.TryReset();
 
-          var quuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
+          var queuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
 
-          while (quuedTaskPair.Item1 > 0)
+          while (queuedTaskPair.Item1 > 0)
           {
-            await quuedTaskPair.Item2;
-            quuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
+            await queuedTaskPair.Item2;
+            queuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
           }
 
           await m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler().Item2;
@@ -263,7 +278,7 @@ namespace RStein.Async.Schedulers
           m_strandAccumulateScheduler.Dispose();
           m_concurrentAccumulateScheduler.Dispose();
           m_threadPoolScheduler.Dispose();
-          
+
           if (m_ownControlTaskScheduler)
           {
             m_ioControlScheduler.Dispose();
