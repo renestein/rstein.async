@@ -122,8 +122,7 @@ namespace RStein.Async.Schedulers
 
     protected override void Dispose(bool disposing)
     {
-      QueueAllTasksToInnerScheduler().Item2.Wait();
-      m_innerScheduler.Dispose();
+      QueueAllTasksToInnerScheduler().Item2.Wait();      
     }
   }
 }

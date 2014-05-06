@@ -165,10 +165,12 @@ namespace RStein.Async.Tests
     {
 
       private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
+      private ITaskScheduler m_concurrentScheduler;
 
       public override void InitializeTest()
       {
         m_concurrentStrandSchedulerPair = new ConcurrentStrandSchedulerPair(MAX_TASKS_CONCURRENCY);
+        m_concurrentScheduler = m_concurrentStrandSchedulerPair.AsioStrandcheduler;
         base.InitializeTest();
       }
 
@@ -182,14 +184,14 @@ namespace RStein.Async.Tests
       {
         get
         {
-          return m_concurrentStrandSchedulerPair.AsioStrandcheduler;
+          return m_concurrentScheduler;
         }
       }
       protected override IExternalProxyScheduler ProxyScheduler
       {
         get
         {
-          return m_concurrentStrandSchedulerPair.StrandProxyScheduler;
+          return m_concurrentScheduler.ProxyScheduler;
         }
       }
     }
@@ -199,10 +201,12 @@ namespace RStein.Async.Tests
     {
 
       private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
+      private ITaskScheduler m_strandScheduler;
 
       public override void InitializeTest()
       {
         m_concurrentStrandSchedulerPair = new ConcurrentStrandSchedulerPair(MAX_TASKS_CONCURRENCY);
+        m_strandScheduler = m_concurrentStrandSchedulerPair.AsioConcurrentScheduler;
         base.InitializeTest();
       }
 
@@ -216,14 +220,14 @@ namespace RStein.Async.Tests
       {
         get
         {
-          return m_concurrentStrandSchedulerPair.AsioConcurrentScheduler;
+          return m_strandScheduler;
         }
       }
       protected override IExternalProxyScheduler ProxyScheduler
       {
         get
         {
-          return m_concurrentStrandSchedulerPair.ConcurrentProxyScheduler;
+          return m_strandScheduler.ProxyScheduler;
         }
       }
     }
