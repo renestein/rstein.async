@@ -21,6 +21,38 @@ namespace RStein.Async.Schedulers
 
     }
 
+    public IExternalProxyScheduler ConcurrentProxyScheduler
+    {
+      get
+      {
+        return m_interleaveTaskSource.ConcurrentProxyScheduler;
+      }
+    }
+
+    public IExternalProxyScheduler StrandProxyScheduler
+    {
+      get
+      {
+        return m_interleaveTaskSource.StrandProxyScheduler;
+      }
+    }
+
+    public ITaskScheduler AsioStrandcheduler
+    {
+      get
+      {
+        return m_interleaveTaskSource.AsioStrandcheduler;
+      }
+    }
+    public ITaskScheduler AsioConcurrentScheduler
+    {
+      get
+      {
+        return m_interleaveTaskSource.AsioConcurrentScheduler;
+      }
+    }
+
+
     public TaskScheduler ConcurrentScheduler
     {
       get
@@ -70,6 +102,21 @@ namespace RStein.Async.Schedulers
         get
         {
           return m_strandProxyScheduler;
+        }
+      }
+
+      public ITaskScheduler AsioConcurrentScheduler
+      {
+        get
+        {
+          return m_concurrentAccumulateScheduler;
+        }
+      }
+      public ITaskScheduler AsioStrandcheduler
+      {
+        get
+        {
+          return m_strandAccumulateScheduler;
         }
       }
 
