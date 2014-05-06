@@ -26,7 +26,7 @@ namespace RStein.Async.Threading
       return (oldValue == SWITCH_ON);
     }
 
-    public bool Value
+    public bool IsSet
     {
       get
       {
