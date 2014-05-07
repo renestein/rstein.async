@@ -109,6 +109,9 @@ namespace RStein.Async.Schedulers
     {
       private const int CONTROL_SCHEDULER_CONCURRENCY = 1;
 
+      private ThreadSafeSwitch m_exlusiveTaskAdded;
+      private ThreadSafeSwitch m_concurrentaskAdded;
+      
       private TaskFactory m_controlTaskFactory;
       private bool m_ownControlTaskScheduler;
       private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
@@ -117,8 +120,7 @@ namespace RStein.Async.Schedulers
       private IExternalProxyScheduler m_strandProxyScheduler;
       private IExternalProxyScheduler m_concurrentProxyScheduler;
 
-      private Task m_processTasksLoop;
-      private ThreadSafeSwitch m_taskAdded;
+      private Task m_processTaskLoop;
       private IoServiceThreadPoolScheduler m_ioControlScheduler;
       private CancellationTokenSource m_stopCts;
       private TaskCompletionSource<object> m_completedTcs;
@@ -163,6 +165,10 @@ namespace RStein.Async.Schedulers
 
       private void init(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
+
+        m_exlusiveTaskAdded = new ThreadSafeSwitch();
+        m_concurrentaskAdded = new ThreadSafeSwitch();
+
         m_ownControlTaskScheduler = (controlScheduler == null);
         if (m_ownControlTaskScheduler)
         {
@@ -179,35 +185,34 @@ namespace RStein.Async.Schedulers
 
         var ioService = new IoServiceScheduler();
         m_threadPoolScheduler = new IoServiceThreadPoolScheduler(ioService, maxTasksConcurrency);
-        m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(m_threadPoolScheduler, taskAdded);
+        m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(m_threadPoolScheduler, _ => taskAdded(m_concurrentaskAdded));
         var strandScheduler = new StrandSchedulerDecorator(m_threadPoolScheduler);
         var innerStrandProxyScheduler = new ExternalProxyScheduler(strandScheduler);
-        m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, taskAdded);
+        m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, _ => taskAdded(m_exlusiveTaskAdded));
         m_strandProxyScheduler = new ExternalProxyScheduler(m_strandAccumulateScheduler);
         m_concurrentProxyScheduler = new ExternalProxyScheduler(m_concurrentAccumulateScheduler);
-        m_processTasksLoop = null;
-        m_taskAdded = new ThreadSafeSwitch();
+        m_processTaskLoop = null;
         m_completedTcs = new TaskCompletionSource<Object>();
         m_stopCts = new CancellationTokenSource();
         m_isDisposed = false;
       }
 
-      private void taskAdded(Task obj)
+      private void taskAdded(ThreadSafeSwitch taskSwitch)
       {
         if (m_stopCts.IsCancellationRequested)
         {
           throw new InvalidOperationException("");
         }
 
-        m_taskAdded.TrySet();
+        taskSwitch.TrySet();
         isTaskLoopRequired();
       }
 
       private void isTaskLoopRequired()
       {
-        if (m_taskAdded.IsSet && tryCreateLoopTask())
+        if (m_exlusiveTaskAdded.IsSet && tryCreateLoopTask())
         {
-          m_processTasksLoop.Start(m_controlTaskFactory.Scheduler);
+          m_processTaskLoop.Start(m_controlTaskFactory.Scheduler);
         }
 
         trySetTaskLoopFinished();
@@ -223,14 +228,14 @@ namespace RStein.Async.Schedulers
 
       private bool tryCreateLoopTask()
       {
-        var task = Interlocked.CompareExchange(ref m_processTasksLoop, new Task(runInnerTaskLoop), null);
+        var task = Interlocked.CompareExchange(ref m_processTaskLoop, new Task(runInnerTaskLoop), null);
         return (task == null);
       }
 
       private bool tryResetLoopTask()
       {
-        var currentTask = m_processTasksLoop;
-        var task = Interlocked.CompareExchange(ref m_processTasksLoop, null, currentTask);
+        var currentTask = m_processTaskLoop;
+        var task = Interlocked.CompareExchange(ref m_processTaskLoop, null, currentTask);
         return (task != null);
       }
 
@@ -238,7 +243,7 @@ namespace RStein.Async.Schedulers
       {
         do
         {
-          m_taskAdded.TryReset();
+          m_exlusiveTaskAdded.TryReset();
 
           var queuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
 
@@ -250,7 +255,7 @@ namespace RStein.Async.Schedulers
 
           await m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler().Item2;
 
-        } while (m_taskAdded.IsSet);
+        } while (m_exlusiveTaskAdded.IsSet);
 
         bool resetTaskResult = tryResetLoopTask();
         Debug.Assert(resetTaskResult);
