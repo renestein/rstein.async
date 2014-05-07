@@ -10,6 +10,17 @@ namespace RStein.Async.Examples
   {
     static void Main(string[] args)
     {
+      testConcurrentExclusiveSchedulers();
+      Console.ReadLine();
+    }
+
+    private static void testConcurrentExclusiveSchedulers()
+    {
+      const int NUMBER_OF_ITERATIONS = 10;
+      var statistics = new ConcurrentExclusiveSimpleIncrementStatistics();
+
+      Enumerable.Range(0, NUMBER_OF_ITERATIONS)
+        .ToList().ForEach(_ => statistics.Run());
     }
   }
 }

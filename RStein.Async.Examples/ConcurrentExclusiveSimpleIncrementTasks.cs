@@ -9,25 +9,32 @@ using RStein.Async.Schedulers;
 
 namespace RStein.Async.Examples
 {
-  public class ConcurrentExclusiveSimpleIncrementTest
+  public class ConcurrentExclusiveSimpleIncrementTasks
   {
+    private readonly ConcurrentExclusiveSchedulerPair m_concurrentExclusiveschedulerPair;
+    private readonly ConcurrentStrandSchedulerPair m_strandExclusiveSchedulerPair;
+
+    public ConcurrentExclusiveSimpleIncrementTasks()
+    {
+      m_strandExclusiveSchedulerPair = new ConcurrentStrandSchedulerPair(Environment.ProcessorCount);
+      m_concurrentExclusiveschedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, Environment.ProcessorCount);
+    }
+
     public Task RunStrandConcurrentSchedulerTest(int numberOfConcurrentRasks,
                                                  int numberOfExclusiveTasks)
     {
-      var schedulerPair = new ConcurrentStrandSchedulerPair(Environment.ProcessorCount);
-      return runTasks(schedulerPair.ConcurrentScheduler, 
-                     schedulerPair.StrandScheduler, 
-                     numberOfConcurrentRasks, 
+      
+      return runTasks(m_strandExclusiveSchedulerPair.ConcurrentScheduler,
+                     m_strandExclusiveSchedulerPair.StrandScheduler,
+                     numberOfConcurrentRasks,
                      numberOfExclusiveTasks);
-
     }
 
     public Task RunExclusiveConcurrentSchedulerTest(int numberOfConcurrentRasks,
                                                     int numberOfExclusiveTasks)
-    {
-      var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, Environment.ProcessorCount);
-      return runTasks(schedulerPair.ConcurrentScheduler,
-                     schedulerPair.ExclusiveScheduler,
+    {      
+      return runTasks(m_concurrentExclusiveschedulerPair.ConcurrentScheduler,
+                     m_concurrentExclusiveschedulerPair.ExclusiveScheduler,
                      numberOfConcurrentRasks,
                      numberOfExclusiveTasks);
 
