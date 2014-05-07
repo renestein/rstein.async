@@ -131,6 +131,10 @@ namespace RStein.Async.Schedulers
       private IoServiceThreadPoolScheduler m_ioControlScheduler;
       private CancellationTokenSource m_stopCts;
       private TaskCompletionSource<object> m_completedTcs;
+      
+      private QueueTasksParams m_exclusiveQueueTasksParams;
+      private QueueTasksParams m_concurrentQueueTaskParams;
+
       private bool m_isDisposed;
 
       public InterleaveExclusiveConcurrentTasksEngine(TaskScheduler controlScheduler, int maxTasksConcurrency)
@@ -262,8 +266,8 @@ namespace RStein.Async.Schedulers
           do
           {
             m_exlusiveTaskAdded.TryReset();
-            var exclusiveQueueTasksParams = new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH);
-            exclusiveQueueResult = m_strandAccumulateScheduler.QueueTasksToInnerScheduler(exclusiveQueueTasksParams);
+            m_exclusiveQueueTasksParams = m_exclusiveQueueTasksParams ?? new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH);
+            exclusiveQueueResult = m_strandAccumulateScheduler.QueueTasksToInnerScheduler(m_exclusiveQueueTasksParams);
             await exclusiveQueueResult.WhenAllTask;
 
           } while (m_exlusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
@@ -271,8 +275,8 @@ namespace RStein.Async.Schedulers
           do
           {
             m_concurrentTaskAdded.TryReset();
-            var concurrentQueueTaskParams = new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch);
-            concurrentQueueResult = m_concurrentAccumulateScheduler.QueueTasksToInnerScheduler(concurrentQueueTaskParams);
+            m_concurrentQueueTaskParams = m_concurrentQueueTaskParams ?? new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch);
+            concurrentQueueResult = m_concurrentAccumulateScheduler.QueueTasksToInnerScheduler(m_concurrentQueueTaskParams);
             await concurrentQueueResult.WhenAllTask;
           } while (!m_exlusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
 
