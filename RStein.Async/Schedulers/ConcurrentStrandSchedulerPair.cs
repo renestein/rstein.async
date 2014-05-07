@@ -209,10 +209,10 @@ namespace RStein.Async.Schedulers
       }
 
       private void taskAdded(ThreadSafeSwitch taskSwitch)
-      {
+      {        
         if (m_stopCts.IsCancellationRequested)
         {
-          throw new InvalidOperationException("");
+          throw new InvalidOperationException("Could not add task - dispos in progress");
         }
 
         taskSwitch.TrySet();
