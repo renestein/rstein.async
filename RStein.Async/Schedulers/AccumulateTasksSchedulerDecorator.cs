@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using RStein.Async.Tasks;
 using RStein.Async.Threading;
@@ -12,8 +11,8 @@ namespace RStein.Async.Schedulers
   {
     private readonly ITaskScheduler m_innerScheduler;
     private readonly Action<Task> m_newTaskQueuedAction;
-    private ConcurrentQueue<Task> m_tasks;
-    private ThreadSafeSwitch m_queingToInnerSchedulerSwitch;
+    private readonly ConcurrentQueue<Task> m_tasks;
+    private readonly ThreadSafeSwitch m_queingToInnerSchedulerSwitch;
 
     public AccumulateTasksSchedulerDecorator(ITaskScheduler innerScheduler, Action<Task> newTaskQueuedAction)
     {
@@ -60,7 +59,11 @@ namespace RStein.Async.Schedulers
     {
       checkIfDisposed();
       m_tasks.Enqueue(task);
-      m_newTaskQueuedAction(task);
+
+      if (m_newTaskQueuedAction != null)
+      {
+        m_newTaskQueuedAction(task);
+      }
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
@@ -75,40 +78,49 @@ namespace RStein.Async.Schedulers
       return m_tasks.ToArray();
     }
 
-    public virtual Tuple<int, Task> QueueAllTasksToInnerScheduler(Action<Task> beforeTaskQueuedAction = null, Action<Task> taskContinuation = null, Action<Task> afterTaskQueuedAction = null)
+    public virtual QueueTasksResult QueueAllTasksToInnerScheduler(QueueTasksParams queueTasksParams = null)
     {
       checkIfDisposed();
+
+      var currentParams = queueTasksParams ?? new QueueTasksParams();
       var currentTasks = new List<Task>();
+
+      bool hasMoreTasks;
+
       try
       {
         if (!m_queingToInnerSchedulerSwitch.TrySet())
         {
-          return Tuple.Create(0, PredefinedTasks.CompletedTask);
+          return new QueueTasksResult(numberOfQueuedTasks: 0,
+                                       whenAllTask: PredefinedTasks.CompletedTask,
+                                       hasMoreTasks: false);
         }
 
         Task task;
 
-        while (m_tasks.TryDequeue(out task))
+        while (canQueueTask(currentParams, currentTasks) && m_tasks.TryDequeue(out task))
         {
           currentTasks.Add(task);
-          if (beforeTaskQueuedAction != null)
+          if (currentParams.BeforeTaskQueuedAction != null)
           {
-            beforeTaskQueuedAction(task);
+            currentParams.BeforeTaskQueuedAction(task);
           }
 
-          if (taskContinuation != null)
+          if (currentParams.TaskContinuation != null)
           {
-            task.ContinueWith(taskContinuation);
+            task.ContinueWith(currentParams.TaskContinuation);
           }
 
           m_innerScheduler.QueueTask(task);
 
-          if (afterTaskQueuedAction != null)
+          if (currentParams.AfterTaskQueuedAction != null)
           {
-            afterTaskQueuedAction(task);
+            currentParams.AfterTaskQueuedAction(task);
           }
 
         }
+
+        hasMoreTasks = m_tasks.TryPeek(out task);
       }
       finally
       {
@@ -116,13 +128,20 @@ namespace RStein.Async.Schedulers
       }
 
       var whenAllTask = Task.WhenAll(currentTasks);
-      var retPair = Tuple.Create(currentTasks.Count, whenAllTask);
-      return retPair;
+      var result = new QueueTasksResult(numberOfQueuedTasks: currentTasks.Count, 
+                                        whenAllTask: whenAllTask, 
+                                        hasMoreTasks: hasMoreTasks);
+      return result;
+    }
+
+    private static bool canQueueTask(QueueTasksParams currentParams, List<Task> currentTasks)
+    {
+      return currentParams.MaxNumberOfQueuedtasks < currentTasks.Count;
     }
 
     protected override void Dispose(bool disposing)
     {
-      QueueAllTasksToInnerScheduler().Item2.Wait();      
+      QueueAllTasksToInnerScheduler(new QueueTasksParams()).WhenAllTask.Wait();
     }
   }
 }
