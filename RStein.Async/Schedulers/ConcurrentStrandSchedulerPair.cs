@@ -107,11 +107,16 @@ namespace RStein.Async.Schedulers
 
     private class InterleaveTaskSource
     {
+      public const int MAX_STRAND_TASK_BATCH = 64;
+      public const int CONCURRENT_TASK_BATCH_LIMIT = 64;
+      public const int CONCURRENCY_TASK_BATCH_MULTIPLIER = 2;
+
       private const int CONTROL_SCHEDULER_CONCURRENCY = 1;
 
+      private int m_maxConcurrentTaskBatch;
       private ThreadSafeSwitch m_exlusiveTaskAdded;
-      private ThreadSafeSwitch m_concurrentaskAdded;
-      
+      private ThreadSafeSwitch m_concurrentTaskAdded;
+
       private TaskFactory m_controlTaskFactory;
       private bool m_ownControlTaskScheduler;
       private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
@@ -166,8 +171,14 @@ namespace RStein.Async.Schedulers
       private void init(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
 
+        if (maxTasksConcurrency <= 0)
+        {
+          throw new ArgumentOutOfRangeException("maxTasksConcurrency");
+        }
+
+        m_maxConcurrentTaskBatch = Math.Min(checked(maxTasksConcurrency * CONCURRENCY_TASK_BATCH_MULTIPLIER), CONCURRENT_TASK_BATCH_LIMIT);
         m_exlusiveTaskAdded = new ThreadSafeSwitch();
-        m_concurrentaskAdded = new ThreadSafeSwitch();
+        m_concurrentTaskAdded = new ThreadSafeSwitch();
 
         m_ownControlTaskScheduler = (controlScheduler == null);
         if (m_ownControlTaskScheduler)
@@ -185,7 +196,7 @@ namespace RStein.Async.Schedulers
 
         var ioService = new IoServiceScheduler();
         m_threadPoolScheduler = new IoServiceThreadPoolScheduler(ioService, maxTasksConcurrency);
-        m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(m_threadPoolScheduler, _ => taskAdded(m_concurrentaskAdded));
+        m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(m_threadPoolScheduler, _ => taskAdded(m_concurrentTaskAdded));
         var strandScheduler = new StrandSchedulerDecorator(m_threadPoolScheduler);
         var innerStrandProxyScheduler = new ExternalProxyScheduler(strandScheduler);
         m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, _ => taskAdded(m_exlusiveTaskAdded));
@@ -210,7 +221,7 @@ namespace RStein.Async.Schedulers
 
       private void isTaskLoopRequired()
       {
-        if (m_exlusiveTaskAdded.IsSet && tryCreateLoopTask())
+        if ((m_exlusiveTaskAdded.IsSet || m_exlusiveTaskAdded.IsSet) && tryCreateLoopTask())
         {
           m_processTaskLoop.Start(m_controlTaskFactory.Scheduler);
         }
@@ -241,25 +252,39 @@ namespace RStein.Async.Schedulers
 
       private async void runInnerTaskLoop()
       {
+        QueueTasksResult exclusiveQueueResult = null;
+        QueueTasksResult concurrentQueueResult = null;
+
         do
         {
-          m_exlusiveTaskAdded.TryReset();
-
-          var queuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
-
-          while (queuedTaskPair.Item1 > 0)
+          do
           {
-            await queuedTaskPair.Item2;
-            queuedTaskPair = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler();
-          }
+            m_exlusiveTaskAdded.TryReset();
+            exclusiveQueueResult = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler(new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH));
+            await exclusiveQueueResult.WhenAllTask;
 
-          await m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler().Item2;
+          } while (m_exlusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
 
-        } while (m_exlusiveTaskAdded.IsSet);
+          do
+          {
+            m_concurrentTaskAdded.TryReset();
+            concurrentQueueResult = m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler(new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch));
+            await concurrentQueueResult.WhenAllTask;
+          } while (!m_exlusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
+
+        } while (existsTasksToProcess(exclusiveQueueResult, concurrentQueueResult));
 
         bool resetTaskResult = tryResetLoopTask();
         Debug.Assert(resetTaskResult);
         isTaskLoopRequired();
+      }
+
+      private bool existsTasksToProcess(QueueTasksResult exclusiveQueueResult, QueueTasksResult concurrentQueueResult)
+      {
+        return m_exlusiveTaskAdded.IsSet ||
+               m_concurrentTaskAdded.IsSet ||
+               exclusiveQueueResult.HasMoreTasks ||
+               concurrentQueueResult.HasMoreTasks;
       }
 
       public void Dispose()

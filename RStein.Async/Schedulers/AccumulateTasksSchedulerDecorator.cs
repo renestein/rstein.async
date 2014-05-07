@@ -128,8 +128,8 @@ namespace RStein.Async.Schedulers
       }
 
       var whenAllTask = Task.WhenAll(currentTasks);
-      var result = new QueueTasksResult(numberOfQueuedTasks: currentTasks.Count, 
-                                        whenAllTask: whenAllTask, 
+      var result = new QueueTasksResult(numberOfQueuedTasks: currentTasks.Count,
+                                        whenAllTask: whenAllTask,
                                         hasMoreTasks: hasMoreTasks);
       return result;
     }

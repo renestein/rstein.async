@@ -51,6 +51,8 @@
     <Compile Include="Schedulers\IoServiceThreadPoolScheduler.cs" />
     <Compile Include="Schedulers\ITaskScheduler.cs" />
     <Compile Include="Schedulers\ProxySchedulerTaskExtensions.cs" />
+    <Compile Include="Schedulers\QueueTasksParams.cs" />
+    <Compile Include="Schedulers\QueueTasksResult.cs" />
     <Compile Include="Schedulers\TaskSchedulerProxyService.cs" />
     <Compile Include="Schedulers\StrandSchedulerDecorator.cs" />
     <Compile Include="Schedulers\TaskSchedulerBase.cs" />
