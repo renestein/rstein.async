@@ -8,8 +8,8 @@ namespace RStein.Async.Examples
     private ConcurrentExclusiveSimpleIncrementTasks m_engine;
 
 
-    public const int NUMBER_OF_EXCLUSIVE_TASKS = 100;
-    public const int NUMBER_OF_CONCURRENT_TASKS = 10000;
+    public const int NUMBER_OF_EXCLUSIVE_TASKS = 1 << 5;
+    public const int NUMBER_OF_CONCURRENT_TASKS = (1 << 10);
 
     public ConcurrentExclusiveSimpleIncrementStatistics()
     {
@@ -24,11 +24,13 @@ namespace RStein.Async.Examples
       var exclusiveConcurrentSchedulerDuration = StopWatchUtils.MeasureActionTime(() =>
          m_engine.RunExclusiveConcurrentSchedulerTest(NUMBER_OF_CONCURRENT_TASKS, NUMBER_OF_EXCLUSIVE_TASKS).Wait());
 
+      printResults("ExclusiveConcurrentScheduler:", exclusiveConcurrentSchedulerDuration);
+
       var strandConcurrentSchedulerDuration = StopWatchUtils.MeasureActionTime(() =>
         m_engine.RunStrandConcurrentSchedulerTest(NUMBER_OF_CONCURRENT_TASKS, NUMBER_OF_EXCLUSIVE_TASKS).Wait());
 
 
-      printResults("exclusiveConcurrentScheduler:", exclusiveConcurrentSchedulerDuration);
+
       printResults("StrandConcurrentScheduler:", strandConcurrentSchedulerDuration);
 
     }

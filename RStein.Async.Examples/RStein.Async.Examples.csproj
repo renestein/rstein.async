@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConcurrentExclusiveSimpleIncrementStatistics.cs" />
-    <Compile Include="ConcurrentStrandSchedulerPairExample.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConcurrentExclusiveSimpleIncrementTasks.cs" />

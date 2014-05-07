@@ -8,7 +8,7 @@ namespace RStein.Async.Schedulers
 {
   public sealed class ConcurrentStrandSchedulerPair : IDisposable
   {
-    private readonly InterleaveTaskSource m_interleaveTaskSource;
+    private readonly InterleaveExclusiveConcurrentTasksEngine m_interleaveExclusiveConcurrentTasksEngine;
     private bool m_isDisposed;
 
     public ConcurrentStrandSchedulerPair(int maxTasksConcurrency)
@@ -19,7 +19,7 @@ namespace RStein.Async.Schedulers
 
     public ConcurrentStrandSchedulerPair(TaskScheduler controlScheduler, int maxTasksConcurrency)
     {
-      m_interleaveTaskSource = new InterleaveTaskSource(controlScheduler, maxTasksConcurrency);
+      m_interleaveExclusiveConcurrentTasksEngine = new InterleaveExclusiveConcurrentTasksEngine(controlScheduler, maxTasksConcurrency);
       m_isDisposed = false;
     }
 
@@ -28,7 +28,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveTaskSource.ConcurrentProxyScheduler;
+        return m_interleaveExclusiveConcurrentTasksEngine.ConcurrentProxyScheduler;
       }
     }
 
@@ -37,7 +37,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveTaskSource.StrandProxyScheduler;
+        return m_interleaveExclusiveConcurrentTasksEngine.StrandProxyScheduler;
       }
     }
 
@@ -46,7 +46,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveTaskSource.AsioStrandcheduler;
+        return m_interleaveExclusiveConcurrentTasksEngine.AsioStrandcheduler;
       }
     }
 
@@ -55,7 +55,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveTaskSource.AsioConcurrentScheduler;
+        return m_interleaveExclusiveConcurrentTasksEngine.AsioConcurrentScheduler;
       }
     }
 
@@ -65,7 +65,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveTaskSource.ConcurrentProxyScheduler.AsRealScheduler();
+        return m_interleaveExclusiveConcurrentTasksEngine.ConcurrentProxyScheduler.AsRealScheduler();
       }
     }
 
@@ -74,7 +74,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveTaskSource.StrandProxyScheduler.AsRealScheduler();
+        return m_interleaveExclusiveConcurrentTasksEngine.StrandProxyScheduler.AsRealScheduler();
       }
     }
 
@@ -93,7 +93,7 @@ namespace RStein.Async.Schedulers
     {
       if (disposing)
       {
-        m_interleaveTaskSource.Dispose();
+        m_interleaveExclusiveConcurrentTasksEngine.Dispose();
       }
     }
 
@@ -105,7 +105,7 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    private class InterleaveTaskSource
+    private class InterleaveExclusiveConcurrentTasksEngine
     {
       public const int MAX_STRAND_TASK_BATCH = 64;
       public const int CONCURRENT_TASK_BATCH_LIMIT = 64;
@@ -119,6 +119,8 @@ namespace RStein.Async.Schedulers
 
       private TaskFactory m_controlTaskFactory;
       private bool m_ownControlTaskScheduler;
+      
+      private IoServiceThreadPoolScheduler m_threadPoolScheduler;
       private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
       private AccumulateTasksSchedulerDecorator m_strandAccumulateScheduler;
 
@@ -130,9 +132,8 @@ namespace RStein.Async.Schedulers
       private CancellationTokenSource m_stopCts;
       private TaskCompletionSource<object> m_completedTcs;
       private bool m_isDisposed;
-      private IoServiceThreadPoolScheduler m_threadPoolScheduler;
 
-      public InterleaveTaskSource(TaskScheduler controlScheduler, int maxTasksConcurrency)
+      public InterleaveExclusiveConcurrentTasksEngine(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
         init(controlScheduler, maxTasksConcurrency);
       }
@@ -176,8 +177,7 @@ namespace RStein.Async.Schedulers
           throw new ArgumentOutOfRangeException("maxTasksConcurrency");
         }
 
-        m_maxConcurrentTaskBatch = Math.Min(checked(maxTasksConcurrency * CONCURRENCY_TASK_BATCH_MULTIPLIER),
-                                            CONCURRENT_TASK_BATCH_LIMIT);
+        m_maxConcurrentTaskBatch = Math.Min(CONCURRENT_TASK_BATCH_LIMIT, maxTasksConcurrency);
 
         m_exlusiveTaskAdded = new ThreadSafeSwitch();
         m_concurrentTaskAdded = new ThreadSafeSwitch();
@@ -214,7 +214,7 @@ namespace RStein.Async.Schedulers
       {
         if (m_stopCts.IsCancellationRequested)
         {
-          throw new InvalidOperationException("Could not add task - dispos in progress");
+          throw new InvalidOperationException("Could not add task - dispose is in progress");
         }
 
         taskSwitch.TrySet();
