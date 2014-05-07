@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.Tasks;
 using RStein.Async.Threading;
@@ -13,6 +14,7 @@ namespace RStein.Async.Schedulers
     private readonly Action<Task> m_newTaskQueuedAction;
     private readonly ConcurrentQueue<Task> m_tasks;
     private readonly ThreadSafeSwitch m_queingToInnerSchedulerSwitch;
+    private ThreadLocal<bool> m_ignoreCancellationToken;
 
     public AccumulateTasksSchedulerDecorator(ITaskScheduler innerScheduler, Action<Task> newTaskQueuedAction)
     {
@@ -25,6 +27,7 @@ namespace RStein.Async.Schedulers
       m_newTaskQueuedAction = newTaskQueuedAction;
       m_tasks = new ConcurrentQueue<Task>();
       m_queingToInnerSchedulerSwitch = new ThreadSafeSwitch();
+      m_ignoreCancellationToken = new ThreadLocal<bool>(() => false);
     }
 
     public override int MaximumConcurrencyLevel
@@ -78,7 +81,7 @@ namespace RStein.Async.Schedulers
       return m_tasks.ToArray();
     }
 
-    public virtual QueueTasksResult QueueAllTasksToInnerScheduler(QueueTasksParams queueTasksParams = null)
+    public virtual QueueTasksResult QueueTasksToInnerScheduler(QueueTasksParams queueTasksParams = null)
     {
       checkIfDisposed();
 
@@ -89,38 +92,23 @@ namespace RStein.Async.Schedulers
 
       try
       {
-        if (!m_queingToInnerSchedulerSwitch.TrySet())
+        if (processingCanceled())
         {
           return new QueueTasksResult(numberOfQueuedTasks: 0,
                                        whenAllTask: PredefinedTasks.CompletedTask,
                                        hasMoreTasks: false);
         }
 
-        Task task;
-
-        while (canQueueTask(currentParams, currentTasks) && m_tasks.TryDequeue(out task))
+        if (!m_queingToInnerSchedulerSwitch.TrySet())
         {
-          currentTasks.Add(task);
-          if (currentParams.BeforeTaskQueuedAction != null)
-          {
-            currentParams.BeforeTaskQueuedAction(task);
-          }
-
-          if (currentParams.TaskContinuation != null)
-          {
-            task.ContinueWith(currentParams.TaskContinuation);
-          }
-
-          m_innerScheduler.QueueTask(task);
-
-          if (currentParams.AfterTaskQueuedAction != null)
-          {
-            currentParams.AfterTaskQueuedAction(task);
-          }
-
+          return new QueueTasksResult(numberOfQueuedTasks: 0,
+                                       whenAllTask: PredefinedTasks.CompletedTask,
+                                       hasMoreTasks: !m_tasks.IsEmpty);
         }
 
-        hasMoreTasks = m_tasks.TryPeek(out task);
+        queueTasks(currentParams, currentTasks);
+
+        hasMoreTasks = !m_tasks.IsEmpty;
       }
       finally
       {
@@ -134,6 +122,37 @@ namespace RStein.Async.Schedulers
       return result;
     }
 
+    private bool processingCanceled()
+    {
+      return SchedulerRunCanceledToken.IsCancellationRequested && !m_ignoreCancellationToken.Value;
+    }
+
+    private void queueTasks(QueueTasksParams currentParams, List<Task> currentTasks)
+    {
+      Task task;
+
+      while (canQueueTask(currentParams, currentTasks) && m_tasks.TryDequeue(out task))
+      {
+        currentTasks.Add(task);
+        if (currentParams.BeforeTaskQueuedAction != null)
+        {
+          currentParams.BeforeTaskQueuedAction(task);
+        }
+
+        if (currentParams.TaskContinuation != null)
+        {
+          task.ContinueWith(currentParams.TaskContinuation);
+        }
+
+        m_innerScheduler.QueueTask(task);
+
+        if (currentParams.AfterTaskQueuedAction != null)
+        {
+          currentParams.AfterTaskQueuedAction(task);
+        }
+      }
+    }
+
     private static bool canQueueTask(QueueTasksParams currentParams, List<Task> currentTasks)
     {
       return currentTasks.Count < currentParams.MaxNumberOfQueuedtasks;
@@ -141,7 +160,27 @@ namespace RStein.Async.Schedulers
 
     protected override void Dispose(bool disposing)
     {
-      QueueAllTasksToInnerScheduler(new QueueTasksParams()).WhenAllTask.Wait();
+      try
+      {
+        m_ignoreCancellationToken.Value = true;
+        SchedulerRunCancellationTokenSource.Cancel();
+        QueueTasksResult result;
+        do
+        {
+          result = QueueTasksToInnerScheduler();
+          result.WhenAllTask.Wait();
+
+        } while (result.HasMoreTasks);
+
+
+      }
+      finally
+      {
+        m_ignoreCancellationToken.Value = false;        
+      }
+      
+      m_ignoreCancellationToken.Dispose();
     }
+        
   }
 }

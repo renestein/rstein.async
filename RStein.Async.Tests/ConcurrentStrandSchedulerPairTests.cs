@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Itenso.TimePeriod;
@@ -79,13 +81,16 @@ namespace RStein.Async.Tests
 
       await Task.WhenAll(allTasks);
 
-      var strandTimeRanges = strandTasks.Select(task => task.Result);
-      var concurrentTimeRanges = concurrentTasks.Select(task => task.Result);
+      var strandTimeRanges = strandTasks.Select(task => task.Result).ToArray();
+      var concurrentTimeRanges = concurrentTasks.Select(task => task.Result).ToArray();
 
-      var strandTimePeriodCollection = new TimePeriodCollection(strandTimeRanges);
-      var concurrentTimePeriodCollection = new TimePeriodCollection(concurrentTimeRanges);
-      bool strandTaskIntersectWithConcurrentTask = strandTimePeriodCollection.OverlapsWith(concurrentTimePeriodCollection);
+      var overlaps = from strandTimeRange in strandTimeRanges
+                     from concurrentTimeRange in concurrentTimeRanges
+                     select strandTimeRange.OverlapsWith(concurrentTimeRange);
 
+      var strandTaskIntersectWithConcurrentTask = overlaps.Any(overlap => overlap);
+
+      Debug.Assert(strandTaskIntersectWithConcurrentTask == false);
       Assert.IsFalse(strandTaskIntersectWithConcurrentTask);
 
     }

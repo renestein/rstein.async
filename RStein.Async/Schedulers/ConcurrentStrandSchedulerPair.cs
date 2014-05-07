@@ -263,7 +263,7 @@ namespace RStein.Async.Schedulers
           {
             m_exlusiveTaskAdded.TryReset();
             var exclusiveQueueTasksParams = new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH);
-            exclusiveQueueResult = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler(exclusiveQueueTasksParams);
+            exclusiveQueueResult = m_strandAccumulateScheduler.QueueTasksToInnerScheduler(exclusiveQueueTasksParams);
             await exclusiveQueueResult.WhenAllTask;
 
           } while (m_exlusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
@@ -272,7 +272,7 @@ namespace RStein.Async.Schedulers
           {
             m_concurrentTaskAdded.TryReset();
             var concurrentQueueTaskParams = new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch);
-            concurrentQueueResult = m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler(concurrentQueueTaskParams);
+            concurrentQueueResult = m_concurrentAccumulateScheduler.QueueTasksToInnerScheduler(concurrentQueueTaskParams);
             await concurrentQueueResult.WhenAllTask;
           } while (!m_exlusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
 

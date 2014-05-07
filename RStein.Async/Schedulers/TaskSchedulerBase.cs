@@ -72,22 +72,6 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public virtual CancellationToken SchedulerRunCanceledToken
-    {
-      get
-      {
-        return m_schedulerCancellationTokenSource.Token;
-      }
-    }
-
-    protected virtual CancellationTokenSource SchedulerRunCancellationTokenSource
-    {
-      get
-      {
-        return m_schedulerCancellationTokenSource;
-      }
-    }
-
     public void Dispose()
     {
       lock (m_serviceLockObject)
@@ -102,6 +86,7 @@ namespace RStein.Async.Schedulers
           Dispose(true);
           m_disposed = true;
           m_serviceCompleteTcs.TrySetResult(null);
+          SchedulerRunCancellationTokenSource.Cancel();
         }
         catch (Exception ex)
         {
@@ -113,10 +98,26 @@ namespace RStein.Async.Schedulers
 
 
     }
+
     public abstract void QueueTask(Task task);
     public abstract bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued);
     public abstract IEnumerable<Task> GetScheduledTasks();
 
+    protected virtual CancellationToken SchedulerRunCanceledToken
+    {
+      get
+      {
+        return m_schedulerCancellationTokenSource.Token;
+      }
+    }
+
+    protected virtual CancellationTokenSource SchedulerRunCancellationTokenSource
+    {
+      get
+      {
+        return m_schedulerCancellationTokenSource;
+      }
+    }
     protected abstract void Dispose(bool disposing);
 
     protected void checkIfDisposed()
