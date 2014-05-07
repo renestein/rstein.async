@@ -209,7 +209,7 @@ namespace RStein.Async.Schedulers
       }
 
       private void taskAdded(ThreadSafeSwitch taskSwitch)
-      {        
+      {
         if (m_stopCts.IsCancellationRequested)
         {
           throw new InvalidOperationException("Could not add task - dispos in progress");
@@ -221,7 +221,7 @@ namespace RStein.Async.Schedulers
 
       private void isTaskLoopRequired()
       {
-        if ((m_exlusiveTaskAdded.IsSet || m_exlusiveTaskAdded.IsSet) && tryCreateLoopTask())
+        if ((m_exlusiveTaskAdded.IsSet || m_concurrentTaskAdded.IsSet) && tryCreateLoopTask())
         {
           m_processTaskLoop.Start(m_controlTaskFactory.Scheduler);
         }
@@ -260,7 +260,8 @@ namespace RStein.Async.Schedulers
           do
           {
             m_exlusiveTaskAdded.TryReset();
-            exclusiveQueueResult = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler(new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH));
+            var exclusiveQueueTasksParams = new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH);
+            exclusiveQueueResult = m_strandAccumulateScheduler.QueueAllTasksToInnerScheduler(exclusiveQueueTasksParams);
             await exclusiveQueueResult.WhenAllTask;
 
           } while (m_exlusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
@@ -268,7 +269,8 @@ namespace RStein.Async.Schedulers
           do
           {
             m_concurrentTaskAdded.TryReset();
-            concurrentQueueResult = m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler(new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch));
+            var concurrentQueueTaskParams = new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch);
+            concurrentQueueResult = m_concurrentAccumulateScheduler.QueueAllTasksToInnerScheduler(concurrentQueueTaskParams);
             await concurrentQueueResult.WhenAllTask;
           } while (!m_exlusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
 
