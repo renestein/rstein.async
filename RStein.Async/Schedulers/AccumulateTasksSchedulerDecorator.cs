@@ -14,7 +14,7 @@ namespace RStein.Async.Schedulers
     private readonly Action<Task> m_newTaskQueuedAction;
     private readonly ConcurrentQueue<Task> m_tasks;
     private readonly ThreadSafeSwitch m_queingToInnerSchedulerSwitch;
-    private ThreadLocal<bool> m_ignoreCancellationToken;
+    private readonly ThreadLocal<bool> m_ignoreCancellationToken;
 
     public AccumulateTasksSchedulerDecorator(ITaskScheduler innerScheduler, Action<Task> newTaskQueuedAction)
     {
@@ -176,11 +176,11 @@ namespace RStein.Async.Schedulers
       }
       finally
       {
-        m_ignoreCancellationToken.Value = false;        
+        m_ignoreCancellationToken.Value = false;
       }
-      
+
       m_ignoreCancellationToken.Dispose();
     }
-        
+
   }
 }
