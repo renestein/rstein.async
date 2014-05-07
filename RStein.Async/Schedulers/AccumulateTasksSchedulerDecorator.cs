@@ -85,7 +85,7 @@ namespace RStein.Async.Schedulers
       var currentParams = queueTasksParams ?? new QueueTasksParams();
       var currentTasks = new List<Task>();
 
-      bool hasMoreTasks;
+      bool hasMoreTasks = false;
 
       try
       {
@@ -136,7 +136,7 @@ namespace RStein.Async.Schedulers
 
     private static bool canQueueTask(QueueTasksParams currentParams, List<Task> currentTasks)
     {
-      return currentParams.MaxNumberOfQueuedtasks < currentTasks.Count;
+      return currentTasks.Count < currentParams.MaxNumberOfQueuedtasks;
     }
 
     protected override void Dispose(bool disposing)

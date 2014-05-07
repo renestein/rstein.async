@@ -176,7 +176,9 @@ namespace RStein.Async.Schedulers
           throw new ArgumentOutOfRangeException("maxTasksConcurrency");
         }
 
-        m_maxConcurrentTaskBatch = Math.Min(checked(maxTasksConcurrency * CONCURRENCY_TASK_BATCH_MULTIPLIER), CONCURRENT_TASK_BATCH_LIMIT);
+        m_maxConcurrentTaskBatch = Math.Min(checked(maxTasksConcurrency * CONCURRENCY_TASK_BATCH_MULTIPLIER),
+                                            CONCURRENT_TASK_BATCH_LIMIT);
+
         m_exlusiveTaskAdded = new ThreadSafeSwitch();
         m_concurrentTaskAdded = new ThreadSafeSwitch();
 
