@@ -50,6 +50,7 @@
     <Compile Include="Schedulers\IExternalProxyScheduler.cs" />
     <Compile Include="Schedulers\IoServiceThreadPoolScheduler.cs" />
     <Compile Include="Schedulers\ITaskScheduler.cs" />
+    <Compile Include="Schedulers\NetThreadPoolSchedulerAdapter.cs" />
     <Compile Include="Schedulers\ProxySchedulerTaskExtensions.cs" />
     <Compile Include="Schedulers\QueueTasksParams.cs" />
     <Compile Include="Schedulers\QueueTasksResult.cs" />
