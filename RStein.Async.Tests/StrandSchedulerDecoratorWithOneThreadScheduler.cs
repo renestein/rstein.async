@@ -24,7 +24,7 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_TASKS = 1000;
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
-                             .Select((_) => TestTaskFactory.StartNew(() => Thread.CurrentThread.ManagedThreadId)).ToArray();
+                             .Select(_ => TestTaskFactory.StartNew(() => Thread.CurrentThread.ManagedThreadId)).ToArray();
 
       await Task.WhenAll(tasks);
       int threadId = tasks.First().Result;

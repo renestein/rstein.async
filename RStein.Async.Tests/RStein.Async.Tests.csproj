@@ -61,6 +61,7 @@
     <Compile Include="IoServiceThreadPoolSchedulerTests.cs" />
     <Compile Include="StrandSchedulerDecoratorTests.cs" />
     <Compile Include="StrandSchedulerDecoratorWithIoServiceThreadPoolTests.cs" />
+    <Compile Include="StrandSchedulerDecoratorWithNetThreadPoolTests.cs" />
     <Compile Include="StrandSchedulerDecoratorWithOneThreadScheduler.cs" />
   </ItemGroup>
   <ItemGroup>

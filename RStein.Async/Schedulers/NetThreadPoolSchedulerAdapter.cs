@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,13 +36,14 @@ namespace RStein.Async.Schedulers
 
     protected override void Dispose(bool disposing)
     {
-      
+
     }
 
     private void createThreadPoolTask(Task originalTask)
     {
-      var task = new Task(originalTask.RunSynchronously);
-      task.Start(TaskScheduler.Default);
+      Debug.Assert(ProxyScheduler != null);
+      var threadPoolTask = new Task<bool>(() => ProxyScheduler.DoTryExecuteTask(originalTask));
+      threadPoolTask.Start(TaskScheduler.Default);
     }
 
     public override int MaximumConcurrencyLevel
