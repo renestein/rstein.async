@@ -16,15 +16,7 @@ namespace RStein.Async.Schedulers
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
       checkIfDisposed();
-      if (taskWasPreviouslyQueued)
-      {
-        return false;
-      }
-
-      createThreadPoolTask(task);
-
-      //TODO: Truth or lie?
-      return true;
+      return false;
     }
 
     public override IEnumerable<Task> GetScheduledTasks()
@@ -42,7 +34,7 @@ namespace RStein.Async.Schedulers
     private void createThreadPoolTask(Task originalTask)
     {
       Debug.Assert(ProxyScheduler != null);
-      var threadPoolTask = new Task<bool>(() => ProxyScheduler.DoTryExecuteTask(originalTask));
+      var threadPoolTask = new Task<bool>(() => originalTask.RunOnProxyScheduler());
       threadPoolTask.Start(TaskScheduler.Default);
     }
 
