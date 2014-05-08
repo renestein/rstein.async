@@ -14,7 +14,7 @@ namespace RStein.Async.Schedulers
       m_taskSchedulerDictionary = new ConditionalWeakTable<Task, IExternalProxyScheduler>();
     }
 
-    public void AddTaskProxySchedulerPair(Task task, IExternalProxyScheduler scheduler)
+    public bool AddTaskProxySchedulerPair(Task task, IExternalProxyScheduler scheduler)
     {
       if (task == null)
       {
@@ -25,8 +25,14 @@ namespace RStein.Async.Schedulers
       {
         throw new ArgumentNullException("scheduler");
       }
+      bool schedulerAssociatedNow = false;      
+      m_taskSchedulerDictionary.GetValue(task, _ =>
+                                               {
+                                                 schedulerAssociatedNow = true;
+                                                 return scheduler;
+                                               });
 
-      m_taskSchedulerDictionary.Add(task, scheduler);
+      return schedulerAssociatedNow;
     }
 
     public IExternalProxyScheduler GetProxySchedulerForTask(Task task)
