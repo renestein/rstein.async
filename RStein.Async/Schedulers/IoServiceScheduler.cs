@@ -138,6 +138,17 @@ namespace RStein.Async.Schedulers
       return () => Dispatch(action);
     }
 
+    public virtual Action Wrap(Func<Task> function)
+    {
+      checkIfDisposed();
+      if (function == null)
+      {
+        throw new ArgumentNullException("action");
+      }
+
+      return () => Dispatch(function);
+    }
+
     public virtual Func<Task> WrapAsTask(Action action)
     {
       checkIfDisposed();
@@ -148,6 +159,18 @@ namespace RStein.Async.Schedulers
 
       return () => Dispatch(action);
     }
+
+    public virtual Func<Task> WrapAsTask(Func<Task> function)
+    {
+      checkIfDisposed();
+      if (function == null)
+      {
+        throw new ArgumentNullException("function");
+      }
+
+      return () => Dispatch(function);
+    }
+
 
 
     protected override void Dispose(bool disposing)
