@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RStein.Async.Examples.ConcurrentExcclusive;
+using RStein.Async.Examples.Coroutines;
 
 namespace RStein.Async.Examples
 {
@@ -11,8 +12,15 @@ namespace RStein.Async.Examples
   {
     static void Main(string[] args)
     {
-      testConcurrentExclusiveSchedulers();
+      //testConcurrentExclusiveSchedulers();
+      testCoroutines();
       Console.ReadLine();
+    }
+
+    private static void testCoroutines()
+    {
+      var tester = new LogCoroutineTester();
+      tester.Start();      
     }
 
     private static void testConcurrentExclusiveSchedulers()
