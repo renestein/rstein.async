@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RStein.Async.Examples.Coroutines
 {
   public class LogCoroutineMethod
   {
-    public const string ITERATION_MESSAGE_FORMAT = "{0,-4} iteration {1, -4} tid {2, -4}";
-    public const string EXIT_MESSAGE_FORMAT = "{0}  - work done.";
+    public const int DEFAULT_DELAY_MS = 1000;
+    public const string ITERATION_MESSAGE_FORMAT = "Coroutine: {0,-20} iteration {1, -20} tid {2, -10}";
+    public const string BEFORE_DELAY_MESSAGE_FORMAT = "Coroutine: {0,-20} before delay {1, -17} tid {2, -10}";
+    public const string AFTER_DELAY_MESSAGE_FORMAT = "Coroutine: {0,-20} after delay {1, -18} tid {2, -10}";
+    public const string EXIT_MESSAGE_FORMAT = "Coroutine: {0, -20} work done.";
     private readonly int m_numberOfIterations;
     private readonly string m_logCoroutineName;
 
@@ -27,7 +31,7 @@ namespace RStein.Async.Examples.Coroutines
       m_logCoroutineName = logCoroutineName;
     }
 
-    public virtual async void Start(Coroutine coroutine)
+    public virtual async Task Start(Coroutine coroutine)
     {
       if (coroutine == null)
       {
@@ -36,11 +40,23 @@ namespace RStein.Async.Examples.Coroutines
 
       for (int i = 0; i < m_numberOfIterations; i++)
       {
-        Console.WriteLine(ITERATION_MESSAGE_FORMAT, m_logCoroutineName, i, Thread.CurrentThread.ManagedThreadId);
+        logMessage(ITERATION_MESSAGE_FORMAT, i);
         await coroutine;
+        logMessage(BEFORE_DELAY_MESSAGE_FORMAT, i);
+        await Task.Delay(DEFAULT_DELAY_MS);
+        logMessage(AFTER_DELAY_MESSAGE_FORMAT, i);
       }
+
       Console.WriteLine(EXIT_MESSAGE_FORMAT, m_logCoroutineName);
 
+    }
+
+    private void logMessage(string messageFormat, int iteration)
+    {
+      Console.WriteLine(messageFormat,
+                      m_logCoroutineName,
+                      iteration,
+                      Thread.CurrentThread.ManagedThreadId);
     }
   }
 }
