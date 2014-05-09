@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RStein.Async.Examples.ConcurrentExcclusive;
+using RStein.Async.Examples.ConcurrentExclusive;
 using RStein.Async.Examples.Coroutines;
 
 namespace RStein.Async.Examples

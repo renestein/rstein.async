@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.Schedulers;
 
-namespace RStein.Async.Examples.ConcurrentExcclusive
+namespace RStein.Async.Examples.ConcurrentExclusive
 {
   public class ConcurrentExclusiveSimpleIncrementTasks
   {
