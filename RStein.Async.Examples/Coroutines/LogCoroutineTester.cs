@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using RStein.Async.Schedulers;
@@ -28,8 +29,8 @@ namespace RStein.Async.Examples.Coroutines
 
     private void addCoroutineMethods()
     {
-      const int NUMBER_OF_COROUTINES = 20;
-      const int NUMBER_OF_ITERATIONS = 20;
+      const int NUMBER_OF_COROUTINES = 10;
+      const int NUMBER_OF_ITERATIONS = 10;
 
       var tasksArray = Enumerable.Range(0, NUMBER_OF_COROUTINES)
                       .Select(i => m_scheduler.Post(() => new LogCoroutineMethod(NUMBER_OF_ITERATIONS, i.ToString(CultureInfo.InvariantCulture))
@@ -38,6 +39,7 @@ namespace RStein.Async.Examples.Coroutines
       m_scheduler.Post(async () =>
                              {
                                await Task.WhenAll(tasksArray);
+                               Console.WriteLine("All coroutines finished!"); 
                                m_work.Dispose();
                              });
 

@@ -7,7 +7,7 @@ namespace RStein.Async.Examples.Coroutines
 {
   public class LogCoroutineMethod
   {
-    public const int DEFAULT_DELAY_MS = 1000;
+    public const int DEFAULT_DELAY_MS = 500;
     public const string ITERATION_MESSAGE_FORMAT = "Coroutine: {0,-20} iteration {1, -20} tid {2, -10}";
     public const string BEFORE_DELAY_MESSAGE_FORMAT = "Coroutine: {0,-20} before delay {1, -17} tid {2, -10}";
     public const string AFTER_DELAY_MESSAGE_FORMAT = "Coroutine: {0,-20} after delay {1, -18} tid {2, -10}";
