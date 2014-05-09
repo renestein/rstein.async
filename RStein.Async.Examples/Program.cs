@@ -19,8 +19,10 @@ namespace RStein.Async.Examples
 
     private static void testCoroutines()
     {
-      var tester = new LogCoroutineTester();
-      tester.Start();      
+      using (var tester = new LogCoroutineTester())
+      {        
+        tester.Start();
+      }
     }
 
     private static void testConcurrentExclusiveSchedulers()
