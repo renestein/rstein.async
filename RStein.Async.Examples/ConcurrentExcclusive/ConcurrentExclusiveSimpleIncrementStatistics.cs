@@ -1,7 +1,7 @@
 ﻿using System;
 using RStein.Async.Misc;
 
-namespace RStein.Async.Examples
+namespace RStein.Async.Examples.ConcurrentExcclusive
 {
   public class ConcurrentExclusiveSimpleIncrementStatistics
   {

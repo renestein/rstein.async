@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.Schedulers;
 
-namespace RStein.Async.Examples
+namespace RStein.Async.Examples.ConcurrentExcclusive
 {
   public class ConcurrentExclusiveSimpleIncrementTasks
   {
