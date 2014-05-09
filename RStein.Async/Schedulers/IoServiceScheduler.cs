@@ -63,6 +63,19 @@ namespace RStein.Async.Schedulers
       return task;
     }
 
+    public virtual Task Dispatch(Func<Task> function)
+    {
+      checkIfDisposed();
+      if (function == null)
+      {
+        throw new ArgumentNullException("function");
+      }
+
+      var task = Task.Factory.StartNew(function, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler()).Unwrap();
+      return task;
+    }
+
+
     public virtual int Poll()
     {
       checkIfDisposed();
@@ -84,18 +97,34 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("action");
       }
 
+      return postInner(() => Dispatch(action));
+    }
+
+    public virtual Task Post(Func<Task> function)
+    {
+      checkIfDisposed();
+
+      if (function == null)
+      {
+        throw new ArgumentNullException("function");
+      }
+
+      return postInner(() => Dispatch(function));
+    }
+
+    private Task postInner(Func<Task> dispatcher)
+    {
       bool oldIsInServiceThread = m_isServiceThreadFlags.Value.IsServiceThread;
 
       try
       {
         clearCurrentThreadAsServiceFlag();
-        return Dispatch(action);
+        return dispatcher();
       }
       finally
       {
         m_isServiceThreadFlags.Value.IsServiceThread = oldIsInServiceThread;
       }
-
     }
 
     public virtual Action Wrap(Action action)
