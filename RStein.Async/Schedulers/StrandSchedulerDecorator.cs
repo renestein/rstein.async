@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.Tasks;
@@ -86,9 +87,34 @@ namespace RStein.Async.Schedulers
       return Post(action);
     }
 
+    public virtual Task Dispatch(Func<Task> function)
+    {
+      if (isCurrentThreadInThisStrand())
+      {
+        function().Wait();
+        return PredefinedTasks.CompletedTask;
+      }
+
+      return Post(function);
+    }
+
+    public Task Post(Func<Task> function)
+    {
+      Func<Task> postTaskFunc = () => Task.Factory.StartNew(function,
+                                                          SchedulerRunCanceledToken,
+                                                           TaskCreationOptions.None,
+                                                           ProxyScheduler.AsRealScheduler()).Unwrap();
+
+      return postToScheduler(postTaskFunc);
+    }
+
     public virtual Task Post(Action action)
     {
-      return Post(action, SchedulerRunCanceledToken);
+      Func<Task> postTaskFunc = () => Task.Factory.StartNew(action,
+                                                         SchedulerRunCanceledToken,
+                                                          TaskCreationOptions.None,
+                                                          ProxyScheduler.AsRealScheduler());
+      return postToScheduler(postTaskFunc);
     }
 
     public virtual bool RunningInThisThread()
@@ -159,7 +185,20 @@ namespace RStein.Async.Schedulers
       return () => Dispatch(action);
     }
 
+    public virtual Action Wrap(Func<Task> function)
+    {
+      checkIfDisposed();
+      return () => Dispatch(function);
+    }
+
     public virtual Func<Task> WrapAsTask(Action action)
+    {
+      checkIfDisposed();
+      return () => Dispatch(action);
+    }
+
+
+    public virtual Func<Task> WrapAsTask(Func<Task> action)
     {
       checkIfDisposed();
       return () => Dispatch(action);
@@ -175,11 +214,13 @@ namespace RStein.Async.Schedulers
     {
       if (disposing)
       {
-        var disposeTask = Post(() =>
-             {
-               Trace.WriteLine("Running dispose task");
-               SchedulerRunCancellationTokenSource.Cancel();
-             }, CancellationToken.None);
+        Func<Task> disposeAction = () => Task.Factory.StartNew(() =>
+                                   {
+                                     Trace.WriteLine("Running dispose task");
+                                     SchedulerRunCancellationTokenSource.Cancel();
+                                   }, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+
+        var disposeTask = postToScheduler(disposeAction);
 
         disposeTask.Wait();
 
@@ -233,13 +274,13 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    private Task Post(Action action, CancellationToken cancelToken)
+    private Task postToScheduler(Func<Task> postFunction)
     {
       checkIfDisposed();
       try
       {
         setPostMethodContext();
-        return Task.Factory.StartNew(action, cancelToken, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+        return postFunction();
       }
       finally
       {
