@@ -91,7 +91,7 @@ namespace RStein.Async.Schedulers
     {
       if (isCurrentThreadInThisStrand())
       {
-        function().Wait();
+        return function();
         return PredefinedTasks.CompletedTask;
       }
 
