@@ -91,13 +91,17 @@ namespace RStein.Async.Examples.ActorsCore
 
     private void postTargetSub(StrandSchedulerDecorator strand, IInvocation invocation)
     {
-      var action = invocation.MethodInvocationTarget.CreateDelegate(typeof(Action), invocation.MethodInvocationTarget) as Action;
+      Action action = invocation.Proceed;
       strand.Post(action);
     }
 
     private void postTargetFunc(StrandSchedulerDecorator strand, IInvocation invocation)
     {
-      var function = invocation.MethodInvocationTarget.CreateDelegate(typeof(Func<Task>), invocation.MethodInvocationTarget) as Func<Task>;
+      Func<Task> function = () =>
+                            {
+                              invocation.Proceed();
+                              return invocation.ReturnValue as Task;
+                            };
       strand.Post(function);
     }
 
