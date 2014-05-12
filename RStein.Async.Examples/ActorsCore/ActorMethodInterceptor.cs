@@ -31,7 +31,6 @@ namespace RStein.Async.Examples.ActorsCore
 
     public virtual void Intercept(IInvocation invocation)
     {
-      object target = invocation.Proxy;
       StrandSchedulerDecorator strand = getStrand(invocation.InvocationTarget);
       if (isVoidMethod(invocation.MethodInvocationTarget))
       {

@@ -62,6 +62,7 @@
     <Compile Include="ActorsCore\ActorMethodInterceptor.cs" />
     <Compile Include="ActorsCore\ProxyEngine.cs" />
     <Compile Include="ActorsCore\ProxyGenerationHook.cs" />
+    <Compile Include="Actors\Player.cs" />
     <Compile Include="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" />
     <Compile Include="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" />
     <Compile Include="Coroutines\Coroutine.cs" />

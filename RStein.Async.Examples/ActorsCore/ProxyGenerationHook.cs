@@ -33,7 +33,6 @@ namespace RStein.Async.Examples.ActorsCore
     {
     }
 
-
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
