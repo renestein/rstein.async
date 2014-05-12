@@ -120,10 +120,12 @@ namespace RStein.Async.Schedulers
     {
       return isCurrentThreadInThisStrand();
     }
+      
 
     private void resetPostMethodContext()
     {
       m_postOnCallStack.Value = false;
+
     }
 
 

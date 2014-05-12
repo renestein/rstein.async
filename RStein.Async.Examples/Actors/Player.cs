@@ -3,10 +3,10 @@ using System.Threading;
 
 namespace RStein.Async.Examples.Actors
 {
-  public class Player
+  public class Player : IPlayer
   {
     private int m_pingCounter;
-    private string m_name;
+    private readonly string m_name;
 
     public Player(string name)
     {
@@ -14,11 +14,24 @@ namespace RStein.Async.Examples.Actors
       m_name = name ?? String.Empty;
     }
 
-    public virtual void Ping(int pingCount, Player secondPlayer)
+    public int PingCounter
     {
-      Console.WriteLine("{0} Ping: tid {1},", m_name, Thread.CurrentThread.ManagedThreadId);
-      secondPlayer.Ping(--pingCount, this);
-      m_pingCounter++;
+      get
+      {
+        return m_pingCounter;
+      }
+    }
+
+    public virtual void Ping(int pingCount, IPlayer secondPlayer)
+    {
+      Console.WriteLine("{0} Ping number: {1} tid: {2},", m_name, pingCount, Thread.CurrentThread.ManagedThreadId);
+      
+      if (pingCount > 0)
+      {
+        secondPlayer.Ping(--pingCount, this);
+      }
+
+      m_pingCounter = PingCounter + 1;
     }
   }
 }

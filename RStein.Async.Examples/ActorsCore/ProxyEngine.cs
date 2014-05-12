@@ -17,7 +17,10 @@ namespace RStein.Async.Examples.ActorsCore
         throw new ArgumentNullException("primaryScheduler");
       }
 
+
       m_primaryScheduler = primaryScheduler;
+
+
       m_proxyGenerator = new ProxyGenerator();
       m_proxyOptions = new ProxyGenerationOptions(new ProxyGenerationHook());
     }
@@ -32,8 +35,14 @@ namespace RStein.Async.Examples.ActorsCore
       }
 
       var retProxy = m_proxyGenerator.CreateInterfaceProxyWithTargetInterface(typeof(TActorInterface),
-                                                                             m_proxyOptions,
-                                                                             new ActorMethodInterceptor(m_primaryScheduler));
+                                                                              targetObject,
+                                                                              m_proxyOptions,
+                                                                              new ActorMethodInterceptor(m_primaryScheduler),
+                                                                              new PreventArgumentBaseTypeLeakInterceptor());
+      ProxyContext.Current
+                  .SubjectProxyMapping
+                  .AddSubjectProxyPair(targetObject, retProxy);
+
       return retProxy as TActorInterface;
     }
   }

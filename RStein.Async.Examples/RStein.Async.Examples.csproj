@@ -60,9 +60,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActorsCore\ActorMethodInterceptor.cs" />
+    <Compile Include="ActorsCore\IProxyContext.cs" />
+    <Compile Include="ActorsCore\ProxyContext.cs" />
+    <Compile Include="ActorsCore\SubjectProxyMapping.cs" />
+    <Compile Include="ActorsCore\PreventArgumentBaseTypeLeakInterceptor.cs" />
     <Compile Include="ActorsCore\ProxyEngine.cs" />
     <Compile Include="ActorsCore\ProxyGenerationHook.cs" />
+    <Compile Include="Actors\IPlayer.cs" />
     <Compile Include="Actors\Player.cs" />
+    <Compile Include="Actors\PlayerTest.cs" />
     <Compile Include="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" />
     <Compile Include="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" />
     <Compile Include="Coroutines\Coroutine.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RStein.Async.Examples.Actors;
 using RStein.Async.Examples.ConcurrentExclusive;
 using RStein.Async.Examples.Coroutines;
 
@@ -12,15 +13,22 @@ namespace RStein.Async.Examples
   {
     static void Main(string[] args)
     {
+      testPlayerActors();
       //testConcurrentExclusiveSchedulers();
-      testCoroutines();
+      //testCoroutines();
       Console.ReadLine();
+    }
+
+    private static void testPlayerActors()
+    {
+      var playerTest = new PlayerTest();
+      playerTest.Run();
     }
 
     private static void testCoroutines()
     {
       using (var tester = new LogCoroutineTester())
-      {        
+      {
         tester.Start();
       }
     }
