@@ -28,10 +28,11 @@ namespace RStein.Async.Examples.Actors
       
       if (pingCount > 0)
       {
-        secondPlayer.Ping(--pingCount, this);
+        secondPlayer.Ping(pingCount - 1, this);
+        m_pingCounter = PingCounter + 1;
       }
 
-      m_pingCounter = PingCounter + 1;
+      
     }
   }
 }

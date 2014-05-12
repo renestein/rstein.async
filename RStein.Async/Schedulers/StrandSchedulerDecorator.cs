@@ -120,7 +120,7 @@ namespace RStein.Async.Schedulers
     {
       return isCurrentThreadInThisStrand();
     }
-      
+
 
     private void resetPostMethodContext()
     {

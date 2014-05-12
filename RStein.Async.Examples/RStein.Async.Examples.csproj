@@ -66,6 +66,9 @@
     <Compile Include="ActorsCore\PreventArgumentBaseTypeLeakInterceptor.cs" />
     <Compile Include="ActorsCore\ProxyEngine.cs" />
     <Compile Include="ActorsCore\ProxyGenerationHook.cs" />
+    <Compile Include="Actors\AsyncPlayer.cs" />
+    <Compile Include="Actors\AsyncPlayerTest.cs" />
+    <Compile Include="Actors\IAsyncPlayer.cs" />
     <Compile Include="Actors\IPlayer.cs" />
     <Compile Include="Actors\Player.cs" />
     <Compile Include="Actors\PlayerTest.cs" />

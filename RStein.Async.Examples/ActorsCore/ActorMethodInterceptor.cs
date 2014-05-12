@@ -101,19 +101,21 @@ namespace RStein.Async.Examples.ActorsCore
       dynamic proxyTcs = null;
 
       proxyTcs = getProxyTcs(methodInvocationTarget);
+      bool isGenericReturnType = methodInvocationTarget.ReturnType.IsGenericType;
 
       Func<Task> function = () =>
                             {
-                              dynamic resultTask = null;
+                              Task resultTask = null;
+                              bool hasException = false;
 
                               try
                               {
                                 invocation.Proceed();
-                                resultTask = invocation.ReturnValue;
-                                return resultTask;
+                                resultTask = invocation.ReturnValue as Task;
                               }
                               catch (Exception e)
                               {
+                                hasException = true;
                                 if (resultTask == null)
                                 {
                                   resultTask = TaskEx.TaskFromException(e);
@@ -122,12 +124,20 @@ namespace RStein.Async.Examples.ActorsCore
                               }
                               finally
                               {
-                                TaskEx.PrepareTcsTaskFromExistingTask(proxyTcs, resultTask);
+                                if (!hasException && isGenericReturnType)
+                                {
+                                  TaskEx.PrepareTcsTaskFromExistingTask((dynamic)resultTask, proxyTcs);
+                                }
+                                else
+                                {
+                                  TaskEx.PrepareTcsTaskFromExistingTask(resultTask, proxyTcs);
+                                }
                               }
 
                               return resultTask as Task;
                             };
 
+      invocation.ReturnValue = proxyTcs.Task;
       strand.Post(function);
     }
 
@@ -143,6 +153,7 @@ namespace RStein.Async.Examples.ActorsCore
       {
         proxyTcs = new TaskCompletionSource<Object>();
       }
+
       return proxyTcs;
     }
 

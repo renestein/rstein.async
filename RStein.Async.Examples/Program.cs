@@ -13,10 +13,18 @@ namespace RStein.Async.Examples
   {
     static void Main(string[] args)
     {
-      testPlayerActors();
+      var testPlayerActorsTask = testAsyncPlayerActors();
+      testPlayerActorsTask.Wait();
+      //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
       Console.ReadLine();
+    }
+
+    private static async Task testAsyncPlayerActors()
+    {
+      var playerTest = new AsyncPlayerTest();
+      await playerTest.Run();
     }
 
     private static void testPlayerActors()

@@ -1,5 +1,6 @@
 ﻿namespace RStein.Async.Examples.ActorsCore
 {
+  //TODO: Refactor ProxyContext
   public class ProxyContext : IProxyContext
   {
     private static IProxyContext _currentContext = new ProxyContext();
