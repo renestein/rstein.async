@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Castle.Core.Interceptor;
 using RStein.Async.Schedulers;
+using RStein.Async.Tasks;
 
 namespace RStein.Async.Examples.ActorsCore
 {
@@ -96,12 +97,53 @@ namespace RStein.Async.Examples.ActorsCore
 
     private void postTargetFunc(StrandSchedulerDecorator strand, IInvocation invocation)
     {
+      var methodInvocationTarget = invocation.MethodInvocationTarget;
+      dynamic proxyTcs = null;
+
+      proxyTcs = getProxyTcs(methodInvocationTarget);
+
       Func<Task> function = () =>
                             {
-                              invocation.Proceed();
-                              return invocation.ReturnValue as Task;
+                              dynamic resultTask = null;
+
+                              try
+                              {
+                                invocation.Proceed();
+                                resultTask = invocation.ReturnValue;
+                                return resultTask;
+                              }
+                              catch (Exception e)
+                              {
+                                if (resultTask == null)
+                                {
+                                  resultTask = TaskEx.TaskFromException(e);
+                                }
+
+                              }
+                              finally
+                              {
+                                TaskEx.PrepareTcsTaskFromExistingTask(proxyTcs, resultTask);
+                              }
+
+                              return resultTask as Task;
                             };
+
       strand.Post(function);
+    }
+
+    private static dynamic getProxyTcs(MethodInfo methodInvocationTarget)
+    {
+      dynamic proxyTcs;
+
+      if (methodInvocationTarget.ReturnType.IsGenericType)
+      {
+        proxyTcs = typeof(TaskCompletionSource<>).MakeGenericType(methodInvocationTarget.ReturnType.GetGenericArguments());
+      }
+      else
+      {
+        proxyTcs = new TaskCompletionSource<Object>();
+      }
+      return proxyTcs;
     }
 
     private StrandSchedulerDecorator getStrand(object invocationTarget)
