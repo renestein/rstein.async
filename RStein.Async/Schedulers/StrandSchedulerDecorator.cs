@@ -92,7 +92,6 @@ namespace RStein.Async.Schedulers
       if (isCurrentThreadInThisStrand())
       {
         return function();
-        return PredefinedTasks.CompletedTask;
       }
 
       return Post(function);
