@@ -134,7 +134,7 @@ namespace RStein.Async.Examples.ActorsCore
                                 }
                               }
 
-                              return resultTask as Task;
+                              return resultTask;
                             };
 
       invocation.ReturnValue = proxyTcs.Task;
@@ -147,7 +147,11 @@ namespace RStein.Async.Examples.ActorsCore
 
       if (methodInvocationTarget.ReturnType.IsGenericType)
       {
-        proxyTcs = typeof(TaskCompletionSource<>).MakeGenericType(methodInvocationTarget.ReturnType.GetGenericArguments());
+        var closedTcsType = typeof(TaskCompletionSource<>)
+          .MakeGenericType(methodInvocationTarget.ReturnType
+            .GetGenericArguments());
+
+        proxyTcs = Activator.CreateInstance(closedTcsType);
       }
       else
       {

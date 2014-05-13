@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RStein.Async.Examples.Actors;
 using RStein.Async.Examples.ConcurrentExclusive;
 using RStein.Async.Examples.Coroutines;
+using RStein.Async.Examples.MapReduceActors;
 
 namespace RStein.Async.Examples
 {
@@ -13,12 +14,25 @@ namespace RStein.Async.Examples
   {
     static void Main(string[] args)
     {
-      var testPlayerActorsTask = testAsyncPlayerActors();
-      testPlayerActorsTask.Wait();
+
+      testMapReduceActors();
+      //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
       Console.ReadLine();
+    }
+
+    private static void testMapReduceActors()
+    {
+      var mapReduce = new MapReduceActorTest();
+      mapReduce.Run().Wait();
+    }
+
+    private static void testAsyncPlayers()
+    {
+      var testPlayerActorsTask = testAsyncPlayerActors();
+      testPlayerActorsTask.Wait();
     }
 
     private static async Task testAsyncPlayerActors()
