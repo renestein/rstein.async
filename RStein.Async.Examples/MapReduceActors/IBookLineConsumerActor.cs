@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-
-namespace RStein.Async.Examples.MapReduceActors
+﻿namespace RStein.Async.Examples.MapReduceActors
 {
   public interface IBookLineConsumerActor : IActor
   {

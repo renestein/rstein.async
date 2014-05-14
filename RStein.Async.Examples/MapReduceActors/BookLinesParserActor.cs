@@ -10,7 +10,8 @@ namespace RStein.Async.Examples.MapReduceActors
 {
   public class BookLinesParserActor : ActorBase, IBookLinesParserActor
   {
-    public static readonly int NUMBER_OF_CONSUMERS = Environment.ProcessorCount * 4;
+    private const string FILE_ENCODING = "windows-1250";
+    public static readonly int NUMBER_OF_CONSUMERS = Environment.ProcessorCount;
     private readonly ILibraryActor m_library;
     private readonly IBookLineConsumerFactory m_lineConcumerFactory;
     private IBookLineConsumerActor[] m_consumers;
@@ -52,7 +53,7 @@ namespace RStein.Async.Examples.MapReduceActors
 
     private void parseLines(string lastBookName)
     {
-      var lines = File.ReadLines(lastBookName, Encoding.GetEncoding("windows-1250"));
+      var lines = File.ReadLines(lastBookName, Encoding.GetEncoding(FILE_ENCODING));
       var consumers = iterateConsumers();
       var lineActorPairs = lines.Zip(consumers, (line, actor) => new
                                             {

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using RStein.Async.Examples.ActorsCore;
 using RStein.Async.Schedulers;
 
@@ -7,13 +8,13 @@ namespace RStein.Async.Examples.MapReduceActors
   public class MapReduceActorTest
   {
     public const string BOOK_NAME = "Shakespeare.txt";
-    
+
     public async Task Run()
     {
       var ioService = new IoServiceScheduler();
       var threadPool = new IoServiceThreadPoolScheduler(ioService);
       var proxyEngine = new ProxyEngine(threadPool);
-      
+
       ILibraryActor library = new LibraryActor();
       library = proxyEngine.CreateProxy(library);
 
@@ -27,10 +28,13 @@ namespace RStein.Async.Examples.MapReduceActors
       linesParserActor = proxyEngine.CreateProxy(linesParserActor);
 
       library.AddBook(BOOK_NAME);
+
       await linesParserActor.ProcessLastBook();
+
+
       linesParserActor.Complete();
 
-      await resultProcessorActor.Completed;
+      await resultProcessorActor.Completed;     
     }
   }
 }
