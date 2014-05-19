@@ -21,14 +21,13 @@ namespace RStein.Async.Examples
                                         "http://twitter.com",
                                         "http://google.com",
                                         "http://msdn.microsoft.com",
-                                        "http://www.zive.cz",
-
+                                        "http://www.zive.cz",                                        
                                       };
 
     static void Main(string[] args)
     {
-      //testDownloadPages();
-       testMapReduceActors();
+        testDownloadPages();
+       //testMapReduceActors();
       //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();

@@ -16,7 +16,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
 
     public async Task<int> DownloadPages(IEnumerable<string> urls)
     {
-      var downloadTasks = (from url in urls.AsParallel()
+      var downloadTasks = (from url in urls
                            select new WebClient().DownloadStringTaskAsync(url)).ToList();
 
       int successfullyCompletedTasks = 0;
