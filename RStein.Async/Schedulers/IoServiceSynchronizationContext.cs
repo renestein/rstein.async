@@ -7,8 +7,7 @@ namespace RStein.Async.Schedulers
 {
   public class IoServiceSynchronizationContext : SynchronizationContext
   {
-    private readonly bool m_disposeIoServiceAfterComplete;
-    private const string SEND_FAILED_EXCEPTION_MESSAGE = "Send method failed";
+    private readonly bool m_disposeIoServiceAfterComplete;    
     private readonly IoServiceScheduler m_ioServiceScheduler;
     private int m_outstandingOperationCount;
     private Work m_work;

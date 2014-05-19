@@ -1,26 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using RStein.Async.ConsoleEx;
 using RStein.Async.Examples.Actors;
+using RStein.Async.Examples.AsyncConsoleDownloader;
 using RStein.Async.Examples.ConcurrentExclusive;
 using RStein.Async.Examples.Coroutines;
 using RStein.Async.Examples.MapReduceActors;
 
 namespace RStein.Async.Examples
 {
-  class Program
+  internal class Program
   {
+    private static readonly string[] _urls =
+                                      {
+                                        "http://twitter.com",
+                                        "http://google.com",
+                                        "http://msdn.microsoft.com",
+                                        "http://www.zive.cz",
+
+                                      };
+
     static void Main(string[] args)
     {
-
-      testMapReduceActors();
+      //testDownloadPages();
+       testMapReduceActors();
       //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
       Console.ReadLine();
+    }
+
+    private static void testDownloadPages()
+    {
+      Console.WriteLine("Main: Current thread {0}", Thread.CurrentThread.ManagedThreadId);
+      int successfulTasks = ConsoleRunner.Run(() => DownloadWebPages());
+      Console.WriteLine("Number of successful downloads: {0} Total urls: {1}", successfulTasks, _urls.Count());
+    }
+
+    private static async Task<int> DownloadWebPages()
+    {
+      var downloader = new AsyncDownloader();
+      int successfulTasks = await downloader.DownloadPages(_urls);
+      return successfulTasks;
     }
 
     private static void testMapReduceActors()
