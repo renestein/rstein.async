@@ -12,7 +12,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
 {
   public class AsyncDownloader
   {
-    private static readonly string PAGE_SEPARATOR = new string('=', 100);
+    private static readonly string _pageSeparator = new string('=', 100);
 
     public async Task<int> DownloadPages(IEnumerable<string> urls)
     {
@@ -48,7 +48,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
       {
         return;
       }
-      Console.WriteLine(PAGE_SEPARATOR);
+      Console.WriteLine(_pageSeparator);
       Console.WriteLine("Current thread: {0}", Thread.CurrentThread.ManagedThreadId);
 
       if (currentTask.IsFaulted)
