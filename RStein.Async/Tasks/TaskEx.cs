@@ -80,6 +80,16 @@ namespace RStein.Async.Tasks
 
     }
 
+    public static void WaitAndPropagateException(this Task task)
+    {
+      if (task == null)
+      {
+        throw new ArgumentNullException("task");
+      }
+
+      task.GetAwaiter().GetResult();
+    }
+
     private static void addRunToCompletionContinuation<T>(Task<T> originalTask, TaskCompletionSource<T> tcs)
     {
       originalTask.ContinueWith(_ => tcs.TrySetResult(originalTask.Result),

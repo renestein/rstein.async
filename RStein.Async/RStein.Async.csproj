@@ -39,6 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleEx\ConsoleRunner.cs" />
+    <Compile Include="Threading\ScopedSynchronizationContext.cs" />
+    <Compile Include="Schedulers\IoServiceSynchronizationContextException.cs" />
     <Compile Include="Misc\StopWatchUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schedulers\AccumulateTasksSchedulerDecorator.cs" />
@@ -48,6 +51,7 @@
     <Compile Include="Schedulers\IoServiceScheduler.cs" />
     <Compile Include="Schedulers\IoSchedulerThreadServiceFlags.cs" />
     <Compile Include="Schedulers\IExternalProxyScheduler.cs" />
+    <Compile Include="Schedulers\IoServiceSynchronizationContext.cs" />
     <Compile Include="Schedulers\IoServiceThreadPoolScheduler.cs" />
     <Compile Include="Schedulers\ITaskScheduler.cs" />
     <Compile Include="Schedulers\NetThreadPoolSchedulerAdapter.cs" />
