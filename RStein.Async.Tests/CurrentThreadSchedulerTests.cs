@@ -34,8 +34,9 @@ namespace RStein.Async.Tests
     }
 
     [Ignore] //Prevent deadlock - CurrentThreadSchedular is special scheduler
-    public async override Task Dispose_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
+    public override Task Dispose_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
     {
+      return null;
     }
   }
 }
