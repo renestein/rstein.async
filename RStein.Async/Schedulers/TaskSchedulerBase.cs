@@ -66,7 +66,7 @@ namespace RStein.Async.Schedulers
           checkIfDisposed();
           if (value == null)
           {
-            throw new ArgumentNullException("scheduler");
+            throw new ArgumentNullException("value");
           }
 
           if (m_proxyScheduler != null)
