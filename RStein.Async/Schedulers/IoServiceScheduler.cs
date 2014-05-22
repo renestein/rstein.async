@@ -153,7 +153,7 @@ namespace RStein.Async.Schedulers
       checkIfDisposed();
       if (function == null)
       {
-        throw new ArgumentNullException("action");
+        throw new ArgumentNullException("function");
       }
 
       return () => Dispatch(function);
