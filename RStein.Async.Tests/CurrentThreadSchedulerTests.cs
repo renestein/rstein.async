@@ -33,7 +33,7 @@ namespace RStein.Async.Tests
       base.InitializeTest();
     }
 
-    [Ignore] //Prevent deadlock - CurrentThreadSchedular is special scheduler
+    [Ignore] //Avoid deadlock in advance.
     public override Task Dispose_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
     {
       return null;

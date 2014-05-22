@@ -38,6 +38,7 @@ namespace RStein.Async.Examples.ActorsCore
         m_proxyOptions,
         new ActorMethodInterceptor(m_primaryScheduler),
         new PreventArgumentBaseTypeLeakInterceptor());
+
       ProxyContext.Current
         .SubjectProxyMapping
         .AddSubjectProxyPair(targetObject, retProxy);
