@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Threading.Tasks;
 using RStein.Async.Examples.ActorsCore;
 using RStein.Async.Misc;
@@ -14,9 +13,9 @@ namespace RStein.Async.Examples.Actors
     public const string PLAYER_2_NAME = "Ioannes Fidanza";
     public const string GAME_1_NAME = "De virtutibus in communi";
     public const string GAME_2_NAME = "De spe";
-    private ProxyEngine m_proxyEngine;
     private IAsyncPlayer m_player1;
     private IAsyncPlayer m_player2;
+    private ProxyEngine m_proxyEngine;
 
     public AsyncPlayerTest()
     {
@@ -41,14 +40,13 @@ namespace RStein.Async.Examples.Actors
       const int PING_COUNT = Int16.MaxValue;
 
       var duration = await StopWatchUtils.MeasureActionTime(async () =>
-                                       {
-                                         Task firstPlayer = m_player1.Ping(PING_COUNT, m_player2, GAME_1_NAME);
-                                         Task secondPlayer = m_player2.Ping(PING_COUNT, m_player1, GAME_2_NAME);
-                                         await Task.WhenAll(firstPlayer, secondPlayer);
-                                       });
+                                                                  {
+                                                                    Task firstPlayer = m_player1.Ping(PING_COUNT, m_player2, GAME_1_NAME);
+                                                                    Task secondPlayer = m_player2.Ping(PING_COUNT, m_player1, GAME_2_NAME);
+                                                                    await Task.WhenAll(firstPlayer, secondPlayer);
+                                                                  });
 
       Console.WriteLine(RUN_DURATION_MESSAGE_FORMAT, duration.TotalMilliseconds);
-
     }
   }
 }

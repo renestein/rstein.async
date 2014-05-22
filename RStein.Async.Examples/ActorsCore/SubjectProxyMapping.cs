@@ -32,10 +32,10 @@ namespace RStein.Async.Examples.ActorsCore
       {
         throw new ArgumentNullException("realObject");
       }
-      
-      object proxy;        
+
+      object proxy;
       m_baseProxyMapping.TryGetValue(realObject, out proxy);
-      
+
       return proxy;
     }
   }

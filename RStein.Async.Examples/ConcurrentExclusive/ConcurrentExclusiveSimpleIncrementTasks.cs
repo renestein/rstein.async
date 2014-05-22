@@ -20,23 +20,21 @@ namespace RStein.Async.Examples.ConcurrentExclusive
     }
 
     public Task RunStrandConcurrentSchedulerTest(int numberOfConcurrentRasks,
-                                                 int numberOfExclusiveTasks)
+      int numberOfExclusiveTasks)
     {
-      
       return runTasks(m_strandExclusiveSchedulerPair.ConcurrentScheduler,
-                     m_strandExclusiveSchedulerPair.StrandScheduler,
-                     numberOfConcurrentRasks,
-                     numberOfExclusiveTasks);
+        m_strandExclusiveSchedulerPair.StrandScheduler,
+        numberOfConcurrentRasks,
+        numberOfExclusiveTasks);
     }
 
     public Task RunExclusiveConcurrentSchedulerTest(int numberOfConcurrentRasks,
-                                                    int numberOfExclusiveTasks)
-    {      
+      int numberOfExclusiveTasks)
+    {
       return runTasks(m_concurrentExclusiveschedulerPair.ConcurrentScheduler,
-                     m_concurrentExclusiveschedulerPair.ExclusiveScheduler,
-                     numberOfConcurrentRasks,
-                     numberOfExclusiveTasks);
-
+        m_concurrentExclusiveschedulerPair.ExclusiveScheduler,
+        numberOfConcurrentRasks,
+        numberOfExclusiveTasks);
     }
 
     private Task runTasks(TaskScheduler concurrentScheduler,
@@ -44,7 +42,6 @@ namespace RStein.Async.Examples.ConcurrentExclusive
       int numberOfConcurrentTasks,
       int numberOfExclusiveTasks)
     {
-
       if (numberOfConcurrentTasks <= 0)
       {
         throw new ArgumentException("numberOfConcurrentTasks");
@@ -61,8 +58,8 @@ namespace RStein.Async.Examples.ConcurrentExclusive
       var concurrentTaskFactory = new TaskFactory(concurrentScheduler);
       var exclusiveFactory = new TaskFactory(exclusiveScheduler);
 
-      int numberOfProducers = numberOfConcurrentTasks / BATCH_SIZE;
-      numberOfProducers = (numberOfConcurrentTasks % BATCH_SIZE == 0 ? numberOfProducers : numberOfProducers + 1);
+      int numberOfProducers = numberOfConcurrentTasks/BATCH_SIZE;
+      numberOfProducers = (numberOfConcurrentTasks%BATCH_SIZE == 0 ? numberOfProducers : numberOfProducers + 1);
       var concurrentTasks = new ConcurrentBag<Task>();
 
       Parallel.For(0, numberOfProducers, producedIndex =>
@@ -87,6 +84,4 @@ namespace RStein.Async.Examples.ConcurrentExclusive
       return Task.WhenAll(concurrentTasks.Union(exclusiveTasksArray).ToArray());
     }
   }
-
-
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -11,8 +10,8 @@ namespace RStein.Async.Examples.MapReduceActors
   {
     private const string SPLIT_WORDS_REGEX = @"\W+(?<!')";
     private const int FIRST_WORD_OCCURENCE = 1;
-    private readonly int m_id;
     private readonly ICountWordAggregateActor m_countWordAggregateActor;
+    private readonly int m_id;
 
     public CountWordsInLineActor(int id, ICountWordAggregateActor countWordAggregateActor)
     {
@@ -23,11 +22,6 @@ namespace RStein.Async.Examples.MapReduceActors
 
       m_id = id;
       m_countWordAggregateActor = countWordAggregateActor;
-    }
-
-    protected override void DoInnerComplete()
-    {
-      m_countWordAggregateActor.Complete();
     }
 
     public virtual void AddBookLine(string line)
@@ -50,6 +44,11 @@ namespace RStein.Async.Examples.MapReduceActors
       }
 
       m_countWordAggregateActor.ProcessNextWordCountDictionary(new ReadOnlyDictionary<string, int>(wordCountDictionary));
+    }
+
+    protected override void DoInnerComplete()
+    {
+      m_countWordAggregateActor.Complete();
     }
   }
 }

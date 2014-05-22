@@ -7,16 +7,12 @@ namespace RStein.Async.Examples.MapReduceActors
 {
   public class PrintTopWordsProcessorActor : ActorBase, IResultProcessorActor
   {
-
     public const int TOP_WORDS_COUNT = 100;
     public const string TOP_WORD_MESSAGE_FORMAT = "{0, -10} : {1}";
     public const string TOTAL_DOSTINCT_WORD_MESSAGE_FORMAT = "Total distinct words : {0}";
     public const string TOTAL_WORD_MESSAGE_FORMAT = "Total_words : {0}";
 
-    public PrintTopWordsProcessorActor() : base()
-    {
-      
-    }
+    public PrintTopWordsProcessorActor() : base() {}
 
     public virtual void ProcessFinalWordCountDictionary(IReadOnlyDictionary<string, int> wordCounterDictionary)
     {

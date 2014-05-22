@@ -57,6 +57,5 @@ namespace RStein.Async.Schedulers
 
       return _taskSchedulerExternalProxyService.RemoveProxySchedulerForTask(task);
     }
-
   }
 }

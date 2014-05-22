@@ -10,11 +10,11 @@ namespace RStein.Async.Schedulers
 {
   public class AccumulateTasksSchedulerDecorator : TaskSchedulerBase
   {
+    private readonly ThreadLocal<bool> m_ignoreCancellationToken;
     private readonly ITaskScheduler m_innerScheduler;
     private readonly Action<Task> m_newTaskQueuedAction;
-    private readonly ConcurrentQueue<Task> m_tasks;
     private readonly ThreadSafeSwitch m_queingToInnerSchedulerSwitch;
-    private readonly ThreadLocal<bool> m_ignoreCancellationToken;
+    private readonly ConcurrentQueue<Task> m_tasks;
 
     public AccumulateTasksSchedulerDecorator(ITaskScheduler innerScheduler, Action<Task> newTaskQueuedAction)
     {
@@ -95,15 +95,15 @@ namespace RStein.Async.Schedulers
         if (processingCanceled())
         {
           return new QueueTasksResult(numberOfQueuedTasks: 0,
-                                       whenAllTask: PredefinedTasks.CompletedTask,
-                                       hasMoreTasks: false);
+            whenAllTask: PredefinedTasks.CompletedTask,
+            hasMoreTasks: false);
         }
 
         if (!m_queingToInnerSchedulerSwitch.TrySet())
         {
           return new QueueTasksResult(numberOfQueuedTasks: 0,
-                                       whenAllTask: PredefinedTasks.CompletedTask,
-                                       hasMoreTasks: !m_tasks.IsEmpty);
+            whenAllTask: PredefinedTasks.CompletedTask,
+            hasMoreTasks: !m_tasks.IsEmpty);
         }
 
         queueTasks(currentParams, currentTasks);
@@ -117,8 +117,8 @@ namespace RStein.Async.Schedulers
 
       var whenAllTask = Task.WhenAll(currentTasks);
       var result = new QueueTasksResult(numberOfQueuedTasks: currentTasks.Count,
-                                        whenAllTask: whenAllTask,
-                                        hasMoreTasks: hasMoreTasks);
+        whenAllTask: whenAllTask,
+        hasMoreTasks: hasMoreTasks);
       return result;
     }
 
@@ -169,10 +169,7 @@ namespace RStein.Async.Schedulers
         {
           result = QueueTasksToInnerScheduler();
           result.WhenAllTask.Wait();
-
         } while (result.HasMoreTasks);
-
-
       }
       finally
       {
@@ -181,6 +178,5 @@ namespace RStein.Async.Schedulers
 
       m_ignoreCancellationToken.Dispose();
     }
-
   }
 }

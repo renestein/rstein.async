@@ -12,10 +12,7 @@ namespace RStein.Async.Schedulers
     private bool m_isDisposed;
 
     public ConcurrentStrandSchedulerPair(int maxTasksConcurrency)
-      : this(null, maxTasksConcurrency)
-    {
-
-    }
+      : this(null, maxTasksConcurrency) {}
 
     public ConcurrentStrandSchedulerPair(TaskScheduler controlScheduler, int maxTasksConcurrency)
     {
@@ -112,30 +109,27 @@ namespace RStein.Async.Schedulers
       public const int CONCURRENCY_TASK_BATCH_MULTIPLIER = 2;
 
       private const int CONTROL_SCHEDULER_CONCURRENCY = 1;
+      private TaskCompletionSource<object> m_completedTcs;
+      private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
+      private IExternalProxyScheduler m_concurrentProxyScheduler;
+      private QueueTasksParams m_concurrentQueueTaskParams;
 
-      private int m_maxConcurrentTaskBatch;
-      private ThreadSafeSwitch m_exlusiveTaskAdded;
       private ThreadSafeSwitch m_concurrentTaskAdded;
 
       private TaskFactory m_controlTaskFactory;
+      private QueueTasksParams m_exclusiveQueueTasksParams;
+      private ThreadSafeSwitch m_exlusiveTaskAdded;
+      private IoServiceThreadPoolScheduler m_ioControlScheduler;
+      private bool m_isDisposed;
+      private int m_maxConcurrentTaskBatch;
       private bool m_ownControlTaskScheduler;
-      
-      private IoServiceThreadPoolScheduler m_threadPoolScheduler;
-      private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
+
+      private Task m_processTaskLoop;
+      private CancellationTokenSource m_stopCts;
       private AccumulateTasksSchedulerDecorator m_strandAccumulateScheduler;
 
       private IExternalProxyScheduler m_strandProxyScheduler;
-      private IExternalProxyScheduler m_concurrentProxyScheduler;
-
-      private Task m_processTaskLoop;
-      private IoServiceThreadPoolScheduler m_ioControlScheduler;
-      private CancellationTokenSource m_stopCts;
-      private TaskCompletionSource<object> m_completedTcs;
-      
-      private QueueTasksParams m_exclusiveQueueTasksParams;
-      private QueueTasksParams m_concurrentQueueTaskParams;
-
-      private bool m_isDisposed;
+      private IoServiceThreadPoolScheduler m_threadPoolScheduler;
 
       public InterleaveExclusiveConcurrentTasksEngine(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
@@ -175,7 +169,6 @@ namespace RStein.Async.Schedulers
 
       private void init(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
-
         if (maxTasksConcurrency <= 0)
         {
           throw new ArgumentOutOfRangeException("maxTasksConcurrency");
@@ -269,7 +262,6 @@ namespace RStein.Async.Schedulers
             m_exclusiveQueueTasksParams = m_exclusiveQueueTasksParams ?? new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH);
             exclusiveQueueResult = m_strandAccumulateScheduler.QueueTasksToInnerScheduler(m_exclusiveQueueTasksParams);
             await exclusiveQueueResult.WhenAllTask;
-
           } while (m_exlusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
 
           do
@@ -279,7 +271,6 @@ namespace RStein.Async.Schedulers
             concurrentQueueResult = m_concurrentAccumulateScheduler.QueueTasksToInnerScheduler(m_concurrentQueueTaskParams);
             await concurrentQueueResult.WhenAllTask;
           } while (!m_exlusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
-
         } while (existsTasksToProcess(exclusiveQueueResult, concurrentQueueResult));
 
         bool resetTaskResult = tryResetLoopTask();
@@ -322,7 +313,6 @@ namespace RStein.Async.Schedulers
             m_ioControlScheduler.Dispose();
           }
         }
-
       }
 
       private void waitForCompletion()

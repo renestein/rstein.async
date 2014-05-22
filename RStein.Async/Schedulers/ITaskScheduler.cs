@@ -6,10 +6,6 @@ namespace RStein.Async.Schedulers
 {
   public interface ITaskScheduler : IDisposable
   {
-    void QueueTask(Task task);
-    bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued);
-    IEnumerable<Task> GetScheduledTasks();
-
     int MaximumConcurrencyLevel
     {
       get;
@@ -25,5 +21,8 @@ namespace RStein.Async.Schedulers
     {
       get;
     }
+    void QueueTask(Task task);
+    bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued);
+    IEnumerable<Task> GetScheduledTasks();
   }
 }

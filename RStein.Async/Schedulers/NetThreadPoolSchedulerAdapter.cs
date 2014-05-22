@@ -7,6 +7,14 @@ namespace RStein.Async.Schedulers
 {
   public class NetThreadPoolSchedulerAdapter : TaskSchedulerBase
   {
+    public override int MaximumConcurrencyLevel
+    {
+      get
+      {
+        return TaskScheduler.Default.MaximumConcurrencyLevel;
+      }
+    }
+
     public override void QueueTask(Task task)
     {
       checkIfDisposed();
@@ -26,24 +34,13 @@ namespace RStein.Async.Schedulers
       return Enumerable.Empty<Task>();
     }
 
-    protected override void Dispose(bool disposing)
-    {
-
-    }
+    protected override void Dispose(bool disposing) {}
 
     private void createThreadPoolTask(Task originalTask)
     {
       Debug.Assert(ProxyScheduler != null);
       var threadPoolTask = new Task<bool>(() => originalTask.RunOnProxyScheduler());
       threadPoolTask.Start(TaskScheduler.Default);
-    }
-
-    public override int MaximumConcurrencyLevel
-    {
-      get
-      {
-        return TaskScheduler.Default.MaximumConcurrencyLevel;
-      }
     }
   }
 }

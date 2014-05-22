@@ -5,7 +5,7 @@ namespace RStein.Async.Tests
 {
   [TestClass]
   public class StrandSchedulerDecoratorWithNetThreadPoolTests : StrandSchedulerDecoratorTests
-  {    
+  {
     protected override ITaskScheduler CreateInnerScheduler()
     {
       return new NetThreadPoolSchedulerAdapter();

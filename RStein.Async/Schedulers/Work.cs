@@ -32,7 +32,6 @@ namespace RStein.Async.Schedulers
       {
         m_cancelTokenSource.Cancel();
       }
-
     }
   }
 }

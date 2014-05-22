@@ -1,6 +1,4 @@
-﻿using System;
-using Castle.Core;
-using Castle.Core.Interceptor;
+﻿using Castle.Core.Interceptor;
 
 namespace RStein.Async.Examples.ActorsCore
 {
@@ -9,16 +7,16 @@ namespace RStein.Async.Examples.ActorsCore
     public void Intercept(IInvocation invocation)
     {
       preventProxySubjectLeakForAllArgs(invocation);
-      invocation.Proceed();      
+      invocation.Proceed();
     }
 
     private void preventProxySubjectLeakForAllArgs(IInvocation invocation)
     {
-       for (int i = 0; i < invocation.Arguments.Length; i++)
-       {
-         var currentArg = invocation.Arguments[i];
-         invocation.Arguments[i] = ProxyContext.Current.SubjectProxyMapping.TryFindProxy(currentArg) ?? currentArg;
-       }
+      for (int i = 0; i < invocation.Arguments.Length; i++)
+      {
+        var currentArg = invocation.Arguments[i];
+        invocation.Arguments[i] = ProxyContext.Current.SubjectProxyMapping.TryFindProxy(currentArg) ?? currentArg;
+      }
     }
   }
 }

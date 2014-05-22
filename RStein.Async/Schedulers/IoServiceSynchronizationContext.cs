@@ -13,10 +13,7 @@ namespace RStein.Async.Schedulers
     private Work m_work;
 
     public IoServiceSynchronizationContext(IoServiceScheduler ioServiceScheduler)
-      : this(ioServiceScheduler, disposeIoServiceAfterComplete: false)
-    {
-
-    }
+      : this(ioServiceScheduler, disposeIoServiceAfterComplete: false) {}
 
     public IoServiceSynchronizationContext(IoServiceScheduler ioServiceScheduler, bool disposeIoServiceAfterComplete)
     {
@@ -29,20 +26,17 @@ namespace RStein.Async.Schedulers
       m_ioServiceScheduler = ioServiceScheduler;
       m_outstandingOperationCount = 0;
       m_work = new Work(ioServiceScheduler);
-
     }
 
     public override void Post(SendOrPostCallback d, object state)
     {
       m_ioServiceScheduler.Post(() => d(state));
-
     }
 
     public override void Send(SendOrPostCallback d, object state)
     {
       Task sendTask = m_ioServiceScheduler.Dispatch(() => d(state));
       sendTask.WaitAndPropagateException();
-
     }
 
     public override void OperationStarted()
@@ -54,7 +48,6 @@ namespace RStein.Async.Schedulers
     {
       int oustandingOperations = Interlocked.Decrement(ref m_outstandingOperationCount);
       tryCompleteContext(oustandingOperations);
-
     }
 
     public override SynchronizationContext CreateCopy()

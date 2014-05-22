@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.Tasks;
@@ -13,24 +12,14 @@ namespace RStein.Async.Schedulers
 {
   public class StrandSchedulerDecorator : TaskSchedulerBase, IAsioTaskService
   {
-    [Flags]
-    private enum TryAddTaskResult
-    {
-      None = 0,
-      Added = 1,
-      ExecutedInline = 2,
-      Rejected = 4,
-      AlreadyAdded = 8
-    }
-
     private const int DELAYED_TASKS_DEQUEUE_MS = 0;
     private const int MAX_CONCURRENCY_IN_STRAND = 1;
-    private readonly ITaskScheduler m_originalScheduler;
-    private readonly ThreadSafeSwitch m_canExecuteTaskSwitch;
-    private readonly ConcurrentQueue<Task> m_tasks;
-    private readonly ThreadLocal<bool> m_postOnCallStack;
-    private readonly CancellationTokenSource m_delayedTaskDequeueCts;
     private readonly ConditionalWeakTable<Task, ThreadSafeSwitch> m_alreadyQueuedTasksTable;
+    private readonly ThreadSafeSwitch m_canExecuteTaskSwitch;
+    private readonly CancellationTokenSource m_delayedTaskDequeueCts;
+    private readonly ITaskScheduler m_originalScheduler;
+    private readonly ThreadLocal<bool> m_postOnCallStack;
+    private readonly ConcurrentQueue<Task> m_tasks;
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
@@ -87,6 +76,27 @@ namespace RStein.Async.Schedulers
       return Post(action);
     }
 
+    public virtual Task Post(Action action)
+    {
+      Func<Task> postTaskFunc = () => Task.Factory.StartNew(action,
+        SchedulerRunCanceledToken,
+        TaskCreationOptions.None,
+        ProxyScheduler.AsRealScheduler());
+      return postToScheduler(postTaskFunc);
+    }
+
+    public virtual Action Wrap(Action action)
+    {
+      checkIfDisposed();
+      return () => Dispatch(action);
+    }
+
+    public virtual Func<Task> WrapAsTask(Action action)
+    {
+      checkIfDisposed();
+      return () => Dispatch(action);
+    }
+
     public virtual Task Dispatch(Func<Task> function)
     {
       if (isCurrentThreadInThisStrand())
@@ -100,19 +110,10 @@ namespace RStein.Async.Schedulers
     public Task Post(Func<Task> function)
     {
       Func<Task> postTaskFunc = () => Task.Factory.StartNew(function,
-                                                          SchedulerRunCanceledToken,
-                                                           TaskCreationOptions.None,
-                                                           ProxyScheduler.AsRealScheduler()).Unwrap();
+        SchedulerRunCanceledToken,
+        TaskCreationOptions.None,
+        ProxyScheduler.AsRealScheduler()).Unwrap();
 
-      return postToScheduler(postTaskFunc);
-    }
-
-    public virtual Task Post(Action action)
-    {
-      Func<Task> postTaskFunc = () => Task.Factory.StartNew(action,
-                                                         SchedulerRunCanceledToken,
-                                                          TaskCreationOptions.None,
-                                                          ProxyScheduler.AsRealScheduler());
       return postToScheduler(postTaskFunc);
     }
 
@@ -125,7 +126,6 @@ namespace RStein.Async.Schedulers
     private void resetPostMethodContext()
     {
       m_postOnCallStack.Value = false;
-
     }
 
 
@@ -180,22 +180,11 @@ namespace RStein.Async.Schedulers
       ThreadSafeSwitch taskAlreadyQueued;
       return m_alreadyQueuedTasksTable.TryGetValue(task, out taskAlreadyQueued);
     }
-    public virtual Action Wrap(Action action)
-    {
-      checkIfDisposed();
-      return () => Dispatch(action);
-    }
 
     public virtual Action Wrap(Func<Task> function)
     {
       checkIfDisposed();
       return () => Dispatch(function);
-    }
-
-    public virtual Func<Task> WrapAsTask(Action action)
-    {
-      checkIfDisposed();
-      return () => Dispatch(action);
     }
 
 
@@ -216,10 +205,10 @@ namespace RStein.Async.Schedulers
       if (disposing)
       {
         Func<Task> disposeAction = () => Task.Factory.StartNew(() =>
-                                   {
-                                     Trace.WriteLine("Running dispose task");
-                                     SchedulerRunCancellationTokenSource.Cancel();
-                                   }, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+                                                               {
+                                                                 Trace.WriteLine("Running dispose task");
+                                                                 SchedulerRunCancellationTokenSource.Cancel();
+                                                               }, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
 
         var disposeTask = postToScheduler(disposeAction);
 
@@ -231,7 +220,6 @@ namespace RStein.Async.Schedulers
 
     private TryAddTaskResult tryProcessTask(Task task, bool taskWasPreviouslyQueued)
     {
-
       var exceptionFromInnerTaskschedulerRaised = false;
       var lockTaken = false;
 
@@ -287,7 +275,6 @@ namespace RStein.Async.Schedulers
       {
         resetPostMethodContext();
       }
-
     }
 
     private TryAddTaskResult executeTaskOnInnerScheduler(Task task)
@@ -314,7 +301,6 @@ namespace RStein.Async.Schedulers
                         {
                           try
                           {
-
                             if (taskWasPreviouslyQueued)
                             {
                               popQueuedTask(previousTask);
@@ -326,7 +312,6 @@ namespace RStein.Async.Schedulers
                             {
                               resetTaskLock();
                             }
-
                           }
 
                           tryExecuteNextTask();
@@ -378,5 +363,14 @@ namespace RStein.Async.Schedulers
       return m_postOnCallStack.Value;
     }
 
+    [Flags]
+    private enum TryAddTaskResult
+    {
+      None = 0,
+      Added = 1,
+      ExecutedInline = 2,
+      Rejected = 4,
+      AlreadyAdded = 8
+    }
   }
 }

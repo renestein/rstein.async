@@ -7,6 +7,7 @@ namespace RStein.Async.Examples.MapReduceActors
   {
     private List<string> m_books;
     private string m_lastBook;
+
     public LibraryActor()
     {
       m_books = new List<string>();

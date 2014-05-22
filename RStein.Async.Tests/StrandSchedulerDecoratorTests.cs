@@ -15,28 +15,9 @@ namespace RStein.Async.Tests
   {
     private const int INVALID_TASK_ID = 0;
     private const int INVALID_THREAD_ID = -1;
-    private StrandSchedulerDecorator m_strandScheduler;
     private ExternalProxyScheduler m_externalScheduler;
     private ITaskScheduler m_innerScheduler;
-
-    public override void InitializeTest()
-    {
-      m_innerScheduler = CreateInnerScheduler();
-      m_strandScheduler = new StrandSchedulerDecorator(m_innerScheduler);
-      m_externalScheduler = new ExternalProxyScheduler(m_strandScheduler);
-      base.InitializeTest();
-    }
-
-    protected abstract ITaskScheduler CreateInnerScheduler();
-    
-    public override void CleanupTest()
-    {
-      m_strandScheduler.Dispose();
-      m_innerScheduler.Dispose();
-      m_externalScheduler.Dispose();
-      base.CleanupTest();
-    }
-
+    private StrandSchedulerDecorator m_strandScheduler;
     protected override ITaskScheduler Scheduler
     {
       get
@@ -53,6 +34,24 @@ namespace RStein.Async.Tests
       }
     }
 
+    public override void InitializeTest()
+    {
+      m_innerScheduler = CreateInnerScheduler();
+      m_strandScheduler = new StrandSchedulerDecorator(m_innerScheduler);
+      m_externalScheduler = new ExternalProxyScheduler(m_strandScheduler);
+      base.InitializeTest();
+    }
+
+    protected abstract ITaskScheduler CreateInnerScheduler();
+
+    public override void CleanupTest()
+    {
+      m_strandScheduler.Dispose();
+      m_innerScheduler.Dispose();
+      m_externalScheduler.Dispose();
+      base.CleanupTest();
+    }
+
     [TestMethod]
     public async Task WithTaskFactory_When_Tasks_Added_Then_All_Tasks_Executed_Sequentially()
     {
@@ -60,10 +59,10 @@ namespace RStein.Async.Tests
       const int DEFAULT_THREAD_SLEEP = 200;
       var tasks = Enumerable.Range(0, numberOfTasks)
         .Select(i => TestTaskFactory.StartNew(() =>
-                                                 {
-                                                   Thread.Sleep(DEFAULT_THREAD_SLEEP);
-                                                   return DateTime.Now;
-                                                 }))
+                                              {
+                                                Thread.Sleep(DEFAULT_THREAD_SLEEP);
+                                                return DateTime.Now;
+                                              }))
         .ToArray();
 
       await Task.WhenAll(tasks);
@@ -72,23 +71,23 @@ namespace RStein.Async.Tests
                                                          new
                                                          {
                                                            Result = true,
-                                                           PreviousTask = (Task<DateTime>)null
+                                                           PreviousTask = (Task<DateTime>) null
                                                          },
-                                        (prevResult, currentTask) =>
-                                        {
-                                          if (!prevResult.Result)
-                                          {
-                                            return prevResult;
-                                          }
+        (prevResult, currentTask) =>
+        {
+          if (!prevResult.Result)
+          {
+            return prevResult;
+          }
 
-                                          return new
-                                                 {
-                                                   Result = (prevResult.PreviousTask != null
-                                                     ? currentTask.Result > prevResult.PreviousTask.Result : prevResult.Result),
-                                                   PreviousTask = currentTask
-                                                 };
-                                        },
-                                        resultPair => resultPair.Result);
+          return new
+                 {
+                   Result = (prevResult.PreviousTask != null
+                     ? currentTask.Result > prevResult.PreviousTask.Result : prevResult.Result),
+                   PreviousTask = currentTask
+                 };
+        },
+        resultPair => resultPair.Result);
 
       Assert.IsTrue(allTasksExecutedSequentially);
     }
@@ -102,12 +101,12 @@ namespace RStein.Async.Tests
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
         .Select(i => TestTaskFactory.StartNew(() =>
-                                                 {
-                                                   Thread.Sleep(BEGIN_TASK_THREAD_SLEEP);
-                                                   var startTime = DateTime.Now;
-                                                   var duration = StopWatchUtils.MeasureActionTime(() => Thread.Sleep(DEFAULT_THREAD_SLEEP));
-                                                   return new TimeRange(startTime, duration, isReadOnly: true);
-                                                 }))
+                                              {
+                                                Thread.Sleep(BEGIN_TASK_THREAD_SLEEP);
+                                                var startTime = DateTime.Now;
+                                                var duration = StopWatchUtils.MeasureActionTime(() => Thread.Sleep(DEFAULT_THREAD_SLEEP));
+                                                return new TimeRange(startTime, duration, isReadOnly: true);
+                                              }))
         .ToArray();
 
       await Task.WhenAll(tasks);
@@ -128,24 +127,22 @@ namespace RStein.Async.Tests
 
       var tasks = Enumerable.Range(0, numberOfTasks)
         .Select(i => TestTaskFactory.StartNew(() =>
-                                                 {
-                                                   bool lockTaken = false;
-                                                   Monitor.TryEnter(lockRoot, ref lockTaken);
-                                                   try
-                                                   {
-                                                     Thread.Sleep(DEFAULT_THREAD_SLEEP);
-                                                   }
-                                                   finally
-                                                   {
-                                                     if (lockTaken)
-                                                     {
-                                                       Monitor.Exit(lockRoot);
-                                                     }
-
-                                                   }
-                                                   return lockTaken;
-
-                                                 }))
+                                              {
+                                                bool lockTaken = false;
+                                                Monitor.TryEnter(lockRoot, ref lockTaken);
+                                                try
+                                                {
+                                                  Thread.Sleep(DEFAULT_THREAD_SLEEP);
+                                                }
+                                                finally
+                                                {
+                                                  if (lockTaken)
+                                                  {
+                                                    Monitor.Exit(lockRoot);
+                                                  }
+                                                }
+                                                return lockTaken;
+                                              }))
         .ToArray();
 
       await Task.WhenAll(tasks);
@@ -160,10 +157,10 @@ namespace RStein.Async.Tests
       var inDispatchTaskThreadId = INVALID_THREAD_ID;
 
       var task = TestTaskFactory.StartNew(() =>
-                                  {
-                                    originalTaskThreadId = Thread.CurrentThread.ManagedThreadId;
-                                    m_strandScheduler.Dispatch(() => inDispatchTaskThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
-                                  });
+                                          {
+                                            originalTaskThreadId = Thread.CurrentThread.ManagedThreadId;
+                                            m_strandScheduler.Dispatch(() => inDispatchTaskThreadId = Thread.CurrentThread.ManagedThreadId).Wait();
+                                          });
 
       await task;
       Assert.AreNotEqual(INVALID_THREAD_ID, originalTaskThreadId);
@@ -178,10 +175,10 @@ namespace RStein.Async.Tests
       var inDispatchTaskId = INVALID_TASK_ID;
       Task innerTask = null;
       var outerTask = Task.Run(() =>
-      {
-        originalTaskId = Task.CurrentId.Value;
-        innerTask = m_strandScheduler.Dispatch(() => inDispatchTaskId = Task.CurrentId.Value);
-      });
+                               {
+                                 originalTaskId = Task.CurrentId.Value;
+                                 innerTask = m_strandScheduler.Dispatch(() => inDispatchTaskId = Task.CurrentId.Value);
+                               });
 
       await outerTask;
       await innerTask;
@@ -200,10 +197,10 @@ namespace RStein.Async.Tests
 
       Task innerTask = null;
       var outerTask = Task.Run(() =>
-      {
-        originalTaskId = Task.CurrentId.Value;
-        innerTask = m_strandScheduler.Post(() => inDispatchTaskId = Task.CurrentId.Value);
-      });
+                               {
+                                 originalTaskId = Task.CurrentId.Value;
+                                 innerTask = m_strandScheduler.Post(() => inDispatchTaskId = Task.CurrentId.Value);
+                               });
 
       await outerTask;
       await innerTask;
@@ -221,10 +218,10 @@ namespace RStein.Async.Tests
 
       Task innerTask = null;
       var outerTask = TestTaskFactory.StartNew(() =>
-      {
-        originalTaskId = Task.CurrentId.Value;
-        innerTask = m_strandScheduler.Post(() => inDispatchTaskId = Task.CurrentId.Value);
-      });
+                                               {
+                                                 originalTaskId = Task.CurrentId.Value;
+                                                 innerTask = m_strandScheduler.Post(() => inDispatchTaskId = Task.CurrentId.Value);
+                                               });
 
       await outerTask;
       await innerTask;
@@ -307,61 +304,48 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void Dispatch_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_strandScheduler.Dispose();
-      m_strandScheduler.Dispatch(() =>
-      {
-      });
+      m_strandScheduler.Dispatch(() => {});
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void Post_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_strandScheduler.Dispose();
-      m_strandScheduler.Post(() =>
-      {
-
-      });
-
+      m_strandScheduler.Post(() => {});
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void Wrap_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
-      
       m_strandScheduler.Dispose();
-      m_strandScheduler.Wrap(() =>
-      {
-
-      });
-
+      m_strandScheduler.Wrap(() => {});
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void WrapAsTask_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_strandScheduler.Dispose();
-      m_strandScheduler.WrapAsTask(() =>
-      {
-      });
-
+      m_strandScheduler.WrapAsTask(() => {});
     }
+
     private async Task postOrderingCommon(bool insideStrand, bool dispatchMethod)
     {
       Task postTask1 = null;
       Task postTask2 = null;
 
       var outerTaskRunner = insideStrand
-        ? (Func<Action, Task>)TestTaskFactory.StartNew
+        ? (Func<Action, Task>) TestTaskFactory.StartNew
         : Task.Run;
 
       var innerTaskRunner = dispatchMethod
-        ? (Func<Action, Task>)m_strandScheduler.Dispatch
+        ? (Func<Action, Task>) m_strandScheduler.Dispatch
         : m_strandScheduler.Post;
 
       var executedTasks = new ConcurrentQueue<int?>();
@@ -394,11 +378,10 @@ namespace RStein.Async.Tests
       var outerTask = Task.Run(() =>
                                {
                                  postTask1 = dispatchFirst ? m_strandScheduler.Dispatch(() => executedTasks.Enqueue(Task.CurrentId))
-                                             : m_strandScheduler.Post(() => executedTasks.Enqueue(Task.CurrentId));
+                                   : m_strandScheduler.Post(() => executedTasks.Enqueue(Task.CurrentId));
 
                                  postTask2 = dispatchFirst ? m_strandScheduler.Post(() => executedTasks.Enqueue(Task.CurrentId))
                                    : m_strandScheduler.Dispatch(() => executedTasks.Enqueue(Task.CurrentId));
-
                                });
 
       await outerTask;

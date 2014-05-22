@@ -13,12 +13,12 @@ namespace RStein.Async.Schedulers
     public const int POLLONE_RUNONE_MAX_TASKS = 1;
     public const int UNLIMITED_MAX_TASKS = -1;
 
-    private readonly BlockingCollection<Task> m_tasks;
-    private volatile int m_workCounter;
-    private readonly object m_workLockObject;
     private readonly ThreadLocal<IoSchedulerThreadServiceFlags> m_isServiceThreadFlags;
     private readonly CancellationTokenSource m_stopCancelTokenSource;
+    private readonly BlockingCollection<Task> m_tasks;
+    private readonly object m_workLockObject;
     private CancellationTokenSource m_workCancelTokenSource;
+    private volatile int m_workCounter;
 
     public IoServiceScheduler()
     {
@@ -38,19 +38,6 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public virtual int Run()
-    {
-      checkIfDisposed();
-      return runTasks(withWorkCancelToken());
-    }
-
-    public virtual int RunOne()
-    {
-      checkIfDisposed();
-      return runTasks(withGlobalCancelToken(), POLLONE_RUNONE_MAX_TASKS);
-
-    }
-
     public virtual Task Dispatch(Action action)
     {
       checkIfDisposed();
@@ -61,6 +48,52 @@ namespace RStein.Async.Schedulers
 
       var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
       return task;
+    }
+
+    public virtual Task Post(Action action)
+    {
+      checkIfDisposed();
+
+      if (action == null)
+      {
+        throw new ArgumentNullException("action");
+      }
+
+      return postInner(() => Dispatch(action));
+    }
+
+    public virtual Action Wrap(Action action)
+    {
+      checkIfDisposed();
+      if (action == null)
+      {
+        throw new ArgumentNullException("action");
+      }
+
+      return () => Dispatch(action);
+    }
+
+    public virtual Func<Task> WrapAsTask(Action action)
+    {
+      checkIfDisposed();
+      if (action == null)
+      {
+        throw new ArgumentNullException("action");
+      }
+
+      return () => Dispatch(action);
+    }
+
+    public virtual int Run()
+    {
+      checkIfDisposed();
+      return runTasks(withWorkCancelToken());
+    }
+
+    public virtual int RunOne()
+    {
+      checkIfDisposed();
+      return runTasks(withGlobalCancelToken(), POLLONE_RUNONE_MAX_TASKS);
     }
 
     public virtual Task Dispatch(Func<Task> function)
@@ -86,18 +119,6 @@ namespace RStein.Async.Schedulers
     {
       checkIfDisposed();
       return runTasks(withoutCancelToken(), maxTasks: POLLONE_RUNONE_MAX_TASKS);
-    }
-
-    public virtual Task Post(Action action)
-    {
-      checkIfDisposed();
-
-      if (action == null)
-      {
-        throw new ArgumentNullException("action");
-      }
-
-      return postInner(() => Dispatch(action));
     }
 
     public virtual Task Post(Func<Task> function)
@@ -127,17 +148,6 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public virtual Action Wrap(Action action)
-    {
-      checkIfDisposed();
-      if (action == null)
-      {
-        throw new ArgumentNullException("action");
-      }
-
-      return () => Dispatch(action);
-    }
-
     public virtual Action Wrap(Func<Task> function)
     {
       checkIfDisposed();
@@ -147,17 +157,6 @@ namespace RStein.Async.Schedulers
       }
 
       return () => Dispatch(function);
-    }
-
-    public virtual Func<Task> WrapAsTask(Action action)
-    {
-      checkIfDisposed();
-      if (action == null)
-      {
-        throw new ArgumentNullException("action");
-      }
-
-      return () => Dispatch(action);
     }
 
     public virtual Func<Task> WrapAsTask(Func<Task> function)
@@ -170,7 +169,6 @@ namespace RStein.Async.Schedulers
 
       return () => Dispatch(function);
     }
-
 
 
     protected override void Dispose(bool disposing)
@@ -233,7 +231,7 @@ namespace RStein.Async.Schedulers
         if (isNewWorkCancelTokenRequired())
         {
           Debug.Assert(m_workCancelTokenSource == null ||
-                      m_workCancelTokenSource.Token.IsCancellationRequested);
+                       m_workCancelTokenSource.Token.IsCancellationRequested);
 
           m_workCancelTokenSource = new CancellationTokenSource();
         }
@@ -276,12 +274,10 @@ namespace RStein.Async.Schedulers
     {
       checkIfDisposed();
       m_tasks.Add(task);
-
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-
       checkIfDisposed();
       if (!isInServiceThread())
       {
@@ -332,7 +328,6 @@ namespace RStein.Async.Schedulers
 
     private int runTasksCore(CancellationToken cancellationToken)
     {
-
       bool searchForTask = true;
 
       var usedCancellationToken = cancellationToken;
@@ -389,7 +384,7 @@ namespace RStein.Async.Schedulers
     {
       var serviceData = m_isServiceThreadFlags.Value;
       if ((serviceData.MaxOperationsAllowed == UNLIMITED_MAX_TASKS) ||
-         (serviceData.ExecutedOperationsCount < serviceData.MaxOperationsAllowed))
+          (serviceData.ExecutedOperationsCount < serviceData.MaxOperationsAllowed))
       {
         return false;
       }
@@ -401,11 +396,9 @@ namespace RStein.Async.Schedulers
     {
       lock (m_workLockObject)
       {
-
         return (existsWork()
           ? m_workCancelTokenSource.Token
           : withoutCancelToken());
-
       }
     }
 

@@ -18,8 +18,8 @@ namespace RStein.Async.Examples.ActorsCore
 
     public virtual bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
     {
-      bool shouldIntercept = methodInfo.ReturnType.Equals(typeof(void)) ||
-                             typeof(Task).IsAssignableFrom(methodInfo.ReturnType);
+      bool shouldIntercept = methodInfo.ReturnType.Equals(typeof (void)) ||
+                             typeof (Task).IsAssignableFrom(methodInfo.ReturnType);
 
       if (!shouldIntercept)
       {
@@ -29,9 +29,7 @@ namespace RStein.Async.Examples.ActorsCore
       return shouldIntercept;
     }
 
-    public virtual void MethodsInspected()
-    {
-    }
+    public virtual void MethodsInspected() {}
 
     public override bool Equals(object obj)
     {
@@ -43,7 +41,7 @@ namespace RStein.Async.Examples.ActorsCore
       {
         return true;
       }
-      if (obj.GetType() != typeof(ProxyGenerationHook))
+      if (obj.GetType() != typeof (ProxyGenerationHook))
       {
         return false;
       }
@@ -64,6 +62,5 @@ namespace RStein.Async.Examples.ActorsCore
     {
       return !Equals(left, right);
     }
-
   }
 }

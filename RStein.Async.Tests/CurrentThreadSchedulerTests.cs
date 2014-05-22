@@ -7,8 +7,8 @@ namespace RStein.Async.Tests
   [TestClass]
   public class CurrentThreadSchedulerTests : IAutonomousSchedulerTests
   {
-    private ITaskScheduler m_scheduler;
     private IExternalProxyScheduler m_proxyScheduler;
+    private ITaskScheduler m_scheduler;
 
     protected override ITaskScheduler Scheduler
     {

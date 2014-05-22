@@ -6,7 +6,6 @@ namespace RStein.Async.Tasks
 {
   public static class TaskEx
   {
-
     public static Task TaskFromException(Exception exception)
     {
       var tcs = new TaskCompletionSource<Object>();
@@ -46,9 +45,9 @@ namespace RStein.Async.Tasks
 
       addTaskFromExistingTaskProblemContinuation(originaltask, taskcompletionSource);
       originaltask.ContinueWith(_ => taskcompletionSource.TrySetResult(null),
-                                CancellationToken.None,
-                                TaskContinuationOptions.OnlyOnRanToCompletion,
-                                TaskScheduler.Default);
+        CancellationToken.None,
+        TaskContinuationOptions.OnlyOnRanToCompletion,
+        TaskScheduler.Default);
 
       return taskcompletionSource.Task;
     }
@@ -77,7 +76,6 @@ namespace RStein.Async.Tasks
       addRunToCompletionContinuation(originalTask, tcs);
 
       return tcs.Task;
-
     }
 
     public static void WaitAndPropagateException(this Task task)
@@ -107,24 +105,22 @@ namespace RStein.Async.Tasks
 
       var tcs = addTaskFromExistingTaskProblemContinuation<Object>(originalTask);
       return tcs.Task;
-
     }
 
     private static TaskCompletionSource<T> addTaskFromExistingTaskProblemContinuation<T>(Task originalTask, TaskCompletionSource<T> proxyTcs = null)
     {
-
       var proxyTaskCompletionSource = proxyTcs ?? new TaskCompletionSource<T>();
       originalTask.ContinueWith(_ =>
-             {
-               if (originalTask.IsCanceled)
-               {
-                 proxyTaskCompletionSource.TrySetCanceled();
-               }
-               else if (originalTask.IsFaulted)
-               {
-                 proxyTaskCompletionSource.TrySetException(originalTask.Exception);
-               }
-             }, TaskScheduler.Default);
+                                {
+                                  if (originalTask.IsCanceled)
+                                  {
+                                    proxyTaskCompletionSource.TrySetCanceled();
+                                  }
+                                  else if (originalTask.IsFaulted)
+                                  {
+                                    proxyTaskCompletionSource.TrySetException(originalTask.Exception);
+                                  }
+                                }, TaskScheduler.Default);
 
       return proxyTaskCompletionSource;
     }

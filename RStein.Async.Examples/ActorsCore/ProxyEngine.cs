@@ -28,20 +28,19 @@ namespace RStein.Async.Examples.ActorsCore
     public virtual TActorInterface CreateProxy<TActorInterface>(TActorInterface targetObject)
       where TActorInterface : class
     {
-
       if (targetObject == null)
       {
         throw new ArgumentNullException("targetObject");
       }
 
-      var retProxy = m_proxyGenerator.CreateInterfaceProxyWithTargetInterface(typeof(TActorInterface),
-                                                                              targetObject,
-                                                                              m_proxyOptions,
-                                                                              new ActorMethodInterceptor(m_primaryScheduler),
-                                                                              new PreventArgumentBaseTypeLeakInterceptor());
+      var retProxy = m_proxyGenerator.CreateInterfaceProxyWithTargetInterface(typeof (TActorInterface),
+        targetObject,
+        m_proxyOptions,
+        new ActorMethodInterceptor(m_primaryScheduler),
+        new PreventArgumentBaseTypeLeakInterceptor());
       ProxyContext.Current
-                  .SubjectProxyMapping
-                  .AddSubjectProxyPair(targetObject, retProxy);
+        .SubjectProxyMapping
+        .AddSubjectProxyPair(targetObject, retProxy);
 
       return retProxy as TActorInterface;
     }

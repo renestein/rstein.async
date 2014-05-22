@@ -5,9 +5,9 @@ namespace RStein.Async.Schedulers
 {
   public class QueueTasksResult
   {
+    private readonly bool m_hasMoreTasks;
     private readonly int m_numberOfQueuedTasks;
     private readonly Task m_whenAllTask;
-    private readonly bool m_hasMoreTasks;
 
     public QueueTasksResult(int numberOfQueuedTasks, Task whenAllTask, bool hasMoreTasks)
     {

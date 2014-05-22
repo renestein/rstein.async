@@ -9,7 +9,6 @@ namespace RStein.Async.Tests
 {
   public abstract class IAutonomousSchedulerTests : ITaskSchedulerTests
   {
-
     private TaskFactory m_testTaskFactory;
 
     protected abstract IExternalProxyScheduler ProxyScheduler
@@ -39,13 +38,11 @@ namespace RStein.Async.Tests
       await TestTaskFactory.StartNew(() => wasTaskExecuted = true);
 
       Assert.IsTrue(wasTaskExecuted);
-
     }
 
     [TestMethod]
     public async Task WithTaskFactory_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
     {
-
       const int NUMBER_OF_TASKS = 8096;
       int numberOfTasksExecuted = 0;
 
@@ -55,13 +52,11 @@ namespace RStein.Async.Tests
       await Task.WhenAll(tasks);
 
       Assert.AreEqual(NUMBER_OF_TASKS, numberOfTasksExecuted);
-
     }
 
     [TestMethod]
     public virtual async Task Dispose_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
     {
-
       const int NUMBER_OF_TASKS = 1000;
       const int DELAY_TASK_CAN_CONTINUE_SIGNAL_S = 1;
 
@@ -70,11 +65,10 @@ namespace RStein.Async.Tests
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
         .Select(taskIndex => TestTaskFactory.StartNew(() =>
-                                                    {
-
-                                                      waitForSignalCts.Token.WaitHandle.WaitOne();
-                                                      return Interlocked.Increment(ref numberOfTasksExecuted);
-                                                    })).ToArray();
+                                                      {
+                                                        waitForSignalCts.Token.WaitHandle.WaitOne();
+                                                        return Interlocked.Increment(ref numberOfTasksExecuted);
+                                                      })).ToArray();
 
       waitForSignalCts.CancelAfter(TimeSpan.FromSeconds(DELAY_TASK_CAN_CONTINUE_SIGNAL_S));
       Scheduler.Dispose();
@@ -83,7 +77,6 @@ namespace RStein.Async.Tests
       await Task.WhenAll(tasks);
 
       Assert.AreEqual(NUMBER_OF_TASKS, numberOfTasksExecuted);
-
     }
   }
 }

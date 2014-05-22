@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Itenso.TimePeriod;
@@ -11,7 +10,6 @@ using RStein.Async.Schedulers;
 
 namespace RStein.Async.Tests
 {
-
   [TestClass]
   public class ConcurrentStrandSchedulerPairTests
   {
@@ -20,8 +18,8 @@ namespace RStein.Async.Tests
     private const int BEGIN_TASK_THREAD_SLEEP = 1;
 
     private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
-    private TaskFactory m_strandTaskFactory;
     private TaskFactory m_concurrentTaskFactory;
+    private TaskFactory m_strandTaskFactory;
 
     [TestInitialize]
     public void ConcurrentStrandSchedulerPairTestsTestInitialize()
@@ -44,12 +42,12 @@ namespace RStein.Async.Tests
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
         .Select(i => m_strandTaskFactory.StartNew(() =>
-        {
-          Thread.Sleep(BEGIN_TASK_THREAD_SLEEP);
-          var startTime = DateTime.Now;
-          var duration = StopWatchUtils.MeasureActionTime(() => Thread.Sleep(DEFAULT_THREAD_SLEEP));
-          return new TimeRange(startTime, duration, isReadOnly: true);
-        }))
+                                                  {
+                                                    Thread.Sleep(BEGIN_TASK_THREAD_SLEEP);
+                                                    var startTime = DateTime.Now;
+                                                    var duration = StopWatchUtils.MeasureActionTime(() => Thread.Sleep(DEFAULT_THREAD_SLEEP));
+                                                    return new TimeRange(startTime, duration, isReadOnly: true);
+                                                  }))
         .ToArray();
 
       await Task.WhenAll(tasks);
@@ -59,7 +57,6 @@ namespace RStein.Async.Tests
       var timePeriodIntersector = new TimePeriodIntersector<TimeRange>();
       var intersectPeriods = timePeriodIntersector.IntersectPeriods(timePeriodCollection);
       Assert.IsTrue(!intersectPeriods.Any());
-
     }
 
     [TestMethod]
@@ -85,18 +82,17 @@ namespace RStein.Async.Tests
       var concurrentTimeRanges = concurrentTasks.Select(task => task.Result).ToArray();
 
       var overlaps = from strandTimeRange in strandTimeRanges
-                     from concurrentTimeRange in concurrentTimeRanges
-                     select strandTimeRange.OverlapsWith(concurrentTimeRange);
+        from concurrentTimeRange in concurrentTimeRanges
+        select strandTimeRange.OverlapsWith(concurrentTimeRange);
 
       var strandTaskIntersectWithConcurrentTask = overlaps.Any(overlap => overlap);
 
       Debug.Assert(strandTaskIntersectWithConcurrentTask == false);
       Assert.IsFalse(strandTaskIntersectWithConcurrentTask);
-
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void ConcurrentProxyScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_concurrentStrandSchedulerPair.Dispose();
@@ -104,7 +100,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void StrandProxyScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_concurrentStrandSchedulerPair.Dispose();
@@ -112,7 +108,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void AsioStrandcheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_concurrentStrandSchedulerPair.Dispose();
@@ -120,7 +116,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void AsioConcurrentScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_concurrentStrandSchedulerPair.Dispose();
@@ -128,7 +124,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void ConcurrentScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_concurrentStrandSchedulerPair.Dispose();
@@ -136,7 +132,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void StrandScheduler_When_ConcurrentStrandSchedulerPair_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_concurrentStrandSchedulerPair.Dispose();
@@ -166,16 +162,30 @@ namespace RStein.Async.Tests
 
 
     [TestClass]
-    public class ConcurrentStrandSchedulerPairTests_StrandSchedulerTests : IAutonomousSchedulerTests
+    public class ConcurrentStrandSchedulerPairTests_ConcurrentSchedulerTests : IAutonomousSchedulerTests
     {
-
       private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
-      private ITaskScheduler m_concurrentScheduler;
+      private ITaskScheduler m_strandScheduler;
+
+      protected override ITaskScheduler Scheduler
+      {
+        get
+        {
+          return m_strandScheduler;
+        }
+      }
+      protected override IExternalProxyScheduler ProxyScheduler
+      {
+        get
+        {
+          return m_strandScheduler.ProxyScheduler;
+        }
+      }
 
       public override void InitializeTest()
       {
         m_concurrentStrandSchedulerPair = new ConcurrentStrandSchedulerPair(MAX_TASKS_CONCURRENCY);
-        m_concurrentScheduler = m_concurrentStrandSchedulerPair.AsioStrandcheduler;
+        m_strandScheduler = m_concurrentStrandSchedulerPair.AsioConcurrentScheduler;
         base.InitializeTest();
       }
 
@@ -184,6 +194,13 @@ namespace RStein.Async.Tests
         m_concurrentStrandSchedulerPair.Dispose();
         base.CleanupTest();
       }
+    }
+
+    [TestClass]
+    public class ConcurrentStrandSchedulerPairTests_StrandSchedulerTests : IAutonomousSchedulerTests
+    {
+      private ITaskScheduler m_concurrentScheduler;
+      private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
 
       protected override ITaskScheduler Scheduler
       {
@@ -199,19 +216,11 @@ namespace RStein.Async.Tests
           return m_concurrentScheduler.ProxyScheduler;
         }
       }
-    }
-
-    [TestClass]
-    public class ConcurrentStrandSchedulerPairTests_ConcurrentSchedulerTests : IAutonomousSchedulerTests
-    {
-
-      private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
-      private ITaskScheduler m_strandScheduler;
 
       public override void InitializeTest()
       {
         m_concurrentStrandSchedulerPair = new ConcurrentStrandSchedulerPair(MAX_TASKS_CONCURRENCY);
-        m_strandScheduler = m_concurrentStrandSchedulerPair.AsioConcurrentScheduler;
+        m_concurrentScheduler = m_concurrentStrandSchedulerPair.AsioStrandcheduler;
         base.InitializeTest();
       }
 
@@ -219,21 +228,6 @@ namespace RStein.Async.Tests
       {
         m_concurrentStrandSchedulerPair.Dispose();
         base.CleanupTest();
-      }
-
-      protected override ITaskScheduler Scheduler
-      {
-        get
-        {
-          return m_strandScheduler;
-        }
-      }
-      protected override IExternalProxyScheduler ProxyScheduler
-      {
-        get
-        {
-          return m_strandScheduler.ProxyScheduler;
-        }
       }
     }
   }

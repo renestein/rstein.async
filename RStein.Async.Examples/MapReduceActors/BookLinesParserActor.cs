@@ -33,11 +33,17 @@ namespace RStein.Async.Examples.MapReduceActors
       createBookLineConsumers();
     }
 
+    public virtual async Task ProcessLastBook()
+    {
+      var lastBook = await m_library.GetLastBook();
+      parseLines(lastBook);
+    }
+
     private void createBookLineConsumers()
-    {      
+    {
       m_consumers = Enumerable.Range(0, NUMBER_OF_CONSUMERS)
-                               .Select(index => m_lineConcumerFactory.CreateConsumer(index))
-                               .ToArray();
+        .Select(index => m_lineConcumerFactory.CreateConsumer(index))
+        .ToArray();
     }
 
     protected override void DoInnerComplete()
@@ -45,21 +51,15 @@ namespace RStein.Async.Examples.MapReduceActors
       m_consumers.ForEach(actor => actor.Complete());
     }
 
-    public virtual async Task ProcessLastBook()
-    {
-      var lastBook = await m_library.GetLastBook();
-      parseLines(lastBook);
-    }
-
     private void parseLines(string lastBookName)
     {
       var lines = File.ReadLines(lastBookName, Encoding.GetEncoding(FILE_ENCODING));
       var consumers = iterateConsumers();
       var lineActorPairs = lines.Zip(consumers, (line, actor) => new
-                                            {
-                                              Line = line,
-                                              Actor = actor
-                                            });
+                                                                 {
+                                                                   Line = line,
+                                                                   Actor = actor
+                                                                 });
 
       foreach (var lineActorPair in lineActorPairs)
       {
@@ -73,7 +73,7 @@ namespace RStein.Async.Examples.MapReduceActors
       int currentIndex = 0;
       while (true)
       {
-        yield return m_consumers[currentIndex++ % consumersCount];
+        yield return m_consumers[currentIndex++%consumersCount];
       }
     }
   }

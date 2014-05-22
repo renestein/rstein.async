@@ -13,16 +13,6 @@ namespace RStein.Async.Examples.Coroutines
       m_ioServiceScheduler = ioServiceScheduler;
     }
 
-    public virtual void Run()
-    {
-      m_ioServiceScheduler.Run();
-    }
-
-    public virtual Coroutine GetAwaiter()
-    {
-      return this;
-    }
-
     public virtual bool IsCompleted
     {
       get
@@ -36,9 +26,16 @@ namespace RStein.Async.Examples.Coroutines
       m_ioServiceScheduler.Post(continuation);
     }
 
-    public virtual void GetResult()
+    public virtual void Run()
     {
-
+      m_ioServiceScheduler.Run();
     }
+
+    public virtual Coroutine GetAwaiter()
+    {
+      return this;
+    }
+
+    public virtual void GetResult() {}
   }
 }

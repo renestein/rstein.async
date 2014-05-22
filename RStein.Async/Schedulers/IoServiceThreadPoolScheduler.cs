@@ -13,14 +13,11 @@ namespace RStein.Async.Schedulers
     private const int EXPECTED_MIMINUM_THREADS = 1;
 
     private readonly IoServiceScheduler m_ioService;
-    private List<Thread> m_threads;
     private readonly Work m_ioServiceWork;
+    private List<Thread> m_threads;
 
     public IoServiceThreadPoolScheduler(IoServiceScheduler ioService)
-      : this(ioService, Environment.ProcessorCount)
-    {
-
-    }
+      : this(ioService, Environment.ProcessorCount) {}
 
     public IoServiceThreadPoolScheduler(IoServiceScheduler ioService, int numberOfThreads)
     {
@@ -37,30 +34,6 @@ namespace RStein.Async.Schedulers
       m_ioService = ioService;
       m_ioServiceWork = new Work(m_ioService);
       initThreads(numberOfThreads);
-
-    }
-
-
-    public override void QueueTask(Task task)
-    {
-
-      checkIfDisposed();
-      m_ioService.QueueTask(task);
-
-    }
-
-    public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-    {
-      checkIfDisposed();
-      return m_ioService.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
-
-    }
-
-    public override IEnumerable<Task> GetScheduledTasks()
-    {
-      checkIfDisposed();
-      return m_ioService.GetScheduledTasks();
-
     }
 
     public override int MaximumConcurrencyLevel
@@ -70,7 +43,6 @@ namespace RStein.Async.Schedulers
         checkIfDisposed();
         return m_threads.Count();
       }
-
     }
 
     public override IExternalProxyScheduler ProxyScheduler
@@ -86,6 +58,25 @@ namespace RStein.Async.Schedulers
         m_ioService.ProxyScheduler = value;
         base.ProxyScheduler = value;
       }
+    }
+
+
+    public override void QueueTask(Task task)
+    {
+      checkIfDisposed();
+      m_ioService.QueueTask(task);
+    }
+
+    public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+    {
+      checkIfDisposed();
+      return m_ioService.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
+    }
+
+    public override IEnumerable<Task> GetScheduledTasks()
+    {
+      checkIfDisposed();
+      return m_ioService.GetScheduledTasks();
     }
 
     protected override void Dispose(bool disposing)
@@ -104,26 +95,24 @@ namespace RStein.Async.Schedulers
         .Select(threadNumber =>
                 {
                   var poolThread = new Thread(() =>
-                                    {
-                                      try
-                                      {
-                                        m_ioService.Run();
-                                      }
-                                      catch (Exception ex)
-                                      {
-                                        Trace.WriteLine(ex);
-                                        Environment.FailFast(null, ex);
-                                      }
-                                    });
+                                              {
+                                                try
+                                                {
+                                                  m_ioService.Run();
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                  Trace.WriteLine(ex);
+                                                  Environment.FailFast(null, ex);
+                                                }
+                                              });
 
                   poolThread.IsBackground = true;
                   poolThread.Name = String.Format(POOL_THREAD_NAME_FORMAT, threadNumber);
                   return poolThread;
-
                 }).ToList();
 
       m_threads.ForEach(thread => thread.Start());
     }
-
   }
 }

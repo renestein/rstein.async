@@ -19,6 +19,19 @@ namespace RStein.Async.Schedulers
       m_realScheduler.ProxyScheduler = this;
     }
 
+    public override int MaximumConcurrencyLevel
+    {
+      get
+      {
+        return m_realScheduler.MaximumConcurrencyLevel;
+      }
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
+    }
+
     public virtual bool DoTryExecuteTask(Task task)
     {
       if (task == null)
@@ -39,19 +52,6 @@ namespace RStein.Async.Schedulers
     public virtual TaskScheduler AsRealScheduler()
     {
       return this;
-    }
-
-    public void Dispose()
-    {
-      Dispose(true);
-    }
-
-    public override int MaximumConcurrencyLevel
-    {
-      get
-      {
-        return m_realScheduler.MaximumConcurrencyLevel;
-      }
     }
 
     protected override void QueueTask(Task task)

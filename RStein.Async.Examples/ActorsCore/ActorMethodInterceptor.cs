@@ -54,12 +54,12 @@ namespace RStein.Async.Examples.ActorsCore
       {
         return true;
       }
-      if (obj.GetType() != typeof(ActorMethodInterceptor))
+      if (obj.GetType() != typeof (ActorMethodInterceptor))
       {
         return false;
       }
 
-      return Equals((ActorMethodInterceptor)obj);
+      return Equals((ActorMethodInterceptor) obj);
     }
 
 
@@ -80,13 +80,13 @@ namespace RStein.Async.Examples.ActorsCore
 
     private bool isVoidMethod(MethodInfo methodInvocation)
     {
-      return methodInvocation.ReturnType.Equals(typeof(void));
+      return methodInvocation.ReturnType.Equals(typeof (void));
     }
 
     private bool isMethodReturningTask(MethodInfo methodInvocation)
     {
       Type returnMethodType = methodInvocation.ReturnType;
-      return typeof(Task).IsAssignableFrom(returnMethodType);
+      return typeof (Task).IsAssignableFrom(returnMethodType);
     }
 
     private void postTargetSub(StrandSchedulerDecorator strand, IInvocation invocation)
@@ -120,13 +120,12 @@ namespace RStein.Async.Examples.ActorsCore
                                 {
                                   resultTask = TaskEx.TaskFromException(e);
                                 }
-
                               }
                               finally
                               {
                                 if (!hasException && isGenericReturnType)
                                 {
-                                  TaskEx.PrepareTcsTaskFromExistingTask((dynamic)resultTask, proxyTcs);
+                                  TaskEx.PrepareTcsTaskFromExistingTask((dynamic) resultTask, proxyTcs);
                                 }
                                 else
                                 {
@@ -147,7 +146,7 @@ namespace RStein.Async.Examples.ActorsCore
 
       if (methodInvocationTarget.ReturnType.IsGenericType)
       {
-        var closedTcsType = typeof(TaskCompletionSource<>)
+        var closedTcsType = typeof (TaskCompletionSource<>)
           .MakeGenericType(methodInvocationTarget.ReturnType
             .GetGenericArguments());
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using RStein.Async.Examples.ActorsCore;
 using RStein.Async.Schedulers;
 
@@ -34,7 +33,7 @@ namespace RStein.Async.Examples.MapReduceActors
 
       linesParserActor.Complete();
 
-      await resultProcessorActor.Completed;     
+      await resultProcessorActor.Completed;
     }
   }
 }

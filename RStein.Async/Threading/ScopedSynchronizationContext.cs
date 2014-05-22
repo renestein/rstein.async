@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Diagnostics;
 using System.Threading;
 
@@ -16,15 +15,15 @@ namespace RStein.Async.Threading
       setNewContext();
     }
 
+    public void Dispose()
+    {
+      Dispose(true);
+    }
+
     private void setNewContext()
     {
       m_oldContext = SynchronizationContext.Current;
       SynchronizationContext.SetSynchronizationContext(m_newSynchronizationContext);
-    }
-
-    public void Dispose()
-    {
-      Dispose(true);
     }
 
     private void Dispose(bool disposing)

@@ -6,8 +6,8 @@ namespace RStein.Async.Examples.Actors
 {
   public class AsyncPlayer : IAsyncPlayer
   {
-    private int m_pingCounter;
     private readonly string m_name;
+    private int m_pingCounter;
 
     public AsyncPlayer(string name)
     {

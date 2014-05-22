@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using RStein.Async.ConsoleEx;
@@ -17,17 +14,17 @@ namespace RStein.Async.Examples
   internal class Program
   {
     private static readonly string[] _urls =
-                                      {
-                                        "http://twitter.com",
-                                        "http://google.com",
-                                        "http://msdn.microsoft.com",
-                                        "http://www.zive.cz",                                        
-                                      };
-
-    static void Main(string[] args)
     {
-        testDownloadPages();
-       //testMapReduceActors();
+      "http://twitter.com",
+      "http://google.com",
+      "http://msdn.microsoft.com",
+      "http://www.zive.cz",
+    };
+
+    private static void Main(string[] args)
+    {
+      testDownloadPages();
+      //testMapReduceActors();
       //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();

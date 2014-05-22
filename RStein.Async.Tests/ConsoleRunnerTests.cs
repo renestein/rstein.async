@@ -1,7 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RStein.Async.ConsoleEx;
@@ -16,16 +13,10 @@ namespace RStein.Async.Tests
     private const int INVALID_INT_RESULT = -1;
 
     [TestInitialize]
-    protected virtual void ConsoleRunnerTestsInitialize()
-    {
-
-    }
+    protected virtual void ConsoleRunnerTestsInitialize() {}
 
     [TestCleanup]
-    protected virtual void ConsoleRunnerTestsCleanup()
-    {
-
-    }
+    protected virtual void ConsoleRunnerTestsCleanup() {}
 
     [TestMethod]
     public void Run_When_Action_Arg_Then_Action_Executed()
@@ -40,15 +31,13 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [ExpectedException(typeof (InvalidOperationException))]
     public void Run_When_Action_Arg_And_Exception_Then_Exception_Is_Rethrown_In_Main_Thread()
     {
-
       ConsoleRunner.Run(() =>
-      {
-        throw new InvalidOperationException();
-      });
-
+                        {
+                          throw new InvalidOperationException();
+                        });
     }
 
     [TestMethod]
@@ -62,40 +51,39 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [ExpectedException(typeof (InvalidOperationException))]
     public void Run_When_Func_Arg_And_Exception_Then_Exception_Is_Rethrown_In_Main_Thread()
     {
       Func<int> intFunc = () =>
-                  {
-                    throw new InvalidOperationException();
-                  };
+                          {
+                            throw new InvalidOperationException();
+                          };
 
       ConsoleRunner.Run(intFunc);
-
     }
 
     [TestMethod]
     public void Run_When_Func_Task_Arg_Then_Returns_Expected_Value()
     {
       Func<Task<int>> taskIntFunc = async () =>
-                                      {
-                                        await Task.Delay(DEFAULT_TASK_DELAY_MS);
-                                        return DEFAULT_INT_RESULT;
-                                      };
+                                          {
+                                            await Task.Delay(DEFAULT_TASK_DELAY_MS);
+                                            return DEFAULT_INT_RESULT;
+                                          };
 
       int currentResult = ConsoleRunner.Run(taskIntFunc);
       Assert.AreEqual(DEFAULT_INT_RESULT, currentResult);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [ExpectedException(typeof (InvalidOperationException))]
     public void Run_When_Func_Task_Arg_And_Exception_Then_Exception_Is_Rethrown_In_Main_Thread()
     {
       Func<Task<int>> taskIntFunc = async () =>
-      {
-        await Task.Delay(DEFAULT_TASK_DELAY_MS);
-        throw new InvalidOperationException();
-      };
+                                          {
+                                            await Task.Delay(DEFAULT_TASK_DELAY_MS);
+                                            throw new InvalidOperationException();
+                                          };
 
       int currentResult = ConsoleRunner.Run(taskIntFunc);
     }
@@ -115,7 +103,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [ExpectedException(typeof (InvalidOperationException))]
     public void Run_When_Func_Task_Arg_And_Exception_In_Inner_Async_Lambdas_Then_Exception_Is_Rethrown_In_Main_Thread()
     {
       Func<Task<int>> taskIntFunc = async () =>
@@ -130,7 +118,5 @@ namespace RStein.Async.Tests
 
       int currentResult = ConsoleRunner.Run(taskIntFunc);
     }
-
-
   }
 }

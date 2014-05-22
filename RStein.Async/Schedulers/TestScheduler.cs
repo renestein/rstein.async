@@ -8,6 +8,7 @@ namespace RStein.Async.Schedulers
 {
   public class TestScheduler : TaskSchedulerBase
   {
+    private const string FORMAT_STRING = "TestScheduler: Scheduled tasks: {0}";
     private readonly IoServiceScheduler m_ioServiceScheduler;
     private readonly SynchronizationContext m_synchronizationContext;
     private readonly TaskFactory m_taskFactory;
@@ -94,7 +95,6 @@ namespace RStein.Async.Schedulers
         {
           tasksExecuted++;
         }
-
       } while (tasksRemaining > 0 && lastTaskExecuted);
 
       return tasksExecuted;
@@ -117,6 +117,7 @@ namespace RStein.Async.Schedulers
       return m_ioServiceScheduler.GetScheduledTasks();
     }
 
+
     protected override void Dispose(bool disposing)
     {
       if (disposing)
@@ -134,6 +135,11 @@ namespace RStein.Async.Schedulers
     {
       int taskCount = m_ioServiceScheduler.PollOne();
       return (taskCount == IoServiceScheduler.POLLONE_RUNONE_MAX_TASKS);
+    }
+
+    public override string ToString()
+    {
+      return string.Format(FORMAT_STRING, GetScheduledTaskCount());
     }
   }
 }

@@ -7,6 +7,14 @@ namespace RStein.Async.Schedulers
   public class CurrentThreadScheduler : TaskSchedulerBase
   {
     private const int MAXIMUM_CONCURRENCY_LEVEL = 1;
+    public override int MaximumConcurrencyLevel
+    {
+      get
+      {
+        checkIfDisposed();
+        return MAXIMUM_CONCURRENCY_LEVEL;
+      }
+    }
 
     public override void QueueTask(Task task)
     {
@@ -28,18 +36,5 @@ namespace RStein.Async.Schedulers
     }
 
     protected override void Dispose(bool disposing) {}
-
-    public override int MaximumConcurrencyLevel
-    {
-      get
-      {
-        checkIfDisposed();
-        return MAXIMUM_CONCURRENCY_LEVEL;
-      }
-    }
-
-    
   }
 }
-
-  

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using NLog.Targets;
 
 namespace RStein.Async.Examples.AsyncConsoleDownloader
 {
@@ -17,7 +14,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
     public async Task<int> DownloadPages(IEnumerable<string> urls)
     {
       var downloadTasks = (from url in urls
-                           select new WebClient().DownloadStringTaskAsync(url)).ToList();
+        select new WebClient().DownloadStringTaskAsync(url)).ToList();
 
       int successfullyCompletedTasks = 0;
       while (downloadTasks.Any())

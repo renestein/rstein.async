@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,8 +13,8 @@ namespace RStein.Async.Examples.Coroutines
     public const string BEFORE_YIELD_MESSAGE_FORMAT = "Coroutine: {0,-20} before yield {1, -17} tid {2, -10}";
     public const string AFTER_YIELD_MESSAGE_FORMAT = "Coroutine: {0,-20} after yield {1, -18} tid {2, -10}";
     public const string EXIT_MESSAGE_FORMAT = "Coroutine: {0, -20} work done.";
-    private readonly int m_numberOfIterations;
     private readonly string m_logCoroutineName;
+    private readonly int m_numberOfIterations;
 
     public LogCoroutineMethod(int numberOfIterations, string logCoroutineName)
     {
@@ -42,7 +41,6 @@ namespace RStein.Async.Examples.Coroutines
 
       for (int i = 0; i < m_numberOfIterations; i++)
       {
-        
         logMessage(ITERATION_MESSAGE_FORMAT, i);
         await coroutine;
         logMessage(BEFORE_DELAY_MESSAGE_FORMAT, i);
@@ -55,15 +53,14 @@ namespace RStein.Async.Examples.Coroutines
       }
 
       Console.WriteLine(EXIT_MESSAGE_FORMAT, m_logCoroutineName);
-
     }
 
     private void logMessage(string messageFormat, int iteration)
     {
       Console.WriteLine(messageFormat,
-                      m_logCoroutineName,
-                      iteration,
-                      Thread.CurrentThread.ManagedThreadId);
+        m_logCoroutineName,
+        iteration,
+        Thread.CurrentThread.ManagedThreadId);
     }
   }
 }

@@ -9,12 +9,12 @@ namespace RStein.Async.Schedulers
   public abstract class TaskSchedulerBase : ITaskScheduler
   {
     private const string PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE = "ProxyScheduler is already set and cannnot be modified!";
-
-    private bool m_disposed;
-    private readonly object m_serviceLockObject;
-    private readonly TaskCompletionSource<object> m_serviceCompleteTcs;
-    private IExternalProxyScheduler m_proxyScheduler;
     private readonly CancellationTokenSource m_schedulerCancellationTokenSource;
+
+    private readonly TaskCompletionSource<object> m_serviceCompleteTcs;
+    private readonly object m_serviceLockObject;
+    private bool m_disposed;
+    private IExternalProxyScheduler m_proxyScheduler;
 
     protected TaskSchedulerBase()
     {
@@ -29,6 +29,21 @@ namespace RStein.Async.Schedulers
       get
       {
         return m_serviceLockObject;
+      }
+    }
+    protected virtual CancellationToken SchedulerRunCanceledToken
+    {
+      get
+      {
+        return m_schedulerCancellationTokenSource.Token;
+      }
+    }
+
+    protected virtual CancellationTokenSource SchedulerRunCancellationTokenSource
+    {
+      get
+      {
+        return m_schedulerCancellationTokenSource;
       }
     }
 
@@ -93,31 +108,13 @@ namespace RStein.Async.Schedulers
           Trace.WriteLine(ex);
           m_serviceCompleteTcs.TrySetException(ex);
         }
-
       }
-
-
     }
 
     public abstract void QueueTask(Task task);
     public abstract bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued);
     public abstract IEnumerable<Task> GetScheduledTasks();
 
-    protected virtual CancellationToken SchedulerRunCanceledToken
-    {
-      get
-      {
-        return m_schedulerCancellationTokenSource.Token;
-      }
-    }
-
-    protected virtual CancellationTokenSource SchedulerRunCancellationTokenSource
-    {
-      get
-      {
-        return m_schedulerCancellationTokenSource;
-      }
-    }
     protected abstract void Dispose(bool disposing);
 
     protected void checkIfDisposed()

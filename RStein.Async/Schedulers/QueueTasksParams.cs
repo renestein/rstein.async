@@ -6,9 +6,9 @@ namespace RStein.Async.Schedulers
   public class QueueTasksParams
   {
     private readonly int m_maxNumberOfQueuedtasks;
+    private Action<Task> m_afterTaskQueuedAction;
     private Action<Task> m_beforeTaskQueuedAction;
     private Action<Task> m_taskContinuation;
-    private Action<Task> m_afterTaskQueuedAction;
 
     public QueueTasksParams(int maxNumberOfQueuedtasks = Int32.MaxValue,
       Action<Task> beforeTaskQueuedAction = null,

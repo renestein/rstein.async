@@ -7,7 +7,6 @@ namespace RStein.Async.Examples.MapReduceActors
 {
   public class WordCountAggregateActor : ActorBase, ICountWordAggregateActor
   {
-
     private readonly IResultProcessorActor m_resultProcessor;
     private readonly Dictionary<string, int> m_wordCountDictionary;
 
@@ -44,7 +43,6 @@ namespace RStein.Async.Examples.MapReduceActors
       else
       {
         m_wordCountDictionary.Add(pair.Key, pair.Value);
-
       }
     }
   }

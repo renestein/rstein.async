@@ -5,8 +5,8 @@ namespace RStein.Async.Examples.MapReduceActors
 {
   public abstract class ActorBase : IActor
   {
-    private int m_completeCountDown;
     private readonly TaskCompletionSource<Object> m_completedTaskTcs;
+    private int m_completeCountDown;
     private bool m_completed;
 
     protected ActorBase(int completeCountDown = 1)
@@ -48,9 +48,6 @@ namespace RStein.Async.Examples.MapReduceActors
         return m_completedTaskTcs.Task;
       }
     }
-    protected virtual void DoInnerComplete()
-    {
-
-    }
+    protected virtual void DoInnerComplete() {}
   }
 }

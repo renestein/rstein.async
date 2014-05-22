@@ -7,12 +7,11 @@ namespace RStein.Async.Tests
 {
   public abstract class ITaskSchedulerTests
   {
-
     protected abstract ITaskScheduler Scheduler
     {
       get;
     }
-    
+
     [TestInitialize]
     public void ITaskSchedulerTestsInitialize()
     {
@@ -31,18 +30,13 @@ namespace RStein.Async.Tests
       Scheduler.Dispose();
     }
 
-    public virtual void InitializeTest()
-    {
+    public virtual void InitializeTest() {}
 
-    }
-    
-   [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [TestMethod]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void QueueTask_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
-      var dummyTask = new Task(() =>
-                              {
-                              });
+      var dummyTask = new Task(() => {});
 
       Scheduler.Dispose();
       Scheduler.QueueTask(dummyTask);
@@ -50,12 +44,10 @@ namespace RStein.Async.Tests
 
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void TryExecuteTaskInline_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
-      var dummyTask = new Task(() =>
-                              {
-                              });
+      var dummyTask = new Task(() => {});
 
       Scheduler.Dispose();
 
@@ -63,7 +55,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void GetScheduledTasks_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       Scheduler.Dispose();
@@ -71,23 +63,24 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
+    [ExpectedException(typeof (ObjectDisposedException))]
     public void MaximumConcurrencyLevel_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       Scheduler.Dispose();
       var maximumConcurrencyLevel = Scheduler.MaximumConcurrencyLevel;
     }
+
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
-    void SetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
+    [ExpectedException(typeof (ObjectDisposedException))]
+    private void SetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       Scheduler.Dispose();
       Scheduler.ProxyScheduler = null;
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ObjectDisposedException))]
-    void GetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
+    [ExpectedException(typeof (ObjectDisposedException))]
+    private void GetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       Scheduler.Dispose();
       var proxyScheduler = Scheduler.ProxyScheduler;
@@ -102,11 +95,9 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public void  Dispose_Does_Not_Throw()
-    {      
-      
+    public void Dispose_Does_Not_Throw()
+    {
       Scheduler.Dispose();
-      
     }
   }
 }

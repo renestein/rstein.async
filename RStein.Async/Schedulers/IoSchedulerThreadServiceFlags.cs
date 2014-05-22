@@ -1,6 +1,4 @@
-﻿using System.Xml;
-
-namespace RStein.Async.Schedulers
+﻿namespace RStein.Async.Schedulers
 {
   public class IoSchedulerThreadServiceFlags
   {
@@ -8,6 +6,7 @@ namespace RStein.Async.Schedulers
     {
       ResetData();
     }
+
     public bool IsServiceThread
     {
       get;

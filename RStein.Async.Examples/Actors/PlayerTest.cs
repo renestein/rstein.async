@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Net.NetworkInformation;
 using RStein.Async.Examples.ActorsCore;
-using RStein.Async.Misc;
 using RStein.Async.Schedulers;
 
 namespace RStein.Async.Examples.Actors
@@ -11,9 +8,9 @@ namespace RStein.Async.Examples.Actors
   {
     public const string PLAYER_1_NAME = "Tomáš Aquinský";
     public const string PLAYER_2_NAME = "Siger Brabantský";
-    private ProxyEngine m_proxyEngine;
     private IPlayer m_player1;
     private IPlayer m_player2;
+    private ProxyEngine m_proxyEngine;
 
     public PlayerTest()
     {
@@ -37,7 +34,6 @@ namespace RStein.Async.Examples.Actors
     {
       const int PING_COUNT = Int16.MaxValue;
       m_player1.Ping(PING_COUNT, m_player2);
-
     }
   }
 }
