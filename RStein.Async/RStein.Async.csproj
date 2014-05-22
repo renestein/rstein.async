@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleEx\ConsoleRunner.cs" />
+    <Compile Include="Schedulers\CurrentThreadScheduler.cs" />
     <Compile Include="Threading\ScopedSynchronizationContext.cs" />
     <Compile Include="Schedulers\IoServiceSynchronizationContextException.cs" />
     <Compile Include="Misc\StopWatchUtils.cs" />

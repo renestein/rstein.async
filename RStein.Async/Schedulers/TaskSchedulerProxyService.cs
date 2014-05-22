@@ -25,7 +25,7 @@ namespace RStein.Async.Schedulers
       {
         throw new ArgumentNullException("scheduler");
       }
-      bool schedulerAssociatedNow = false;      
+      bool schedulerAssociatedNow = false;
       m_taskSchedulerDictionary.GetValue(task, _ =>
                                                {
                                                  schedulerAssociatedNow = true;
@@ -43,7 +43,7 @@ namespace RStein.Async.Schedulers
       }
 
       IExternalProxyScheduler scheduler;
-      bool result = m_taskSchedulerDictionary.TryGetValue(task, out scheduler);      
+      bool result = m_taskSchedulerDictionary.TryGetValue(task, out scheduler);
       return scheduler;
     }
 

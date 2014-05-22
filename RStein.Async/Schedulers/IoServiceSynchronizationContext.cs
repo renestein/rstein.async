@@ -7,7 +7,7 @@ namespace RStein.Async.Schedulers
 {
   public class IoServiceSynchronizationContext : SynchronizationContext
   {
-    private readonly bool m_disposeIoServiceAfterComplete;    
+    private readonly bool m_disposeIoServiceAfterComplete;
     private readonly IoServiceScheduler m_ioServiceScheduler;
     private int m_outstandingOperationCount;
     private Work m_work;
@@ -29,7 +29,7 @@ namespace RStein.Async.Schedulers
       m_ioServiceScheduler = ioServiceScheduler;
       m_outstandingOperationCount = 0;
       m_work = new Work(ioServiceScheduler);
-      
+
     }
 
     public override void Post(SendOrPostCallback d, object state)
@@ -42,7 +42,7 @@ namespace RStein.Async.Schedulers
     {
       Task sendTask = m_ioServiceScheduler.Dispatch(() => d(state));
       sendTask.WaitAndPropagateException();
-      
+
     }
 
     public override void OperationStarted()

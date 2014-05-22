@@ -59,7 +59,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    public async Task Dispose_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
+    public virtual async Task Dispose_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
     {
 
       const int NUMBER_OF_TASKS = 1000;

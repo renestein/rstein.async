@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="ConcurrentStrandSchedulerPairTests.cs" />
     <Compile Include="ConsoleRunnerTests.cs" />
+    <Compile Include="CurrentThreadSchedulerTests.cs" />
     <Compile Include="IAutonomousSchedulerTests.cs" />
     <Compile Include="IoServiceSchedulerTests.cs" />
     <Compile Include="ITaskSchedulerTests.cs" />
