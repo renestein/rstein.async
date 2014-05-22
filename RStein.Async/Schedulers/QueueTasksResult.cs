@@ -40,6 +40,7 @@ namespace RStein.Async.Schedulers
         return m_hasMoreTasks;
       }
     }
+
     public Task WhenAllTask
     {
       get
