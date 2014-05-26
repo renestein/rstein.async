@@ -35,6 +35,8 @@ namespace RStein.Async.Schedulers
       return Enumerable.Empty<Task>();
     }
 
-    protected override void Dispose(bool disposing) {}
+    protected override void Dispose(bool disposing)
+    {
+    }
   }
 }
