@@ -14,7 +14,7 @@ namespace RStein.Async.ConsoleEx
     public ConsoleRunner()
     {
       m_scheduler = new IoServiceScheduler();
-      var proxyScheduler = new ExternalProxyScheduler(m_scheduler);
+      var proxyScheduler = new ProxyScheduler(m_scheduler);
       m_synchContext = new IoServiceSynchronizationContext(m_scheduler, disposeIoServiceAfterComplete: true);
     }
 

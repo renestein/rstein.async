@@ -11,7 +11,7 @@ namespace RStein.Async.Tests
   {
     private TaskFactory m_testTaskFactory;
 
-    protected abstract IExternalProxyScheduler ProxyScheduler
+    protected abstract IProxyScheduler ProxyScheduler
     {
       get;
     }
@@ -26,7 +26,7 @@ namespace RStein.Async.Tests
 
     public override void InitializeTest()
     {
-      m_testTaskFactory = new TaskFactory(ProxyScheduler.AsRealScheduler());
+      m_testTaskFactory = new TaskFactory(ProxyScheduler.AsTplScheduler());
       base.InitializeTest();
     }
 

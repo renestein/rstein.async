@@ -16,8 +16,8 @@ namespace RStein.Async.Schedulers
     public TestScheduler()
     {
       m_ioServiceScheduler = new IoServiceScheduler();
-      var scheduler = new ExternalProxyScheduler(this);
-      m_taskFactory = new TaskFactory(scheduler.AsRealScheduler());
+      var scheduler = new ProxyScheduler(this);
+      m_taskFactory = new TaskFactory(scheduler.AsTplScheduler());
       m_synchronizationContext = new IoServiceSynchronizationContext(m_ioServiceScheduler);
     }
 
@@ -37,7 +37,7 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public override IExternalProxyScheduler ProxyScheduler
+    public override IProxyScheduler ProxyScheduler
     {
       get
       {

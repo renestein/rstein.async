@@ -11,7 +11,7 @@ namespace RStein.Async.Schedulers
       get;
     }
 
-    IExternalProxyScheduler ProxyScheduler
+    IProxyScheduler ProxyScheduler
     {
       get;
       set;

@@ -15,7 +15,7 @@ namespace RStein.Async.Tests
   {
     private const int INVALID_TASK_ID = 0;
     private const int INVALID_THREAD_ID = -1;
-    private ExternalProxyScheduler m_externalScheduler;
+    private ProxyScheduler m_proxyScheduler;
     private ITaskScheduler m_innerScheduler;
     private StrandSchedulerDecorator m_strandScheduler;
     protected override ITaskScheduler Scheduler
@@ -26,11 +26,11 @@ namespace RStein.Async.Tests
       }
     }
 
-    protected override IExternalProxyScheduler ProxyScheduler
+    protected override IProxyScheduler ProxyScheduler
     {
       get
       {
-        return m_externalScheduler;
+        return m_proxyScheduler;
       }
     }
 
@@ -38,7 +38,7 @@ namespace RStein.Async.Tests
     {
       m_innerScheduler = CreateInnerScheduler();
       m_strandScheduler = new StrandSchedulerDecorator(m_innerScheduler);
-      m_externalScheduler = new ExternalProxyScheduler(m_strandScheduler);
+      m_proxyScheduler = new ProxyScheduler(m_strandScheduler);
       base.InitializeTest();
     }
 
@@ -48,7 +48,7 @@ namespace RStein.Async.Tests
     {
       m_strandScheduler.Dispose();
       m_innerScheduler.Dispose();
-      m_externalScheduler.Dispose();
+      m_proxyScheduler.Dispose();
       base.CleanupTest();
     }
 

@@ -10,13 +10,13 @@ namespace RStein.Async.Examples.Coroutines
   {
     private readonly Coroutine m_coroutine;
     private readonly IoServiceScheduler m_scheduler;
-    private ExternalProxyScheduler m_proxyScheduler;
+    private ProxyScheduler m_proxyScheduler;
     private Work m_work;
 
     public LogCoroutineTester()
     {
       m_scheduler = new IoServiceScheduler();
-      m_proxyScheduler = new ExternalProxyScheduler(m_scheduler);
+      m_proxyScheduler = new ProxyScheduler(m_scheduler);
       m_coroutine = new Coroutine(m_scheduler);
     }
 

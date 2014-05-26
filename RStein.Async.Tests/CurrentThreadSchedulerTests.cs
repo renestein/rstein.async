@@ -7,7 +7,7 @@ namespace RStein.Async.Tests
   [TestClass]
   public class CurrentThreadSchedulerTests : IAutonomousSchedulerTests
   {
-    private IExternalProxyScheduler m_proxyScheduler;
+    private IProxyScheduler m_proxyScheduler;
     private ITaskScheduler m_scheduler;
 
     protected override ITaskScheduler Scheduler
@@ -18,7 +18,7 @@ namespace RStein.Async.Tests
       }
     }
 
-    protected override IExternalProxyScheduler ProxyScheduler
+    protected override IProxyScheduler ProxyScheduler
     {
       get
       {
@@ -29,7 +29,7 @@ namespace RStein.Async.Tests
     public override void InitializeTest()
     {
       m_scheduler = new CurrentThreadScheduler();
-      m_proxyScheduler = new ExternalProxyScheduler(m_scheduler);
+      m_proxyScheduler = new ProxyScheduler(m_scheduler);
       base.InitializeTest();
     }
 

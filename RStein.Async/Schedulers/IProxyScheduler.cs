@@ -2,9 +2,9 @@
 
 namespace RStein.Async.Schedulers
 {
-  public interface IExternalProxyScheduler
+  public interface IProxyScheduler
   {
     bool DoTryExecuteTask(Task task);
-    TaskScheduler AsRealScheduler();
+    TaskScheduler AsTplScheduler();
   }
 }

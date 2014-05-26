@@ -46,7 +46,7 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public override IExternalProxyScheduler ProxyScheduler
+    public override IProxyScheduler ProxyScheduler
     {
       get
       {
@@ -81,7 +81,7 @@ namespace RStein.Async.Schedulers
       Func<Task> postTaskFunc = () => Task.Factory.StartNew(action,
         SchedulerRunCanceledToken,
         TaskCreationOptions.None,
-        ProxyScheduler.AsRealScheduler());
+        ProxyScheduler.AsTplScheduler());
       return postToScheduler(postTaskFunc);
     }
 
@@ -112,7 +112,7 @@ namespace RStein.Async.Schedulers
       Func<Task> postTaskFunc = () => Task.Factory.StartNew(function,
         SchedulerRunCanceledToken,
         TaskCreationOptions.None,
-        ProxyScheduler.AsRealScheduler()).Unwrap();
+        ProxyScheduler.AsTplScheduler()).Unwrap();
 
       return postToScheduler(postTaskFunc);
     }
@@ -208,7 +208,7 @@ namespace RStein.Async.Schedulers
                                                                {
                                                                  Trace.WriteLine("Running dispose task");
                                                                  SchedulerRunCancellationTokenSource.Cancel();
-                                                               }, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+                                                               }, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsTplScheduler());
 
         var disposeTask = postToScheduler(disposeAction);
 

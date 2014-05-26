@@ -11,10 +11,12 @@ namespace RStein.Async.Tests
   [TestClass]
   public class IoServiceSchedulerTests : ITaskSchedulerTests
   {
-    private ExternalProxyScheduler m_proxyScheduler;
+    private ProxyScheduler m_proxyScheduler;
     private IoServiceScheduler m_scheduler;
     private TestContext testContextInstance;
-    public IoServiceSchedulerTests() {}
+    public IoServiceSchedulerTests()
+    {
+    }
 
     protected override ITaskScheduler Scheduler
     {
@@ -40,7 +42,7 @@ namespace RStein.Async.Tests
     public override void InitializeTest()
     {
       m_scheduler = new IoServiceScheduler();
-      m_proxyScheduler = new ExternalProxyScheduler(m_scheduler);
+      m_proxyScheduler = new ProxyScheduler(m_scheduler);
       base.InitializeTest();
     }
 
@@ -62,7 +64,9 @@ namespace RStein.Async.Tests
     public void Run_When_One_Task_Added_Then_Returns_One()
     {
       const int NUMBER_OF_SCHEDULED_TASKS = 1;
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
 
       var result = m_scheduler.Run();
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, result);
@@ -106,7 +110,9 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_SCHEDULED_TASKS = 2;
 
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
-        .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
 
       var executedTasksCount = m_scheduler.Run();
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasksCount);
@@ -115,7 +121,9 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Run_When_One_Task_Added_And_Cancel_Work_Then_Returns_One()
     {
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
 
       cancelWorkAfterTimeout();
       var result = m_scheduler.Run();
@@ -171,7 +179,9 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_SCHEDULED_TASKS = 2;
 
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
-        .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
 
       cancelWorkAfterTimeout();
       var executedTasksCount = m_scheduler.Run();
@@ -215,7 +225,9 @@ namespace RStein.Async.Tests
     public void RunOne_When_One_Task_Added_Then_Returns_One()
     {
       const int NUMBER_OF_SCHEDULED_TASKS = 1;
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
 
       var result = m_scheduler.RunOne();
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, result);
@@ -260,7 +272,9 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_RUNNED_TASKS = 1;
 
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
-        .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
 
       var executedTasksCount = m_scheduler.RunOne();
       Assert.AreEqual(NUMBER_OF_RUNNED_TASKS, executedTasksCount);
@@ -270,7 +284,9 @@ namespace RStein.Async.Tests
     public void RunOne_When_One_Task_Added_And_Cancel_Work_Then_Returns_One()
     {
       const int NUMBER_OF_RUNNED_TASKS = 1;
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
 
       cancelWorkAfterTimeout();
       var result = m_scheduler.RunOne();
@@ -320,7 +336,9 @@ namespace RStein.Async.Tests
       const int RUNNED_TASKS = 1;
 
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
-        .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
 
       cancelWorkAfterTimeout();
       var executedTasksCount = m_scheduler.RunOne();
@@ -407,7 +425,9 @@ namespace RStein.Async.Tests
     public void Poll_When_One_Task_Added_Then_Returns_One()
     {
       const int NUMBER_OF_SCHEDULED_TASKS = 1;
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
 
       var result = m_scheduler.Poll();
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, result);
@@ -451,7 +471,9 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_SCHEDULED_TASKS = 2;
 
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
-        .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
 
       var executedTasksCount = m_scheduler.Poll();
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasksCount);
@@ -475,7 +497,9 @@ namespace RStein.Async.Tests
     public void PollOne_When_One_Task_Added_Then_Returns_One()
     {
       const int NUMBER_OF_SCHEDULED_TASKS = 1;
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
 
       var result = m_scheduler.PollOne();
       Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, result);
@@ -520,7 +544,9 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_RUNNED_TASKS = 1;
 
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
-        .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
 
       var executedTasksCount = m_scheduler.PollOne();
       Assert.AreEqual(NUMBER_OF_RUNNED_TASKS, executedTasksCount);
@@ -530,7 +556,9 @@ namespace RStein.Async.Tests
     public void PollOne_When_One_Task_Added_And_Cancel_Work_Then_Returns_One()
     {
       const int NUMBER_OF_RUNNED_TASKS = 1;
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
 
       cancelWorkAfterTimeout();
       var result = m_scheduler.PollOne();
@@ -580,7 +608,9 @@ namespace RStein.Async.Tests
       const int RUNNED_TASKS = 1;
 
       Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS)
-        .Select(_ => m_scheduler.Dispatch(() => {})).ToArray();
+        .Select(_ => m_scheduler.Dispatch(() =>
+        {
+        })).ToArray();
 
       cancelWorkAfterTimeout();
       var executedTasksCount = m_scheduler.PollOne();
@@ -600,7 +630,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void Run_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
@@ -608,7 +638,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void RunOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
@@ -616,7 +646,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void Poll_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
@@ -624,7 +654,7 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void PollOne_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
@@ -664,7 +694,9 @@ namespace RStein.Async.Tests
       ThreadPool.QueueUserWorkItem(_ =>
                                    {
                                      Thread.Sleep(sleepTime);
-                                     m_scheduler.Post(() => {});
+                                     m_scheduler.Post(() =>
+                                     {
+                                     });
                                    });
     }
 
@@ -818,35 +850,43 @@ namespace RStein.Async.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void Dispatch_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
-      m_scheduler.Dispatch(() => {});
+      m_scheduler.Dispatch(() =>
+      {
+      });
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void Post_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
-      m_scheduler.Post(() => {});
+      m_scheduler.Post(() =>
+      {
+      });
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void Wrap_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
-      m_scheduler.Wrap(() => {});
+      m_scheduler.Wrap(() =>
+      {
+      });
     }
 
     [TestMethod]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof(ObjectDisposedException))]
     public void WrapAsTask_When_Scheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       m_scheduler.Dispose();
-      m_scheduler.WrapAsTask(() => {});
+      m_scheduler.WrapAsTask(() =>
+      {
+      });
     }
   }
 }

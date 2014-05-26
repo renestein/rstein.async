@@ -174,7 +174,7 @@ namespace RStein.Async.Tests
           return m_strandScheduler;
         }
       }
-      protected override IExternalProxyScheduler ProxyScheduler
+      protected override IProxyScheduler ProxyScheduler
       {
         get
         {
@@ -209,7 +209,7 @@ namespace RStein.Async.Tests
           return m_concurrentScheduler;
         }
       }
-      protected override IExternalProxyScheduler ProxyScheduler
+      protected override IProxyScheduler ProxyScheduler
       {
         get
         {

@@ -7,14 +7,14 @@ namespace RStein.Async.Schedulers
 {
   public class TaskExternalProxyService
   {
-    private ConditionalWeakTable<Task, IExternalProxyScheduler> m_taskSchedulerDictionary;
+    private ConditionalWeakTable<Task, IProxyScheduler> m_taskSchedulerDictionary;
 
     public TaskExternalProxyService()
     {
-      m_taskSchedulerDictionary = new ConditionalWeakTable<Task, IExternalProxyScheduler>();
+      m_taskSchedulerDictionary = new ConditionalWeakTable<Task, IProxyScheduler>();
     }
 
-    public bool AddTaskProxySchedulerPair(Task task, IExternalProxyScheduler scheduler)
+    public bool AddTaskProxySchedulerPair(Task task, IProxyScheduler scheduler)
     {
       if (task == null)
       {
@@ -35,14 +35,14 @@ namespace RStein.Async.Schedulers
       return schedulerAssociatedNow;
     }
 
-    public IExternalProxyScheduler GetProxySchedulerForTask(Task task)
+    public IProxyScheduler GetProxySchedulerForTask(Task task)
     {
       if (task == null)
       {
         throw new ArgumentNullException("task");
       }
 
-      IExternalProxyScheduler scheduler;
+      IProxyScheduler scheduler;
       bool result = m_taskSchedulerDictionary.TryGetValue(task, out scheduler);
       return scheduler;
     }

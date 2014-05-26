@@ -48,11 +48,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schedulers\AccumulateTasksSchedulerDecorator.cs" />
     <Compile Include="Schedulers\ConcurrentStrandSchedulerPair.cs" />
-    <Compile Include="Schedulers\ExternalProxyScheduler.cs" />
+    <Compile Include="Schedulers\ProxyScheduler.cs" />
     <Compile Include="Schedulers\IAsioTaskService.cs" />
     <Compile Include="Schedulers\IoServiceScheduler.cs" />
     <Compile Include="Schedulers\IoSchedulerThreadServiceFlags.cs" />
-    <Compile Include="Schedulers\IExternalProxyScheduler.cs" />
+    <Compile Include="Schedulers\IProxyScheduler.cs" />
     <Compile Include="Schedulers\IoServiceSynchronizationContext.cs" />
     <Compile Include="Schedulers\IoServiceThreadPoolScheduler.cs" />
     <Compile Include="Schedulers\ITaskScheduler.cs" />
@@ -68,7 +68,9 @@
     <Compile Include="Tasks\TaskEx.cs" />
     <Compile Include="Threading\ThreadSafeSwitch.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

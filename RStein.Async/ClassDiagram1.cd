@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="RStein.Async.ConsoleEx.ConsoleRunner" Collapsed="true">
+    <Position X="18.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAAAAAAAAAAACCAAAAAAAAAAAAAAAAEI=</HashCode>
+      <FileName>ConsoleEx\ConsoleRunner.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Misc.StopWatchUtils" Collapsed="true">
+    <Position X="20" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAA=</HashCode>
+      <FileName>Misc\StopWatchUtils.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.AccumulateTasksSchedulerDecorator" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQBAAAEGCAAEIAAAQAggAAACAAAABAAQAAAAAAgAA=</HashCode>
+      <FileName>Schedulers\AccumulateTasksSchedulerDecorator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.ConcurrentStrandSchedulerPair" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEhCAAAAQAAAAAAAAAAAQQAAAABAAAAAAQAAA=</HashCode>
+      <FileName>Schedulers\ConcurrentStrandSchedulerPair.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RStein.Async.Schedulers.CurrentThreadScheduler" Collapsed="true">
+    <Position X="14" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEGAAAAAAAAAAAAAAACAAAAAAAAAAABAAgAA=</HashCode>
+      <FileName>Schedulers\CurrentThreadScheduler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.IoServiceScheduler" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BUgkAQIIEOAQIAAABCWAAwJADqAAiCAEAAABAABCwAI=</HashCode>
+      <FileName>Schedulers\IoServiceScheduler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RStein.Async.Schedulers.IoServiceSynchronizationContext" Collapsed="true">
+    <Position X="20" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CIAAAgAAAAAAAAACAkAAAAAACAAAAACAAAAACAAAAAA=</HashCode>
+      <FileName>Schedulers\IoServiceSynchronizationContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.SynchronizationContextException" Collapsed="true">
+    <Position X="21.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Schedulers\IoServiceSynchronizationContextException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.IoServiceThreadPoolScheduler" Collapsed="true">
+    <Position X="9.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAEGAAAAABAAAAADIAACAQAAAAAAAAAAgAgAA=</HashCode>
+      <FileName>Schedulers\IoServiceThreadPoolScheduler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.IoSchedulerThreadServiceFlags" Collapsed="true">
+    <Position X="21.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAAAAAAAAAAAAAACAAAIAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>Schedulers\IoSchedulerThreadServiceFlags.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.NetThreadPoolSchedulerAdapter" Collapsed="true">
+    <Position X="5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEGAAAAAAAAAAAAAAACAAAAAAAAAACAAAgAA=</HashCode>
+      <FileName>Schedulers\NetThreadPoolSchedulerAdapter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.ProxyScheduler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEGAAAAAAAAAAAAAAESAAAAAAAAAAgAAAgAA=</HashCode>
+      <FileName>Schedulers\ProxyScheduler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RStein.Async.Schedulers.ProxySchedulerTaskExtensions" Collapsed="true">
+    <Position X="20" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAEAAAAAAAAAEAgCAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Schedulers\ProxySchedulerTaskExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.QueueTasksParams" Collapsed="true">
+    <Position X="21.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAABCABAAAAAAAAAAAAAAAAAAAAgAqAAAAA=</HashCode>
+      <FileName>Schedulers\QueueTasksParams.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.QueueTasksResult" Collapsed="true">
+    <Position X="16.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAEBAAAAAAACAAAABAAAAAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>Schedulers\QueueTasksResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.StrandSchedulerDecorator" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAgwAAgIEGCAAACBEADAEgAVSDAAAAAAQAABAAgAmAA=</HashCode>
+      <FileName>Schedulers\StrandSchedulerDecorator.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RStein.Async.Schedulers.TaskSchedulerBase">
+    <Position X="7.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BACQAAAEEGAIAgIAAAAAAEAAACAAEBAAAAAAAAAAgAA=</HashCode>
+      <FileName>Schedulers\TaskSchedulerBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="RStein.Async.Schedulers.TaskExternalProxyService" Collapsed="true">
+    <Position X="18.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAACIAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>Schedulers\TaskSchedulerProxyService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.TestScheduler" Collapsed="true">
+    <Position X="11.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAQQAAAAEGAAAAAkBABAAIBAACAgAAABAQACQAAAgAA=</HashCode>
+      <FileName>Schedulers\TestScheduler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Schedulers.Work" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="21.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAEAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Schedulers\Work.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RStein.Async.Tasks.PredefinedTasks" Collapsed="true">
+    <Position X="16.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAABAAAAQAAAAAAAAAAAAAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>Tasks\PredefinedTasks.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Tasks.TaskEx" Collapsed="true">
+    <Position X="16.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CACAAIECAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Tasks\TaskEx.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RStein.Async.Threading.ScopedSynchronizationContext" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Threading\ScopedSynchronizationContext.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="RStein.Async.Threading.ThreadSafeSwitch" Collapsed="true">
+    <Position X="20" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EIAIAAAAAAAAAAAAAAAAAAAAAAAAAEAAACAAABAAAgA=</HashCode>
+      <FileName>Threading\ThreadSafeSwitch.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="RStein.Async.Schedulers.IAsioTaskService" Collapsed="true">
+    <Position X="16.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAggAAAAAAAAAAAAAAAAAAAACAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Schedulers\IAsioTaskService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="RStein.Async.Schedulers.IProxyScheduler">
+    <Position X="18.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Schedulers\IProxyScheduler.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="RStein.Async.Schedulers.ITaskScheduler">
+    <Position X="20" Y="4.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAEEAAAAIAAAAAAAAAACAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>Schedulers\ITaskScheduler.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

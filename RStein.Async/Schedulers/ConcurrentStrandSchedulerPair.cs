@@ -20,7 +20,7 @@ namespace RStein.Async.Schedulers
       m_isDisposed = false;
     }
 
-    public IExternalProxyScheduler ConcurrentProxyScheduler
+    public IProxyScheduler ConcurrentProxyScheduler
     {
       get
       {
@@ -29,7 +29,7 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public IExternalProxyScheduler StrandProxyScheduler
+    public IProxyScheduler StrandProxyScheduler
     {
       get
       {
@@ -62,7 +62,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveExclusiveConcurrentTasksEngine.ConcurrentProxyScheduler.AsRealScheduler();
+        return m_interleaveExclusiveConcurrentTasksEngine.ConcurrentProxyScheduler.AsTplScheduler();
       }
     }
 
@@ -71,7 +71,7 @@ namespace RStein.Async.Schedulers
       get
       {
         checkIfDisposed();
-        return m_interleaveExclusiveConcurrentTasksEngine.StrandProxyScheduler.AsRealScheduler();
+        return m_interleaveExclusiveConcurrentTasksEngine.StrandProxyScheduler.AsTplScheduler();
       }
     }
 
@@ -111,7 +111,7 @@ namespace RStein.Async.Schedulers
       private const int CONTROL_SCHEDULER_CONCURRENCY = 1;
       private TaskCompletionSource<object> m_completedTcs;
       private AccumulateTasksSchedulerDecorator m_concurrentAccumulateScheduler;
-      private IExternalProxyScheduler m_concurrentProxyScheduler;
+      private IProxyScheduler m_concurrentProxyScheduler;
       private QueueTasksParams m_concurrentQueueTaskParams;
 
       private ThreadSafeSwitch m_concurrentTaskAdded;
@@ -128,7 +128,7 @@ namespace RStein.Async.Schedulers
       private CancellationTokenSource m_stopCts;
       private AccumulateTasksSchedulerDecorator m_strandAccumulateScheduler;
 
-      private IExternalProxyScheduler m_strandProxyScheduler;
+      private IProxyScheduler m_strandProxyScheduler;
       private IoServiceThreadPoolScheduler m_threadPoolScheduler;
 
       public InterleaveExclusiveConcurrentTasksEngine(TaskScheduler controlScheduler, int maxTasksConcurrency)
@@ -136,7 +136,7 @@ namespace RStein.Async.Schedulers
         init(controlScheduler, maxTasksConcurrency);
       }
 
-      public IExternalProxyScheduler ConcurrentProxyScheduler
+      public IProxyScheduler ConcurrentProxyScheduler
       {
         get
         {
@@ -144,7 +144,7 @@ namespace RStein.Async.Schedulers
         }
       }
 
-      public IExternalProxyScheduler StrandProxyScheduler
+      public IProxyScheduler StrandProxyScheduler
       {
         get
         {
@@ -184,8 +184,8 @@ namespace RStein.Async.Schedulers
         {
           var ioControlService = new IoServiceScheduler();
           m_ioControlScheduler = new IoServiceThreadPoolScheduler(ioControlService, CONTROL_SCHEDULER_CONCURRENCY);
-          var controlProxyScheduler = new ExternalProxyScheduler(m_ioControlScheduler);
-          m_controlTaskFactory = new TaskFactory(controlProxyScheduler.AsRealScheduler());
+          var controlProxyScheduler = new ProxyScheduler(m_ioControlScheduler);
+          m_controlTaskFactory = new TaskFactory(controlProxyScheduler.AsTplScheduler());
         }
         else
         {
@@ -197,10 +197,10 @@ namespace RStein.Async.Schedulers
         m_threadPoolScheduler = new IoServiceThreadPoolScheduler(ioService, maxTasksConcurrency);
         m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(m_threadPoolScheduler, _ => taskAdded(m_concurrentTaskAdded));
         var strandScheduler = new StrandSchedulerDecorator(m_threadPoolScheduler);
-        var innerStrandProxyScheduler = new ExternalProxyScheduler(strandScheduler);
+        var innerStrandProxyScheduler = new ProxyScheduler(strandScheduler);
         m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, _ => taskAdded(m_exlusiveTaskAdded));
-        m_strandProxyScheduler = new ExternalProxyScheduler(m_strandAccumulateScheduler);
-        m_concurrentProxyScheduler = new ExternalProxyScheduler(m_concurrentAccumulateScheduler);
+        m_strandProxyScheduler = new ProxyScheduler(m_strandAccumulateScheduler);
+        m_concurrentProxyScheduler = new ProxyScheduler(m_concurrentAccumulateScheduler);
         m_processTaskLoop = null;
         m_completedTcs = new TaskCompletionSource<Object>();
         m_stopCts = new CancellationTokenSource();

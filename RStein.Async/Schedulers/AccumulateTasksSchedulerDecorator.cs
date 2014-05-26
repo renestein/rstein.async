@@ -39,7 +39,7 @@ namespace RStein.Async.Schedulers
       }
     }
 
-    public override IExternalProxyScheduler ProxyScheduler
+    public override IProxyScheduler ProxyScheduler
     {
       get
       {

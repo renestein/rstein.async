@@ -165,7 +165,7 @@ namespace RStein.Async.Examples.ActorsCore
       return m_strandActorDictionary.GetValue(invocationTarget, _ =>
                                                                 {
                                                                   var strandScheduler = new StrandSchedulerDecorator(m_primaryScheduler);
-                                                                  var externalProxyScheduler = new ExternalProxyScheduler(strandScheduler);
+                                                                  var externalProxyScheduler = new ProxyScheduler(strandScheduler);
                                                                   return strandScheduler;
                                                                 });
     }

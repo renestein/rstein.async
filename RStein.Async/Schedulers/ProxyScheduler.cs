@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Schedulers
 {
-  public class ExternalProxyScheduler : TaskScheduler, IExternalProxyScheduler, IDisposable
+  public class ProxyScheduler : TaskScheduler, IProxyScheduler, IDisposable
   {
     private readonly ITaskScheduler m_realScheduler;
 
-    public ExternalProxyScheduler(ITaskScheduler realScheduler)
+    public ProxyScheduler(ITaskScheduler realScheduler)
     {
       if (realScheduler == null)
       {
@@ -49,7 +49,7 @@ namespace RStein.Async.Schedulers
       return taskExecuted;
     }
 
-    public virtual TaskScheduler AsRealScheduler()
+    public virtual TaskScheduler AsTplScheduler()
     {
       return this;
     }

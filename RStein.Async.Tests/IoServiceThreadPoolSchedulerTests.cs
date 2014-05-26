@@ -7,15 +7,15 @@ namespace RStein.Async.Tests
   [TestClass]
   public class IoServiceThreadPoolSchedulerTests : IAutonomousSchedulerTests
   {
-    private ExternalProxyScheduler m_externalScheduler;
+    private ProxyScheduler m_proxyScheduler;
     private IoServiceScheduler m_ioService;
     private ITaskScheduler m_threadPool;
 
-    protected override IExternalProxyScheduler ProxyScheduler
+    protected override IProxyScheduler ProxyScheduler
     {
       get
       {
-        return m_externalScheduler;
+        return m_proxyScheduler;
       }
     }
 
@@ -32,7 +32,7 @@ namespace RStein.Async.Tests
     {
       m_ioService = new IoServiceScheduler();
       m_threadPool = new IoServiceThreadPoolScheduler(m_ioService);
-      m_externalScheduler = new ExternalProxyScheduler(m_threadPool);
+      m_proxyScheduler = new ProxyScheduler(m_threadPool);
       base.InitializeTest();
     }
 

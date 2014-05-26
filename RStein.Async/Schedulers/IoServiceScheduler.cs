@@ -46,7 +46,7 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("action");
       }
 
-      var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler());
+      var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsTplScheduler());
       return task;
     }
 
@@ -104,7 +104,7 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("function");
       }
 
-      var task = Task.Factory.StartNew(function, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsRealScheduler()).Unwrap();
+      var task = Task.Factory.StartNew(function, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsTplScheduler()).Unwrap();
       return task;
     }
 

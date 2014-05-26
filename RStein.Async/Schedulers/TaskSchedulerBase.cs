@@ -14,7 +14,7 @@ namespace RStein.Async.Schedulers
     private readonly TaskCompletionSource<object> m_serviceCompleteTcs;
     private readonly object m_serviceLockObject;
     private bool m_disposed;
-    private IExternalProxyScheduler m_proxyScheduler;
+    private IProxyScheduler m_proxyScheduler;
 
     protected TaskSchedulerBase()
     {
@@ -52,7 +52,7 @@ namespace RStein.Async.Schedulers
       get;
     }
 
-    public virtual IExternalProxyScheduler ProxyScheduler
+    public virtual IProxyScheduler ProxyScheduler
     {
       get
       {

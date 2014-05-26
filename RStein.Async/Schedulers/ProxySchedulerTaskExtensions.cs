@@ -7,21 +7,21 @@ namespace RStein.Async.Schedulers
   {
     private static readonly TaskExternalProxyService _taskSchedulerExternalProxyService = new TaskExternalProxyService();
 
-    public static bool SetProxyScheduler(this Task task, IExternalProxyScheduler externalProxyScheduler)
+    public static bool SetProxyScheduler(this Task task, IProxyScheduler proxyScheduler)
     {
       if (task == null)
       {
         throw new ArgumentNullException("task");
       }
 
-      if (externalProxyScheduler == null)
+      if (proxyScheduler == null)
       {
-        throw new ArgumentNullException("externalProxyScheduler");
+        throw new ArgumentNullException("proxyScheduler");
       }
-      return _taskSchedulerExternalProxyService.AddTaskProxySchedulerPair(task, externalProxyScheduler);
+      return _taskSchedulerExternalProxyService.AddTaskProxySchedulerPair(task, proxyScheduler);
     }
 
-    public static IExternalProxyScheduler GetProxyScheduler(this Task task)
+    public static IProxyScheduler GetProxyScheduler(this Task task)
     {
       if (task == null)
       {

@@ -22,7 +22,7 @@ namespace RStein.Async.Examples.Actors
       var ioServiceScheduler = new IoServiceScheduler();
 
       var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioServiceScheduler);
-      var externalProxyScheduler = new ExternalProxyScheduler(threadPoolScheduler);
+      var externalProxyScheduler = new ProxyScheduler(threadPoolScheduler);
       m_proxyEngine = new ProxyEngine(threadPoolScheduler);
       createActors();
     }
