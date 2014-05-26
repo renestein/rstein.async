@@ -36,6 +36,7 @@ namespace RStein.Async.Tests
     [ExpectedException(typeof (ObjectDisposedException))]
     public void QueueTask_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
+   
       var dummyTask = new Task(() => {});
 
       Scheduler.Dispose();
@@ -51,7 +52,7 @@ namespace RStein.Async.Tests
 
       Scheduler.Dispose();
 
-      Scheduler.QueueTask(dummyTask);
+      Scheduler.TryExecuteTaskInline(dummyTask, false);
     }
 
     [TestMethod]
