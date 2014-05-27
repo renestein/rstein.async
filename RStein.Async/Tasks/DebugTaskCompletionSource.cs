@@ -86,14 +86,14 @@ namespace RStein.Async.Tasks
     [ConditionalAttribute("DEBUG")]
     private void registerTask()
     {
-      TasksFromDebugTaskcompletionSourceHolder.Add(this, m_task);
+      TasksFromDebugTaskCompletionSourceHolder.Add(this, m_task);
     }
 
     [ConditionalAttribute("DEBUG")]
     private void detectBrokenPromise()
     {
       Task task;
-      TasksFromDebugTaskcompletionSourceHolder.TryGetValue(this, out task);
+      TasksFromDebugTaskCompletionSourceHolder.TryGetValue(this, out task);
 
       Debug.Assert(task != null);
       if (!task.IsCompleted)

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Tasks
 {
-  public static class TasksFromDebugTaskcompletionSourceHolder
+  public static class TasksFromDebugTaskCompletionSourceHolder
   {
     private static ConditionalWeakTable<object, Task> _tasksDictionary = new ConditionalWeakTable<object, Task>();
     public static void Add(object key, Task value)
