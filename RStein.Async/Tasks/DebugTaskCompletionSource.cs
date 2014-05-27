@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Policy;
 using System.Threading.Tasks;
@@ -38,6 +39,53 @@ namespace RStein.Async.Tasks
       GC.Collect();
       GC.WaitForPendingFinalizers();
       GC.Collect();
+    }
+
+    public void SetCanceled()
+    {
+      m_taskCompletionSource.SetCanceled();
+    }
+
+    public void SetException(Exception exception)
+    {
+      m_taskCompletionSource.SetException(exception);
+    }
+
+    public void SetException(IEnumerable<Exception> exceptions)
+    {
+      m_taskCompletionSource.SetException(exceptions);
+    }
+
+    public void SetResult(T result)
+    {
+      m_taskCompletionSource.SetResult(result);
+    }
+
+    public Task<T> Task
+    {
+      get
+      {
+        return m_taskCompletionSource.Task;
+      }
+    }
+    public bool TrySetCanceled()
+    {
+      return m_taskCompletionSource.TrySetCanceled();
+    }
+
+    public bool TrySetException(Exception exception)
+    {
+      return m_taskCompletionSource.TrySetException(exception);
+    }
+
+    public bool TrySetException(IEnumerable<Exception> exceptions)
+    {
+      return m_taskCompletionSource.TrySetException(exceptions);
+    }
+
+    public bool TrySetResult(T result)
+    {
+      return m_taskCompletionSource.TrySetResult(result);
     }
 
     [ConditionalAttribute("DEBUG")]
