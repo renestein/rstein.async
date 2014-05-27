@@ -15,8 +15,8 @@ target-gqm
 Release*
 Release*
 Resharper*
-Genesys-Service
-Genesys-Standalone
 ipch
 *.ipch
 ProtocolMessage.pb.*
+*sln.DotSettings.user
+*.suo
