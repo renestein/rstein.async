@@ -88,6 +88,7 @@
     <Compile Include="Actors\Player.cs" />
     <Compile Include="Actors\PlayerTest.cs" />
     <Compile Include="AsyncConsoleDownloader\AsyncDownloader.cs" />
+    <Compile Include="BrokenPromise\LeakTaskCompletionSource.cs" />
     <Compile Include="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" />
     <Compile Include="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" />
     <Compile Include="Coroutines\Coroutine.cs" />
@@ -146,6 +147,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

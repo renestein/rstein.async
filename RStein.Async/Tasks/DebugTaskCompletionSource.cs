@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace RStein.Async.Tasks
@@ -10,11 +8,16 @@ namespace RStein.Async.Tasks
   public class DebugTaskCompletionSource<T>
   {
     public const string DEFAULT_BROKEN_PROMISE_DESCRIPTION = "Broken promise DebugTaskCompletionSource - task id {0}";
-    private static ConcurrentDictionary<Object, Task> _tasksDictionary = new ConcurrentDictionary<object, Task>();
 
-    private TaskCompletionSource<T> m_taskCompletionSource;
-    private string m_description;
-    private Task<T> m_task;
+    private readonly TaskCompletionSource<T> m_taskCompletionSource;
+    private readonly string m_description;
+    private readonly Task<T> m_task;
+
+    public DebugTaskCompletionSource()
+      : this(null)
+    {
+
+    }
 
     public DebugTaskCompletionSource(string description)
     {
@@ -32,14 +35,6 @@ namespace RStein.Async.Tasks
 
     }
 #endif
-
-    [ConditionalAttribute("DEBUG")]
-    public static void DetectBrokenTaskCompletionSources()
-    {
-      GC.Collect();
-      GC.WaitForPendingFinalizers();
-      GC.Collect();
-    }
 
     public void SetCanceled()
     {
@@ -91,20 +86,21 @@ namespace RStein.Async.Tasks
     [ConditionalAttribute("DEBUG")]
     private void registerTask()
     {
-      Debug.Assert(_tasksDictionary.TryAdd(this, m_task));
+      TasksFromDebugTaskcompletionSourceHolder.Add(this, m_task);
     }
 
     [ConditionalAttribute("DEBUG")]
     private void detectBrokenPromise()
     {
       Task task;
-      _tasksDictionary.TryGetValue(this, out task);
+      TasksFromDebugTaskcompletionSourceHolder.TryGetValue(this, out task);
 
       Debug.Assert(task != null);
       if (!task.IsCompleted)
       {
         throw new BrokenPromiseException(m_description);
       }
+
     }
   }
 }

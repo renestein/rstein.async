@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using RStein.Async.ConsoleEx;
 using RStein.Async.Examples.Actors;
 using RStein.Async.Examples.AsyncConsoleDownloader;
+using RStein.Async.Examples.BrokenPromise;
 using RStein.Async.Examples.ConcurrentExclusive;
 using RStein.Async.Examples.Coroutines;
 using RStein.Async.Examples.MapReduceActors;
+using RStein.Async.Tasks;
 
 namespace RStein.Async.Examples
 {
@@ -23,13 +25,21 @@ namespace RStein.Async.Examples
 
     private static void Main(string[] args)
     {
-      testDownloadPages();
+      testBrokenPromises();
+      //testDownloadPages();
       //testMapReduceActors();
       //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
       Console.ReadLine();
+    }
+
+    private static void testBrokenPromises()
+    {
+      var leakTaskCompletionSource = new LeakTaskCompletionSource();
+      var task = leakTaskCompletionSource.Leak();
+      DebugTaskCompletionSourceServices.DetectBrokenTaskCompletionSources();
     }
 
     private static void testDownloadPages()
