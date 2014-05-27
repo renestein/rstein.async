@@ -42,6 +42,8 @@
     <Compile Include="ConsoleEx\ConsoleRunner.cs" />
     <Compile Include="Schedulers\CurrentThreadScheduler.cs" />
     <Compile Include="Schedulers\TestScheduler.cs" />
+    <Compile Include="Tasks\BrokenPromiseException.cs" />
+    <Compile Include="Tasks\DebugTaskCompletionSource.cs" />
     <Compile Include="Threading\ScopedSynchronizationContext.cs" />
     <Compile Include="Schedulers\IoServiceSynchronizationContextException.cs" />
     <Compile Include="Misc\StopWatchUtils.cs" />
