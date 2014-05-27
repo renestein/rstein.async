@@ -17,7 +17,9 @@ namespace RStein.Async.Schedulers
     private List<Thread> m_threads;
 
     public IoServiceThreadPoolScheduler(IoServiceScheduler ioService)
-      : this(ioService, Environment.ProcessorCount) {}
+      : this(ioService, Environment.ProcessorCount)
+    {
+    }
 
     public IoServiceThreadPoolScheduler(IoServiceScheduler ioService, int numberOfThreads)
     {
@@ -103,7 +105,15 @@ namespace RStein.Async.Schedulers
                                                 catch (Exception ex)
                                                 {
                                                   Trace.WriteLine(ex);
-                                                  Environment.FailFast(null, ex);
+                                                  if (Debugger.IsAttached)
+                                                  {
+                                                    Debugger.Break();
+                                                  }
+                                                  else
+                                                  {
+                                                    Environment.FailFast(null, ex);
+                                                  }
+
                                                 }
                                               });
 
