@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace RStein.Async.Schedulers
@@ -6,10 +8,10 @@ namespace RStein.Async.Schedulers
   public sealed class Work : IDisposable
   {
     private readonly CancellationTokenSource m_cancelTokenSource;
-
+    
     public Work(IoServiceScheduler scheduler)
     {
-      m_cancelTokenSource = new CancellationTokenSource();
+      m_cancelTokenSource = new CancellationTokenSource();    
       scheduler.AddWork(this);
     }
 
@@ -21,6 +23,11 @@ namespace RStein.Async.Schedulers
       }
     }
 
+    internal void RegisterWorkDisposedHandler(Action action)
+    {
+      m_cancelTokenSource.Token.Register(action);
+    }
+
     public void Dispose()
     {
       Dispose(true);
@@ -30,7 +37,7 @@ namespace RStein.Async.Schedulers
     {
       if (disposing)
       {
-        m_cancelTokenSource.Cancel();
+        m_cancelTokenSource.Cancel();        
       }
     }
   }

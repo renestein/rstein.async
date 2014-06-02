@@ -36,10 +36,40 @@
       <FileName>Schedulers\CurrentThreadScheduler.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="RStein.Async.Schedulers.IoServiceScheduler" Collapsed="true">
-    <Position X="0.5" Y="1.75" Width="1.5" />
+  <Class Name="RStein.Async.Schedulers.IoServiceScheduler">
+    <Position X="0.5" Y="1.5" Width="3" />
+    <Members>
+      <Method Name="AddWork" Hidden="true" />
+      <Method Name="clearCurrentThreadAsServiceFlag" Hidden="true" />
+      <Method Name="doStop" Hidden="true" />
+      <Method Name="existsWork" Hidden="true" />
+      <Method Name="handleWorkAdded" Hidden="true" />
+      <Method Name="handleWorkDisposed" Hidden="true" />
+      <Method Name="isInServiceThread" Hidden="true" />
+      <Method Name="isNewWorkCancelTokenRequired" Hidden="true" />
+      <Field Name="m_isServiceThreadFlags" Hidden="true" />
+      <Field Name="m_stopCancelTokenSource" Hidden="true" />
+      <Field Name="m_tasks" Hidden="true" />
+      <Field Name="m_workCancelTokenSource" Hidden="true" />
+      <Field Name="m_workCounter" Hidden="true" />
+      <Field Name="m_workLockObject" Hidden="true" />
+      <Field Name="POLLONE_RUNONE_MAX_TASKS" Hidden="true" />
+      <Method Name="postInner" Hidden="true" />
+      <Field Name="REQUIRED_WORK_CANCEL_TOKEN_VALUE" Hidden="true" />
+      <Method Name="resetThreadAsServiceAllFlags" Hidden="true" />
+      <Method Name="runTasks" Hidden="true" />
+      <Method Name="runTasksCore" Hidden="true" />
+      <Method Name="setCurrentThreadAsServiceAllFlags" Hidden="true" />
+      <Method Name="setThreadAsServiceFlag" Hidden="true" />
+      <Method Name="tasksLimitReached" Hidden="true" />
+      <Method Name="tryGetTask" Hidden="true" />
+      <Field Name="UNLIMITED_MAX_TASKS" Hidden="true" />
+      <Method Name="withGlobalCancelToken" Hidden="true" />
+      <Method Name="withoutCancelToken" Hidden="true" />
+      <Method Name="withWorkCancelToken" Hidden="true" />
+    </Members>
     <TypeIdentifier>
-      <HashCode>BUgkAQIIEOAQIAAABCWAAwJADqAAiCAEAAABAABCwAI=</HashCode>
+      <HashCode>BUgkAQIIEOAQIAAABCWAAwJADiAAiCAECAABAABCwAI=</HashCode>
       <FileName>Schedulers\IoServiceScheduler.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -58,7 +88,7 @@
       <FileName>Schedulers\IoServiceSynchronizationContextException.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="RStein.Async.Schedulers.IoServiceThreadPoolScheduler" Collapsed="true">
+  <Class Name="RStein.Async.Schedulers.IoServiceThreadPoolScheduler">
     <Position X="9.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAQAAAAEGAAAAABAAAAADIAACAQAAAAAAAAAAgAgAA=</HashCode>
@@ -73,7 +103,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.NetThreadPoolSchedulerAdapter" Collapsed="true">
-    <Position X="5" Y="1.75" Width="1.5" />
+    <Position X="5.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAEGAAAAAAAAAAAAAAACAAAAAAAAAACAAAgAA=</HashCode>
       <FileName>Schedulers\NetThreadPoolSchedulerAdapter.cs</FileName>
@@ -109,7 +139,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.StrandSchedulerDecorator" Collapsed="true">
-    <Position X="2.75" Y="1.75" Width="1.5" />
+    <Position X="3.75" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>BAgwAAgIEGCAAACBEADAEgAVSDAAAAAAQAABAAgAmAA=</HashCode>
       <FileName>Schedulers\StrandSchedulerDecorator.cs</FileName>
@@ -141,7 +171,7 @@
   <Class Name="RStein.Async.Schedulers.Work" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="21.75" Y="3.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAACAAEAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAEACAAEAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Schedulers\Work.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
@@ -175,7 +205,7 @@
       <FileName>Threading\ThreadSafeSwitch.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Interface Name="RStein.Async.Schedulers.IAsioTaskService" Collapsed="true">
+  <Interface Name="RStein.Async.Schedulers.IAsioTaskService">
     <Position X="16.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAggAAAAAAAAAAAAAAAAAAAACAAAAAAAAAABAAAAAAA=</HashCode>

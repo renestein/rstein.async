@@ -198,7 +198,7 @@ namespace RStein.Async.Schedulers
     private void doStop()
     {
       m_stopCancelTokenSource.Cancel();
-      handleWorkCanceled(cancelNow: true);
+      handleWorkDisposed(cancelNow: true);
     }
 
     private void setCurrentThreadAsServiceAllFlags(int maxTasks)
@@ -236,7 +236,7 @@ namespace RStein.Async.Schedulers
           m_workCancelTokenSource = new CancellationTokenSource();
         }
 
-        work.CancelToken.Register(() => handleWorkCanceled());
+        work.RegisterWorkDisposedHandler(() => handleWorkDisposed());
       }
     }
 
@@ -245,7 +245,7 @@ namespace RStein.Async.Schedulers
       return (m_workCounter == REQUIRED_WORK_CANCEL_TOKEN_VALUE);
     }
 
-    private void handleWorkCanceled(bool cancelNow = false)
+    private void handleWorkDisposed(bool cancelNow = false)
     {
       lock (m_workLockObject)
       {
