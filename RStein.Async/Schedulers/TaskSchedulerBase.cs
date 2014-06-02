@@ -124,5 +124,6 @@ namespace RStein.Async.Schedulers
         throw new ObjectDisposedException(GetType().FullName);
       }
     }
+    
   }
 }

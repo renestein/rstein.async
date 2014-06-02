@@ -46,7 +46,25 @@ namespace RStein.Async.Schedulers
         throw new ArgumentNullException("action");
       }
 
-      var task = Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsTplScheduler());
+      var task = Task.Factory.StartNew(action, 
+                                       CancellationToken.None, 
+                                       TaskCreationOptions.None, 
+                                       ProxyScheduler.AsTplScheduler());
+      return task;
+    }
+
+    public virtual Task Dispatch(Func<Task> function)
+    {
+      checkIfDisposed();
+      if (function == null)
+      {
+        throw new ArgumentNullException("function");
+      }
+
+      var task = Task.Factory.StartNew(function, 
+                                       CancellationToken.None, 
+                                       TaskCreationOptions.None, 
+                                       ProxyScheduler.AsTplScheduler()).Unwrap();
       return task;
     }
 
@@ -73,17 +91,6 @@ namespace RStein.Async.Schedulers
       return () => Dispatch(action);
     }
 
-    public virtual Func<Task> WrapAsTask(Action action)
-    {
-      checkIfDisposed();
-      if (action == null)
-      {
-        throw new ArgumentNullException("action");
-      }
-
-      return () => Dispatch(action);
-    }
-
     public virtual int Run()
     {
       checkIfDisposed();
@@ -94,18 +101,6 @@ namespace RStein.Async.Schedulers
     {
       checkIfDisposed();
       return runTasks(withGlobalCancelToken(), POLLONE_RUNONE_MAX_TASKS);
-    }
-
-    public virtual Task Dispatch(Func<Task> function)
-    {
-      checkIfDisposed();
-      if (function == null)
-      {
-        throw new ArgumentNullException("function");
-      }
-
-      var task = Task.Factory.StartNew(function, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsTplScheduler()).Unwrap();
-      return task;
     }
 
 
@@ -121,6 +116,27 @@ namespace RStein.Async.Schedulers
       return runTasks(withoutCancelToken(), maxTasks: POLLONE_RUNONE_MAX_TASKS);
     }
 
+    public virtual Func<Task> WrapAsTask(Action action)
+    {
+      checkIfDisposed();
+      if (action == null)
+      {
+        throw new ArgumentNullException("action");
+      }
+
+      return () => Dispatch(action);
+    }
+
+    public virtual Func<Task> WrapAsTask(Func<Task> function)
+    {
+      checkIfDisposed();
+      if (function == null)
+      {
+        throw new ArgumentNullException("function");
+      }
+
+      return () => Dispatch(function);
+    }
     public virtual Task Post(Func<Task> function)
     {
       checkIfDisposed();
@@ -159,24 +175,35 @@ namespace RStein.Async.Schedulers
       return () => Dispatch(function);
     }
 
-    public virtual Func<Task> WrapAsTask(Func<Task> function)
+
+    public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
       checkIfDisposed();
-      if (function == null)
+      if (!isInServiceThread())
       {
-        throw new ArgumentNullException("function");
+        return false;
       }
 
-      return () => Dispatch(function);
-    }
-
-
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
+      if (tasksLimitReached())
       {
-        doStop();
+        return false;
       }
+
+      bool taskExecutedNow = false;
+      try
+      {
+        m_isServiceThreadFlags.Value.ExecutedOperationsCount++;
+        taskExecutedNow = task.RunOnProxyScheduler();
+      }
+      finally
+      {
+        if (!taskExecutedNow)
+        {
+          m_isServiceThreadFlags.Value.ExecutedOperationsCount--;
+        }
+      }
+
+      return taskExecutedNow;
     }
 
     internal void AddWork(Work work)
@@ -187,6 +214,14 @@ namespace RStein.Async.Schedulers
       }
 
       handleWorkAdded(work);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        doStop();
+      }
     }
 
 
@@ -274,36 +309,6 @@ namespace RStein.Async.Schedulers
     {
       checkIfDisposed();
       m_tasks.Add(task);
-    }
-
-    public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-    {
-      checkIfDisposed();
-      if (!isInServiceThread())
-      {
-        return false;
-      }
-
-      if (tasksLimitReached())
-      {
-        return false;
-      }
-
-      bool taskExecutedNow = false;
-      try
-      {
-        m_isServiceThreadFlags.Value.ExecutedOperationsCount++;
-        taskExecutedNow = task.RunOnProxyScheduler();
-      }
-      finally
-      {
-        if (!taskExecutedNow)
-        {
-          m_isServiceThreadFlags.Value.ExecutedOperationsCount--;
-        }
-      }
-
-      return taskExecutedNow;
     }
 
     public override IEnumerable<Task> GetScheduledTasks()

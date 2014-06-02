@@ -76,27 +76,6 @@ namespace RStein.Async.Schedulers
       return Post(action);
     }
 
-    public virtual Task Post(Action action)
-    {
-      Func<Task> postTaskFunc = () => Task.Factory.StartNew(action,
-        SchedulerRunCanceledToken,
-        TaskCreationOptions.None,
-        ProxyScheduler.AsTplScheduler());
-      return postToScheduler(postTaskFunc);
-    }
-
-    public virtual Action Wrap(Action action)
-    {
-      checkIfDisposed();
-      return () => Dispatch(action);
-    }
-
-    public virtual Func<Task> WrapAsTask(Action action)
-    {
-      checkIfDisposed();
-      return () => Dispatch(action);
-    }
-
     public virtual Task Dispatch(Func<Task> function)
     {
       if (isCurrentThreadInThisStrand())
@@ -105,6 +84,15 @@ namespace RStein.Async.Schedulers
       }
 
       return Post(function);
+    }
+
+    public virtual Task Post(Action action)
+    {
+      Func<Task> postTaskFunc = () => Task.Factory.StartNew(action,
+        SchedulerRunCanceledToken,
+        TaskCreationOptions.None,
+        ProxyScheduler.AsTplScheduler());
+      return postToScheduler(postTaskFunc);
     }
 
     public Task Post(Func<Task> function)
@@ -117,15 +105,33 @@ namespace RStein.Async.Schedulers
       return postToScheduler(postTaskFunc);
     }
 
+    public virtual Action Wrap(Action action)
+    {
+      checkIfDisposed();
+      return () => Dispatch(action);
+    }
+
+    public virtual Action Wrap(Func<Task> function)
+    {
+      checkIfDisposed();
+      return () => Dispatch(function);
+    }
+
+    public virtual Func<Task> WrapAsTask(Action action)
+    {
+      checkIfDisposed();
+      return () => Dispatch(action);
+    }
+
+    public virtual Func<Task> WrapAsTask(Func<Task> action)
+    {
+      checkIfDisposed();
+      return () => Dispatch(action);
+    }
+
     public virtual bool RunningInThisThread()
     {
       return isCurrentThreadInThisStrand();
-    }
-
-
-    private void resetPostMethodContext()
-    {
-      m_postOnCallStack.Value = false;
     }
 
 
@@ -156,6 +162,12 @@ namespace RStein.Async.Schedulers
       return safeTryExecuteTaskInline(task, taskWasPreviouslyQueued, callFromStrand: false);
     }
 
+    private void resetPostMethodContext()
+    {
+      m_postOnCallStack.Value = false;
+    }
+
+
     private bool safeTryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued, bool callFromStrand = false)
     {
       checkIfDisposed();
@@ -181,18 +193,6 @@ namespace RStein.Async.Schedulers
       return m_alreadyQueuedTasksTable.TryGetValue(task, out taskAlreadyQueued);
     }
 
-    public virtual Action Wrap(Func<Task> function)
-    {
-      checkIfDisposed();
-      return () => Dispatch(function);
-    }
-
-
-    public virtual Func<Task> WrapAsTask(Func<Task> action)
-    {
-      checkIfDisposed();
-      return () => Dispatch(action);
-    }
 
     public override IEnumerable<Task> GetScheduledTasks()
     {
