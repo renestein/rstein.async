@@ -220,6 +220,30 @@ namespace RStein.Async.Tests
       Assert.IsTrue(time.TotalSeconds < RUN_MAX_DURATION_S);
     }
 
+    [TestMethod]
+    public async Task Run_When_Called_From_Multiple_Threads_Then_All_Tasks_Executed()
+    {
+      const int NUMBER_OF_SCHEDULED_TASKS = 100;
+      const int DEFAULT_TASK_SLEEP = 100;
+      const int NUMBER_OF_WORKER_THREAD = 3;
+      var countDownEvent = new CountdownEvent(NUMBER_OF_WORKER_THREAD);
+
+      int executedTasks = 0;
+
+      var allTasks = Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS).Select(_ => m_scheduler.Post(() => Thread.Sleep(DEFAULT_TASK_SLEEP))).ToArray();
+
+      Enumerable.Range(0, NUMBER_OF_WORKER_THREAD).Select(_ => ThreadPool.QueueUserWorkItem(__ =>
+      {
+        int tasksExecutedInThisThread = m_scheduler.Run();
+        Interlocked.Add(ref executedTasks, tasksExecutedInThisThread);
+        countDownEvent.Signal();
+      })).ToArray();
+
+      await Task.WhenAll(allTasks);
+      countDownEvent.Wait();
+
+      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasks);
+    }
 
     [TestMethod]
     public void RunOne_When_One_Task_Added_Then_Returns_One()
@@ -384,6 +408,7 @@ namespace RStein.Async.Tests
     }
 
     //Unsafe test
+
 
     [TestMethod]
     public void RunOne_When_Zero_Tasks_And_Scheduler_Disposed_Then_Method_Returns_Zero()
@@ -659,31 +684,6 @@ namespace RStein.Async.Tests
     {
       m_scheduler.Dispose();
       m_scheduler.PollOne();
-    }
-
-    [TestMethod]
-    public async Task Run_When_Called_From_Multiple_Threads_Then_All_Tasks_Executed()
-    {
-      const int NUMBER_OF_SCHEDULED_TASKS = 100;
-      const int DEFAULT_TASK_SLEEP = 100;
-      const int NUMBER_OF_WORKER_THREAD = 3;
-      var countDownEvent = new CountdownEvent(NUMBER_OF_WORKER_THREAD);
-
-      int executedTasks = 0;
-
-      var allTasks = Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS).Select(_ => m_scheduler.Post(() => Thread.Sleep(DEFAULT_TASK_SLEEP))).ToArray();
-
-      Enumerable.Range(0, NUMBER_OF_WORKER_THREAD).Select(_ => ThreadPool.QueueUserWorkItem(__ =>
-                                                                                            {
-                                                                                              int tasksExecutedInThisThread = m_scheduler.Run();
-                                                                                              Interlocked.Add(ref executedTasks, tasksExecutedInThisThread);
-                                                                                              countDownEvent.Signal();
-                                                                                            })).ToArray();
-
-      await Task.WhenAll(allTasks);
-      countDownEvent.Wait();
-
-      Assert.AreEqual(NUMBER_OF_SCHEDULED_TASKS, executedTasks);
     }
 
     private void scheduleTaskAfterDelay(int? sleepMs = null)

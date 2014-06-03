@@ -14,7 +14,7 @@ namespace RStein.Async.Schedulers
       m_cancelTokenSource = new CancellationTokenSource();    
       scheduler.AddWork(this);
     }
-
+    
     internal CancellationToken CancelToken
     {
       get
