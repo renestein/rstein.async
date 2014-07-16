@@ -43,6 +43,7 @@ namespace RStein.Async.Examples.Coroutines
       {
         logMessage(ITERATION_MESSAGE_FORMAT, i);
         await coroutine;
+
         logMessage(BEFORE_DELAY_MESSAGE_FORMAT, i);
         await Task.Delay(DEFAULT_DELAY_MS);
         logMessage(AFTER_DELAY_MESSAGE_FORMAT, i);

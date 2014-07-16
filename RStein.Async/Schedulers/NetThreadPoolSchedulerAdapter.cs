@@ -39,7 +39,7 @@ namespace RStein.Async.Schedulers
     private void createThreadPoolTask(Task originalTask)
     {
       Debug.Assert(ProxyScheduler != null);
-      var threadPoolTask = new Task<bool>(() => originalTask.RunOnProxyScheduler());
+      var threadPoolTask = new Task<bool>(originalTask.RunOnProxyScheduler);
       threadPoolTask.Start(TaskScheduler.Default);
     }
   }

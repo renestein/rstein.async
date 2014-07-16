@@ -80,15 +80,16 @@ namespace RStein.Async.Schedulers
       return postInner(() => Dispatch(action));
     }
 
-    public virtual Action Wrap(Action action)
+    public virtual Task Post(Func<Task> function)
     {
       checkIfDisposed();
-      if (action == null)
+
+      if (function == null)
       {
-        throw new ArgumentNullException("action");
+        throw new ArgumentNullException("function");
       }
 
-      return () => Dispatch(action);
+      return postInner(() => Dispatch(function));
     }
 
     public virtual int Run()
@@ -137,32 +138,18 @@ namespace RStein.Async.Schedulers
 
       return () => Dispatch(function);
     }
-    public virtual Task Post(Func<Task> function)
+
+    public virtual Action Wrap(Action action)
     {
       checkIfDisposed();
-
-      if (function == null)
+      if (action == null)
       {
-        throw new ArgumentNullException("function");
+        throw new ArgumentNullException("action");
       }
 
-      return postInner(() => Dispatch(function));
+      return () => Dispatch(action);
     }
 
-    private Task postInner(Func<Task> dispatcher)
-    {
-      bool oldIsInServiceThread = m_isServiceThreadFlags.Value.IsServiceThread;
-
-      try
-      {
-        clearCurrentThreadAsServiceFlag();
-        return dispatcher();
-      }
-      finally
-      {
-        m_isServiceThreadFlags.Value.IsServiceThread = oldIsInServiceThread;
-      }
-    }
 
     public virtual Action Wrap(Func<Task> function)
     {
@@ -174,7 +161,6 @@ namespace RStein.Async.Schedulers
 
       return () => Dispatch(function);
     }
-
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
@@ -206,6 +192,20 @@ namespace RStein.Async.Schedulers
       return taskExecutedNow;
     }
 
+    public override void QueueTask(Task task)
+    {
+      checkIfDisposed();
+      m_tasks.Add(task);
+    }
+
+    public override IEnumerable<Task> GetScheduledTasks()
+    {
+      checkIfDisposed();
+      return m_tasks.ToArray();
+    }
+
+
+
     internal void AddWork(Work work)
     {
       if (work == null)
@@ -221,6 +221,21 @@ namespace RStein.Async.Schedulers
       if (disposing)
       {
         doStop();
+      }
+    }
+
+    private Task postInner(Func<Task> dispatcher)
+    {
+      bool oldIsInServiceThread = m_isServiceThreadFlags.Value.IsServiceThread;
+
+      try
+      {
+        clearCurrentThreadAsServiceFlag();
+        return dispatcher();
+      }
+      finally
+      {
+        m_isServiceThreadFlags.Value.IsServiceThread = oldIsInServiceThread;
       }
     }
 
@@ -304,19 +319,6 @@ namespace RStein.Async.Schedulers
         }
       }
     }
-
-    public override void QueueTask(Task task)
-    {
-      checkIfDisposed();
-      m_tasks.Add(task);
-    }
-
-    public override IEnumerable<Task> GetScheduledTasks()
-    {
-      checkIfDisposed();
-      return m_tasks.ToArray();
-    }
-
 
     private int runTasks(CancellationToken cancellationToken, int maxTasks = UNLIMITED_MAX_TASKS)
     {

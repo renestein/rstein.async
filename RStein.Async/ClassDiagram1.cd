@@ -30,7 +30,7 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="RStein.Async.Schedulers.CurrentThreadScheduler" Collapsed="true">
-    <Position X="14" Y="1.75" Width="1.5" />
+    <Position X="13.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAEGAAAAAAAAAAAAAAACAAAAAAAAAAABAAgAA=</HashCode>
       <FileName>Schedulers\CurrentThreadScheduler.cs</FileName>
@@ -89,7 +89,13 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.IoServiceThreadPoolScheduler">
-    <Position X="9.5" Y="1.75" Width="1.5" />
+    <Position X="9.75" Y="1.75" Width="3.5" />
+    <Members>
+      <Method Name="initThreads" Hidden="true" />
+      <Field Name="m_ioService" Hidden="true" />
+      <Field Name="m_ioServiceWork" Hidden="true" />
+      <Field Name="m_threads" Hidden="true" />
+    </Members>
     <TypeIdentifier>
       <HashCode>AAAQAAAAEGAAAAABAAAAADIAACAQAAAAAAAAAAgAgAA=</HashCode>
       <FileName>Schedulers\IoServiceThreadPoolScheduler.cs</FileName>
@@ -162,7 +168,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.TestScheduler" Collapsed="true">
-    <Position X="11.75" Y="1.75" Width="1.5" />
+    <Position X="13.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>CAQQAAAAEGAAAAAkBABAAIBAACAgAAABAQACQAAAgAA=</HashCode>
       <FileName>Schedulers\TestScheduler.cs</FileName>
@@ -208,7 +214,7 @@
   <Interface Name="RStein.Async.Schedulers.IAsioTaskService">
     <Position X="16.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAggAAAAAAAAAAAAAAAAAAAACAAAAAAAAAABAAAAAAA=</HashCode>
+      <HashCode>AAggAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Schedulers\IAsioTaskService.cs</FileName>
     </TypeIdentifier>
   </Interface>
