@@ -2,7 +2,7 @@
 using Castle.DynamicProxy;
 using RStein.Async.Schedulers;
 
-namespace RStein.Async.Examples.ActorsCore
+namespace RStein.Async.Actors.ActorsCore
 {
   public class ProxyEngine
   {

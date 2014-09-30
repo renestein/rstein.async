@@ -1,5 +1,5 @@
 ﻿using System;
-using RStein.Async.Examples.ActorsCore;
+using RStein.Async.Actors.ActorsCore;
 using RStein.Async.Schedulers;
 
 namespace RStein.Async.Examples.Actors

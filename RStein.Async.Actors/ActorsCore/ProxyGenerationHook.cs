@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
 
-namespace RStein.Async.Examples.ActorsCore
+namespace RStein.Async.Actors.ActorsCore
 {
   public class ProxyGenerationHook : IProxyGenerationHook
   {

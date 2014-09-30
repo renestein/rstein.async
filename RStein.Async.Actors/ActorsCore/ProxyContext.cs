@@ -1,4 +1,4 @@
-﻿namespace RStein.Async.Examples.ActorsCore
+﻿namespace RStein.Async.Actors.ActorsCore
 {
   //TODO: Refactor ProxyContext
   public class ProxyContext : IProxyContext

@@ -74,13 +74,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActorsCore\ActorMethodInterceptor.cs" />
-    <Compile Include="ActorsCore\IProxyContext.cs" />
-    <Compile Include="ActorsCore\ProxyContext.cs" />
-    <Compile Include="ActorsCore\SubjectProxyMapping.cs" />
-    <Compile Include="ActorsCore\PreventArgumentBaseTypeLeakInterceptor.cs" />
-    <Compile Include="ActorsCore\ProxyEngine.cs" />
-    <Compile Include="ActorsCore\ProxyGenerationHook.cs" />
     <Compile Include="Actors\AsyncPlayer.cs" />
     <Compile Include="Actors\AsyncPlayerTest.cs" />
     <Compile Include="Actors\IAsyncPlayer.cs" />
@@ -117,6 +110,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RStein.Async.Actors\RStein.Async.Actors.csproj">
+      <Project>{D39D7E6B-E96D-4B2B-9560-A6E47B3916A0}</Project>
+      <Name>RStein.Async.Actors</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RStein.Async\RStein.Async.csproj">
       <Project>{7761EB08-F0A0-4E93-9CDF-090E59F7FF2B}</Project>
       <Name>RStein.Async</Name>

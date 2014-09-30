@@ -7,7 +7,7 @@ using Castle.Core.Interceptor;
 using RStein.Async.Schedulers;
 using RStein.Async.Tasks;
 
-namespace RStein.Async.Examples.ActorsCore
+namespace RStein.Async.Actors.ActorsCore
 {
   internal class ActorMethodInterceptor : IInterceptor, IEquatable<ActorMethodInterceptor>
   {

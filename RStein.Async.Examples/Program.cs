@@ -26,12 +26,12 @@ namespace RStein.Async.Examples
     private static void Main(string[] args)
     {
       //testBrokenPromises();
-      //testDownloadPages();
+      testDownloadPages();
       //testMapReduceActors();
       //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
-      testCoroutines();
+      //testCoroutines();
       Console.ReadLine();
     }
 

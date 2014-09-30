@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using RStein.Async.Examples.ActorsCore;
+using RStein.Async.Actors.ActorsCore;
 using RStein.Async.Misc;
 using RStein.Async.Schedulers;
 

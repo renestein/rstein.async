@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace RStein.Async.Examples.ActorsCore
+namespace RStein.Async.Actors.ActorsCore
 {
   public class SubjectProxyMapping
   {

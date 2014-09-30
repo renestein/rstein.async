@@ -1,5 +1,6 @@
 ﻿using System;
-using RStein.Async.Examples.ActorsCore;
+using RStein.Async.Actors.ActorsCore;
+
 
 namespace RStein.Async.Examples.MapReduceActors
 {
