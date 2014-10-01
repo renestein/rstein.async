@@ -46,7 +46,8 @@ namespace RStein.Async.Examples
     private static void testDownloadPages()
     {
       Console.WriteLine("Main: Current thread {0}", Thread.CurrentThread.ManagedThreadId);
-      int successfulTasks = ConsoleRunner.Run(() => DownloadWebPages());
+      //int successfulTasks = ConsoleRunner.Run(() => DownloadWebPages());
+      int successfulTasks = DownloadWebPages().Result;
       Console.WriteLine("Number of successful downloads: {0} Total urls: {1}", successfulTasks, _urls.Count());
     }
 
