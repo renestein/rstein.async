@@ -25,7 +25,7 @@ namespace RStein.Async.Examples.Actors
     public virtual void Ping(int pingCount, IPlayer secondPlayer)
     {
       Console.WriteLine("{0} Ping number: {1} tid: {2},", m_name, pingCount, Thread.CurrentThread.ManagedThreadId);
-
+      
       if (pingCount > 0)
       {
         secondPlayer.Ping(pingCount - 1, this);

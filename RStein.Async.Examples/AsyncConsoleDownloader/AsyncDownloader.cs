@@ -19,7 +19,17 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
       int successfullyCompletedTasks = 0;
       while (downloadTasks.Any())
       {
-        var currentTask = await Task.WhenAny(downloadTasks);
+        Task<String> currentTask = null;
+        try
+        {
+          currentTask = await Task.WhenAny(downloadTasks);
+        }
+        catch (Exception ex)
+        {
+
+          Console.WriteLine(ex);
+        }
+        
         downloadTasks.Remove(currentTask);
 
         if (taskHasresult(currentTask))
@@ -51,6 +61,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
       if (currentTask.IsFaulted)
       {
         Console.WriteLine(currentTask.Exception);
+        return;
       }
 
       Console.WriteLine(currentTask.Result.Substring(0, MAX_CHARS));

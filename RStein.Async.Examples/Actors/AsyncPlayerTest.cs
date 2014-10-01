@@ -37,7 +37,7 @@ namespace RStein.Async.Examples.Actors
 
     public virtual async Task Run()
     {
-      const int PING_COUNT = Int16.MaxValue;
+      const int PING_COUNT = 1000;
 
       var duration = await StopWatchUtils.MeasureActionTime(async () =>
                                                                   {

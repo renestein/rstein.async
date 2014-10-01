@@ -8,7 +8,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Misc.StopWatchUtils" Collapsed="true">
-    <Position X="20" Y="2.5" Width="1.5" />
+    <Position X="25.5" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAA=</HashCode>
       <FileName>Misc\StopWatchUtils.cs</FileName>
@@ -74,22 +74,28 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="RStein.Async.Schedulers.IoServiceSynchronizationContext" Collapsed="true">
-    <Position X="20" Y="0.5" Width="1.5" />
+  <Class Name="RStein.Async.Schedulers.IoServiceSynchronizationContext">
+    <Position X="20.5" Y="0.5" Width="3.25" />
+    <Members>
+      <Method Name="tryCompleteContext" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
       <HashCode>CIAAAgAAAAAAAAACAkAAAAAACAAAAACAAAAACAAAAAA=</HashCode>
       <FileName>Schedulers\IoServiceSynchronizationContext.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.SynchronizationContextException" Collapsed="true">
-    <Position X="21.75" Y="2.5" Width="1.5" />
+    <Position X="25.25" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Schedulers\IoServiceSynchronizationContextException.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.IoServiceThreadPoolScheduler">
-    <Position X="9.75" Y="1.75" Width="3.5" />
+    <Position X="10.75" Y="1.75" Width="3.5" />
     <Members>
       <Method Name="initThreads" Hidden="true" />
       <Field Name="m_ioService" Hidden="true" />
@@ -102,21 +108,21 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.IoSchedulerThreadServiceFlags" Collapsed="true">
-    <Position X="21.75" Y="0.5" Width="1.5" />
+    <Position X="25.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAgAAAAAAAAAAAAAAACAAAIAAAAAAQAAAAAAAA=</HashCode>
       <FileName>Schedulers\IoSchedulerThreadServiceFlags.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.NetThreadPoolSchedulerAdapter" Collapsed="true">
-    <Position X="5.5" Y="1.75" Width="1.5" />
+    <Position X="4.75" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAEGAAAAAAAAAAAAAAACAAAAAAAAAACAAAgAA=</HashCode>
       <FileName>Schedulers\NetThreadPoolSchedulerAdapter.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="RStein.Async.Schedulers.ProxyScheduler" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="18.25" Y="1.5" Width="1.5" />
+  <Class Name="RStein.Async.Schedulers.ProxyScheduler" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="1.25" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAEGAAAAAAAAAAAAAAESAAAAAAAAAAgAAAgAA=</HashCode>
       <FileName>Schedulers\ProxyScheduler.cs</FileName>
@@ -124,14 +130,14 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="RStein.Async.Schedulers.ProxySchedulerTaskExtensions" Collapsed="true">
-    <Position X="20" Y="1.5" Width="1.5" />
+    <Position X="22" Y="4.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ABAAEAAAAAAAAAEAgCAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Schedulers\ProxySchedulerTaskExtensions.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.QueueTasksParams" Collapsed="true">
-    <Position X="21.75" Y="1.5" Width="1.5" />
+    <Position X="25.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AACAAAAAAAABCABAAAAAAAAAAAAAAAAAAAAgAqAAAAA=</HashCode>
       <FileName>Schedulers\QueueTasksParams.cs</FileName>
@@ -144,8 +150,34 @@
       <FileName>Schedulers\QueueTasksResult.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="RStein.Async.Schedulers.StrandSchedulerDecorator" Collapsed="true">
-    <Position X="3.75" Y="2.75" Width="1.5" />
+  <Class Name="RStein.Async.Schedulers.StrandSchedulerDecorator">
+    <Position X="3.75" Y="2.75" Width="2.75" />
+    <Members>
+      <Method Name="addTaskContinuation" Hidden="true" />
+      <Method Name="executeTaskOnInnerScheduler" Hidden="true" />
+      <Method Name="isCurrentThreadInPostMethodContext" Hidden="true" />
+      <Method Name="isCurrentThreadInThisStrand" Hidden="true" />
+      <Method Name="isOriginalSchedulerInImplicitStrand" Hidden="true" />
+      <Method Name="popQueuedTask" Hidden="true" />
+      <Method Name="postToScheduler" Hidden="true" />
+      <Method Name="resetPostMethodContext" Hidden="true" />
+      <Method Name="resetTaskLock" Hidden="true" />
+      <Method Name="safeTryExecuteTaskInline" Hidden="true" />
+      <Method Name="setPostMethodContext" Hidden="true" />
+      <Method Name="taskAlreadyQueued" Hidden="true" />
+      <Method Name="tryExecuteNextTask" Hidden="true" />
+      <Method Name="tryProcessTask" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="RStein.Async.Schedulers.StrandSchedulerDecorator.TryAddTaskResult" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Schedulers\StrandSchedulerDecorator.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
     <TypeIdentifier>
       <HashCode>BAgwAAgIEGCAAACBEADAEgAVSDAAAAAAQAABAAgAmAA=</HashCode>
       <FileName>Schedulers\StrandSchedulerDecorator.cs</FileName>
@@ -153,7 +185,16 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="RStein.Async.Schedulers.TaskSchedulerBase">
-    <Position X="7.25" Y="0.5" Width="1.5" />
+    <Position X="7.25" Y="0.5" Width="3" />
+    <Members>
+      <Field Name="m_disposed" Hidden="true" />
+      <Field Name="m_serviceCompleteTcs" Hidden="true" />
+      <Field Name="m_serviceLockObject" Hidden="true" />
+      <Field Name="m_schedulerCancellationTokenSource" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
       <HashCode>BACQAAAEEGAIAgIAAAAAAEAAACAAEBAAAAAAAAAAgAA=</HashCode>
       <FileName>Schedulers\TaskSchedulerBase.cs</FileName>
@@ -161,21 +202,21 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="RStein.Async.Schedulers.TaskExternalProxyService" Collapsed="true">
-    <Position X="18.25" Y="3.5" Width="1.5" />
+    <Position X="15" Y="3.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAEAAAAAAAACIAAAAAAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
       <FileName>Schedulers\TaskSchedulerProxyService.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="RStein.Async.Schedulers.TestScheduler" Collapsed="true">
-    <Position X="13.75" Y="0.5" Width="1.5" />
+  <Class Name="RStein.Async.Schedulers.TestScheduler">
+    <Position X="14.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>CAQQAAAAEGAAAAAkBABAAIBAACAgAAABAQACQAAAgAA=</HashCode>
       <FileName>Schedulers\TestScheduler.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Schedulers.Work" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="21.75" Y="3.5" Width="1.5" />
+    <Position X="23" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAEACAAEAAAAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Schedulers\Work.cs</FileName>
@@ -197,7 +238,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RStein.Async.Threading.ScopedSynchronizationContext" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="18.25" Y="2.5" Width="1.5" />
+    <Position X="15" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>QAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
       <FileName>Threading\ScopedSynchronizationContext.cs</FileName>
@@ -205,7 +246,7 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="RStein.Async.Threading.ThreadSafeSwitch" Collapsed="true">
-    <Position X="20" Y="3.5" Width="1.5" />
+    <Position X="21.75" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EIAIAAAAAAAAAAAAAAAAAAAAAAAAAEAAACAAABAAAgA=</HashCode>
       <FileName>Threading\ThreadSafeSwitch.cs</FileName>
