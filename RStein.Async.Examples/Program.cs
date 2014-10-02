@@ -27,10 +27,10 @@ namespace RStein.Async.Examples
     private static void Main(string[] args)
     {
       //testBrokenPromises();
-      testDownloadPages();
+      //testDownloadPages();
        //testMapReduceActors();
       //testAsyncPlayers();
-      //testPlayerActors();
+      testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
       Console.ReadLine();

@@ -16,7 +16,7 @@ namespace RStein.Async.Examples.Actors
     {
       var ioServiceScheduler = new IoServiceScheduler();
 
-      var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioServiceScheduler, 1);
+      var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioServiceScheduler);
       var externalProxyScheduler = new ProxyScheduler(threadPoolScheduler);
       m_proxyEngine = new ProxyEngine(threadPoolScheduler);
       createActors();
@@ -32,7 +32,7 @@ namespace RStein.Async.Examples.Actors
 
     public virtual void Run()
     {
-      const int PING_COUNT = 10000;
+      const int PING_COUNT = 1000;
       m_player1.Ping(PING_COUNT, m_player2);
     }
   }
