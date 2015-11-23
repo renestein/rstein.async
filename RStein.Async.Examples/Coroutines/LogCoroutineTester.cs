@@ -34,8 +34,8 @@ namespace RStein.Async.Examples.Coroutines
 
     private void addCoroutineMethods()
     {
-      const int NUMBER_OF_COROUTINES = 3;
-      const int NUMBER_OF_ITERATIONS = 3;
+      const int NUMBER_OF_COROUTINES = 30;
+      const int NUMBER_OF_ITERATIONS = 40;
 
       var tasksArray = Enumerable.Range(0, NUMBER_OF_COROUTINES)
         .Select(i => m_scheduler.Post(() =>

@@ -28,11 +28,11 @@ namespace RStein.Async.Examples
     {
       //testBrokenPromises();
       //testDownloadPages();
-       //testMapReduceActors();
-      //testAsyncPlayers();
-      testPlayerActors();
+      //testMapReduceActors();
+       //testAsyncPlayers();
+       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
-      //testCoroutines();
+      testCoroutines();
       Console.ReadLine();
     }
 
@@ -46,8 +46,8 @@ namespace RStein.Async.Examples
     private static void testDownloadPages()
     {
       Console.WriteLine("Main: Current thread {0}", Thread.CurrentThread.ManagedThreadId);
-      //int successfulTasks = ConsoleRunner.Run(() => DownloadWebPages());
-      int successfulTasks = DownloadWebPages().Result;
+      int successfulTasks = ConsoleRunner.Run(() => DownloadWebPages());
+      //int successfulTasks = DownloadWebPages().Result;
       Console.WriteLine("Number of successful downloads: {0} Total urls: {1}", successfulTasks, _urls.Count());
     }
 

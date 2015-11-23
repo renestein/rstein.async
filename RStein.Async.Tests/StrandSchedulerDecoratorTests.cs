@@ -165,7 +165,7 @@ namespace RStein.Async.Tests
       await task;
       Assert.AreNotEqual(INVALID_THREAD_ID, originalTaskThreadId);
       Assert.AreNotEqual(INVALID_THREAD_ID, inDispatchTaskThreadId);
-      Assert.AreEqual(originalTaskThreadId, originalTaskThreadId);
+      Assert.AreEqual(originalTaskThreadId, inDispatchTaskThreadId);
     }
 
     [TestMethod]

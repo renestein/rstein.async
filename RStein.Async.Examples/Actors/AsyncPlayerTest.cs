@@ -21,7 +21,7 @@ namespace RStein.Async.Examples.Actors
     {
       var ioServiceScheduler = new IoServiceScheduler();
 
-      var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioServiceScheduler);
+      var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioServiceScheduler,1);
       var externalProxyScheduler = new ProxyScheduler(threadPoolScheduler);
       m_proxyEngine = new ProxyEngine(threadPoolScheduler);
       createActors();
@@ -37,7 +37,7 @@ namespace RStein.Async.Examples.Actors
 
     public virtual async Task Run()
     {
-      const int PING_COUNT = 1000;
+      const int PING_COUNT = 100;
 
       var duration = await StopWatchUtils.MeasureActionTime(async () =>
                                                                   {
