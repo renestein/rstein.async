@@ -47,6 +47,8 @@
     <Compile Include="Tasks\DebugTaskCompletionSource.cs" />
     <Compile Include="Tasks\DebugTaskCompletionSourceServices.cs" />
     <Compile Include="Tasks\TasksFromDebugTaskcompletionSourceHolder.cs" />
+    <Compile Include="Threading\LeftRight.cs" />
+    <Compile Include="Threading\LeftRightVersion.cs" />
     <Compile Include="Threading\ScopedSynchronizationContext.cs" />
     <Compile Include="Schedulers\IoServiceSynchronizationContextException.cs" />
     <Compile Include="Misc\StopWatchUtils.cs" />
