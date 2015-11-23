@@ -15,7 +15,7 @@ namespace RStein.Async.Threading
     public LeftRightVersion()
     {
       m_counter = 0;
-      m_waitEvent= new ManualResetEventSlim();
+      m_waitEvent= new ManualResetEventSlim(initialState:true);
     }
 
     public void Arrive()

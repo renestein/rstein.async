@@ -8,6 +8,7 @@ using RStein.Async.Examples.AsyncConsoleDownloader;
 using RStein.Async.Examples.BrokenPromise;
 using RStein.Async.Examples.ConcurrentExclusive;
 using RStein.Async.Examples.Coroutines;
+using RStein.Async.Examples.LeftRight;
 using RStein.Async.Examples.MapReduceActors;
 using RStein.Async.Tasks;
 
@@ -29,11 +30,23 @@ namespace RStein.Async.Examples
       //testBrokenPromises();
       //testDownloadPages();
       //testMapReduceActors();
-       //testAsyncPlayers();
-       //testPlayerActors();
+      //testAsyncPlayers();
+      //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
-      testCoroutines();
+      //testCoroutines();
+      testLeftRightList();
       Console.ReadLine();
+    }
+
+    private static void testLeftRightList()
+    {
+      var leftRightLists = new LeftRightList();
+      var cts = new CancellationTokenSource();
+
+      leftRightLists.Execute(cts.Token);
+      Console.Read();
+      cts.Cancel();
+      Console.Read();
     }
 
     private static void testBrokenPromises()

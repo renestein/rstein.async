@@ -19,7 +19,7 @@ namespace RStein.Async.Threading
     private readonly LeftRightVersion m_rightVersion;
 
     private LeftRightChoice m_innerChoice;
-    private readonly LeftRightChoice m_versionChoice;
+    private LeftRightChoice m_versionChoice;
 
     private readonly object m_writerLockRoot;
 
@@ -104,7 +104,7 @@ namespace RStein.Async.Threading
 
     private void swapLeftRightVersionChoice()
     {
-      m_innerChoice = (m_versionChoice == LeftRightChoice.Left) ?
+      m_versionChoice = (m_versionChoice == LeftRightChoice.Left) ?
                        LeftRightChoice.Right
                        : LeftRightChoice.Left;
     }

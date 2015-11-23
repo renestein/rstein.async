@@ -88,6 +88,7 @@
     <Compile Include="Coroutines\Coroutine.cs" />
     <Compile Include="Coroutines\LogCoroutineMethod.cs" />
     <Compile Include="Coroutines\LogCoroutineTester.cs" />
+    <Compile Include="LeftRight\LeftRightList.cs" />
     <Compile Include="MapReduceActors\ActorBase.cs" />
     <Compile Include="MapReduceActors\BookLineConsumerFactory.cs" />
     <Compile Include="MapReduceActors\BookLinesParserActor.cs" />
