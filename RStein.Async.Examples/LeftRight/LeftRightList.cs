@@ -12,7 +12,7 @@ namespace RStein.Async.Examples.LeftRight
   {
     private LeftRight<List<int>> m_leftRight;
     const int readers = 10;
-    const int writers = 2;
+    const int writers = 5;
 
     public LeftRightList()
     {

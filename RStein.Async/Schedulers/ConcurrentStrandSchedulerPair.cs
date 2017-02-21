@@ -135,7 +135,7 @@ namespace RStein.Async.Schedulers
       {
         init(controlScheduler, maxTasksConcurrency);
       }
-
+      
       public IProxyScheduler ConcurrentProxyScheduler
       {
         get

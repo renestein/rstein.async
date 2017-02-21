@@ -73,6 +73,7 @@ namespace RStein.Async.Schedulers
     {
       checkIfDisposed();
       return false;
+
     }
 
     public override IEnumerable<Task> GetScheduledTasks()

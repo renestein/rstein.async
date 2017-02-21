@@ -49,6 +49,8 @@ namespace RStein.Async.Threading
     {
       m_leftVersion = new LeftRightVersion();
       m_rightVersion = new LeftRightVersion();
+
+
       m_innerChoice = LeftRightChoice.Left;
       m_versionChoice = LeftRightChoice.Left;
       m_writerLockRoot = new Object();
@@ -65,7 +67,7 @@ namespace RStein.Async.Threading
       var version = getLeftRightVersion(versionChoice);
       version.Arrive();
       var innerInstance = getInnerObject();
-      var result = reader(innerInstance);
+      var result = reader(innerInstance);     
       version.Depart();
       return result;
     }

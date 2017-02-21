@@ -69,6 +69,7 @@ namespace RStein.Async.Examples
       var downloader = new AsyncDownloader();
       int successfulTasks = await downloader.DownloadPages(_urls);
       return successfulTasks;
+      
     }
 
     private static void testMapReduceActors()
