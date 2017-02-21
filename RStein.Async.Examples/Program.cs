@@ -7,6 +7,7 @@ using RStein.Async.Examples.Actors;
 using RStein.Async.Examples.AsyncConsoleDownloader;
 using RStein.Async.Examples.BrokenPromise;
 using RStein.Async.Examples.ConcurrentExclusive;
+using RStein.Async.Examples.ConfigureAwait;
 using RStein.Async.Examples.Coroutines;
 using RStein.Async.Examples.LeftRight;
 using RStein.Async.Examples.MapReduceActors;
@@ -34,8 +35,15 @@ namespace RStein.Async.Examples
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
-      testLeftRightList();
+      //testLeftRightList();
+
+      testConfigureAwaitTester();
       Console.ReadLine();
+    }
+
+    private static void testConfigureAwaitTester()
+    {
+      ConsoleRunner.Run(ConfigureAwaitTester.Run);
     }
 
     private static void testLeftRightList()
@@ -69,7 +77,7 @@ namespace RStein.Async.Examples
       var downloader = new AsyncDownloader();
       int successfulTasks = await downloader.DownloadPages(_urls);
       return successfulTasks;
-      
+
     }
 
     private static void testMapReduceActors()

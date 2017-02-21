@@ -9,13 +9,14 @@ namespace RStein.Async.ConsoleEx
   public class ConsoleRunner
   {
     private IoServiceScheduler m_scheduler;
-    private IoServiceSynchronizationContext m_synchContext;
+    private LogSynchronizationContextDecorator m_synchContext;
 
     public ConsoleRunner()
     {
       m_scheduler = new IoServiceScheduler();
       var proxyScheduler = new ProxyScheduler(m_scheduler);
-      m_synchContext = new IoServiceSynchronizationContext(m_scheduler, disposeIoServiceAfterComplete: true);
+      m_synchContext = new LogSynchronizationContextDecorator(
+                              new IoServiceSynchronizationContext(m_scheduler, disposeIoServiceAfterComplete: true));
     }
 
     public static void Run(Func<Task> function)

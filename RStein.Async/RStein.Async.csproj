@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleEx\ConsoleRunner.cs" />
+    <Compile Include="Schedulers\LogSynchronizationContextDecorator.cs" />
     <Compile Include="Schedulers\CurrentThreadScheduler.cs" />
     <Compile Include="Schedulers\TestScheduler.cs" />
     <Compile Include="Tasks\BrokenPromiseException.cs" />
