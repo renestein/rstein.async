@@ -8,6 +8,7 @@ namespace RStein.Async.Examples.Actors
   {
     public const string PLAYER_1_NAME = "Tomáš Aquinský";
     public const string PLAYER_2_NAME = "Siger Brabantský";
+    private const int NUMBER_OF_THREADS = 10;
     private IPlayer m_player1;
     private IPlayer m_player2;
     private ProxyEngine m_proxyEngine;
@@ -16,7 +17,7 @@ namespace RStein.Async.Examples.Actors
     {
       var ioServiceScheduler = new IoServiceScheduler();
 
-      var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioServiceScheduler, 1);
+      var threadPoolScheduler = new IoServiceThreadPoolScheduler(ioServiceScheduler, NUMBER_OF_THREADS);
       var externalProxyScheduler = new ProxyScheduler(threadPoolScheduler);
       m_proxyEngine = new ProxyEngine(threadPoolScheduler);
       createActors();

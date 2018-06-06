@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using RStein.Async.Examples.SimpleAwaiter;
 using RStein.Async.Schedulers;
 using RStein.Async.Threading;
 

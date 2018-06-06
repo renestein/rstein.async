@@ -1,8 +1,6 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace RStein.Async.Examples.SimpleAwaiter
+namespace RStein.Async.Examples.ConfigureAwait
 {
   public class SimpleDelay
   {
