@@ -1,0 +1,3 @@
+# rstein.async
+Boost Asio .Net :)  IoService  Strand  IoService based ThreadPool  C# simple actor model  ...
+Backup of the repository https://bitbucket.org/renestein/rstein.async/src/master/
