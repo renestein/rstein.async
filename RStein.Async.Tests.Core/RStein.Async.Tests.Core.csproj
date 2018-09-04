@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\RStein.Async.Tests\ConcurrentStrandSchedulerPairTests.cs" Link="ConcurrentStrandSchedulerPairTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\ConsoleRunnerTests.cs" Link="ConsoleRunnerTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\CurrentThreadSchedulerTests.cs" Link="CurrentThreadSchedulerTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\IAutonomousSchedulerTests.cs" Link="IAutonomousSchedulerTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\IoServiceSchedulerTests.cs" Link="IoServiceSchedulerTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\IoServiceThreadPoolSchedulerTests.cs" Link="IoServiceThreadPoolSchedulerTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\ITaskSchedulerTests.cs" Link="ITaskSchedulerTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\StrandSchedulerDecoratorTests.cs" Link="StrandSchedulerDecoratorTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\StrandSchedulerDecoratorWithIoServiceThreadPoolTests.cs" Link="StrandSchedulerDecoratorWithIoServiceThreadPoolTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\StrandSchedulerDecoratorWithNetThreadPoolTests.cs" Link="StrandSchedulerDecoratorWithNetThreadPoolTests.cs" />
+    <Compile Include="..\RStein.Async.Tests\StrandSchedulerDecoratorWithOneThreadScheduler.cs" Link="StrandSchedulerDecoratorWithOneThreadScheduler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
+    <PackageReference Include="TimePeriodLibrary.NET" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RStein.Async.Actors\RStein.Async.Actors.csproj" />
+    <ProjectReference Include="..\RStein.Async\RStein.Async.csproj" />
+  </ItemGroup>
+
+</Project>

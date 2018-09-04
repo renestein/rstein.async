@@ -13,10 +13,10 @@ namespace RStein.Async.Tests
     private const int INVALID_INT_RESULT = -1;
 
     [TestInitialize]
-    protected virtual void ConsoleRunnerTestsInitialize() {}
+    public virtual void ConsoleRunnerTestsInitialize() {}
 
     [TestCleanup]
-    protected virtual void ConsoleRunnerTestsCleanup() {}
+    public virtual void ConsoleRunnerTestsCleanup() {}
 
     [TestMethod]
     public void Run_When_Action_Arg_Then_Action_Executed()
