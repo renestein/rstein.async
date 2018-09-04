@@ -30,12 +30,12 @@ namespace RStein.Async.Examples
     {
       //testBrokenPromises();
       //testDownloadPages();
-      testMapReduceActors();
+      //testMapReduceActors();
       //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
-      //testLeftRightList();
+      testLeftRightList();
 
       //testConfigureAwaitTester();
       //runTestSoftPcAwaiter();
@@ -58,7 +58,7 @@ namespace RStein.Async.Examples
       var leftRightLists = new LeftRightList();
       var cts = new CancellationTokenSource();
 
-      leftRightLists.Execute(cts.Token);
+      Task.Run(()=>leftRightLists.Execute(cts.Token), cts.Token);
       Console.Read();
       cts.Cancel();
       Console.Read();
