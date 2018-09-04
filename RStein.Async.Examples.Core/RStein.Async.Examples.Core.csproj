@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\RStein.Async.Examples\Actors\AsyncPlayer.cs" Link="Actors\AsyncPlayer.cs" />
+    <Compile Include="..\RStein.Async.Examples\Actors\AsyncPlayerTest.cs" Link="Actors\AsyncPlayerTest.cs" />
+    <Compile Include="..\RStein.Async.Examples\Actors\IAsyncPlayer.cs" Link="Actors\IAsyncPlayer.cs" />
+    <Compile Include="..\RStein.Async.Examples\Actors\IPlayer.cs" Link="Actors\IPlayer.cs" />
+    <Compile Include="..\RStein.Async.Examples\Actors\Player.cs" Link="Actors\Player.cs" />
+    <Compile Include="..\RStein.Async.Examples\Actors\PlayerTest.cs" Link="Actors\PlayerTest.cs" />
+    <Compile Include="..\RStein.Async.Examples\AsyncConsoleDownloader\AsyncDownloader.cs" Link="AsyncConsoleDownloader\AsyncDownloader.cs" />
+    <Compile Include="..\RStein.Async.Examples\BrokenPromise\LeakTaskCompletionSource.cs" Link="BrokenPromise\LeakTaskCompletionSource.cs" />
+    <Compile Include="..\RStein.Async.Examples\ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" Link="ConsurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" />
+    <Compile Include="..\RStein.Async.Examples\ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" Link="ConsurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" />
+    <Compile Include="..\RStein.Async.Examples\ConfigureAwait\ConfigureAwaitTester.cs" Link="ConfigureAwait\ConfigureAwaitTester.cs" />
+    <Compile Include="..\RStein.Async.Examples\ConfigureAwait\SimpleDelay.cs" Link="ConfigureAwait\SimpleDelay.cs" />
+    <Compile Include="..\RStein.Async.Examples\Coroutines\Coroutine.cs" Link="Coroutines\Coroutine.cs" />
+    <Compile Include="..\RStein.Async.Examples\Coroutines\LogCoroutineMethod.cs" Link="Coroutines\LogCoroutineMethod.cs" />
+    <Compile Include="..\RStein.Async.Examples\Coroutines\LogCoroutineTester.cs" Link="Coroutines\LogCoroutineTester.cs" />
+    <Compile Include="..\RStein.Async.Examples\Extensions\LinqExtensions.cs" Link="Extensions\LinqExtensions.cs" />
+    <Compile Include="..\RStein.Async.Examples\LeftRight\LeftRightList.cs" Link="LeftRight\LeftRightList.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\ActorBase.cs" Link="MapReduceActors\ActorBase.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\BookLineConsumerFactory.cs" Link="MapReduceActors\BookLineConsumerFactory.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\BookLinesParserActor.cs" Link="MapReduceActors\BookLinesParserActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\CountWordsInLineActor.cs" Link="MapReduceActors\CountWordsInLineActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\IActor.cs" Link="MapReduceActors\IActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\IBookLineConsumerActor.cs" Link="MapReduceActors\IBookLineConsumerActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\IBookLineConsumerFactory.cs" Link="MapReduceActors\IBookLineConsumerFactory.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\IBookLinesParserActor.cs" Link="MapReduceActors\IBookLinesParserActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\ICountWordAggregateActor.cs" Link="MapReduceActors\ICountWordAggregateActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\ILibraryActor.cs" Link="MapReduceActors\ILibraryActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\IResultProcessorActor.cs" Link="MapReduceActors\IResultProcessorActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\LibraryActor.cs" Link="MapReduceActors\LibraryActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\MapReduceActorTest.cs" Link="MapReduceActors\MapReduceActorTest.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\PrintTopWordsProcessorActor.cs" Link="MapReduceActors\PrintTopWordsProcessorActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\MapReduceActors\WordCountAggregateActor.cs" Link="MapReduceActors\WordCountAggregateActor.cs" />
+    <Compile Include="..\RStein.Async.Examples\Program.cs" Link="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Actors\" />
+    <Folder Include="BrokenPromise\" />
+    <Folder Include="ConsurrentExclusive\" />
+    <Folder Include="ConfigureAwait\" />
+    <Folder Include="Coroutines\" />
+    <Folder Include="LeftRight\" />
+    <Folder Include="MapReduceActors\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RStein.Async.Actors\RStein.Async.Actors.csproj" />
+    <ProjectReference Include="..\RStein.Async\RStein.Async.csproj" />
+  </ItemGroup>
+</Project>

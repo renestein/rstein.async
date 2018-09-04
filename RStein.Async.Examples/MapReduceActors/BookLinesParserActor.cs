@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Castle.Core;
+using RStein.Async.Examples.Extensions;
+
 
 namespace RStein.Async.Examples.MapReduceActors
 {

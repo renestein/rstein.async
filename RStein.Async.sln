@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RStein.Async", "RStein.Async\RStein.Async.csproj", "{7761EB08-F0A0-4E93-9CDF-090E59F7FF2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RStein.Async", "RStein.Async\RStein.Async.csproj", "{7761EB08-F0A0-4E93-9CDF-090E59F7FF2B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RStein.Async.Tests", "RStein.Async.Tests\RStein.Async.Tests.csproj", "{97A45622-E9BB-4DB8-A390-8A239881D4F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RStein.Async.Examples", "RStein.Async.Examples\RStein.Async.Examples.csproj", "{EB60085C-E925-41E5-BF81-D37A959A68A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RStein.Async.Actors", "RStein.Async.Actors\RStein.Async.Actors.csproj", "{D39D7E6B-E96D-4B2B-9560-A6E47B3916A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RStein.Async.Actors", "RStein.Async.Actors\RStein.Async.Actors.csproj", "{D39D7E6B-E96D-4B2B-9560-A6E47B3916A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RStein.Async.Examples.Core", "RStein.Async.Examples.Core\RStein.Async.Examples.Core.csproj", "{570CD514-5F00-4813-AC35-69BCEF0E3EB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +35,15 @@ Global
 		{D39D7E6B-E96D-4B2B-9560-A6E47B3916A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D39D7E6B-E96D-4B2B-9560-A6E47B3916A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D39D7E6B-E96D-4B2B-9560-A6E47B3916A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{570CD514-5F00-4813-AC35-69BCEF0E3EB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{570CD514-5F00-4813-AC35-69BCEF0E3EB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{570CD514-5F00-4813-AC35-69BCEF0E3EB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{570CD514-5F00-4813-AC35-69BCEF0E3EB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {619CB4B3-4B8F-4FF3-9A2B-01D0554567E1}
 	EndGlobalSection
 EndGlobal

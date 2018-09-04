@@ -11,7 +11,6 @@ using RStein.Async.Examples.ConfigureAwait;
 using RStein.Async.Examples.Coroutines;
 using RStein.Async.Examples.LeftRight;
 using RStein.Async.Examples.MapReduceActors;
-using RStein.Async.Examples.SoftPcConfigureAwait;
 using RStein.Async.Tasks;
 
 namespace RStein.Async.Examples
@@ -31,23 +30,23 @@ namespace RStein.Async.Examples
     {
       //testBrokenPromises();
       //testDownloadPages();
-       testMapReduceActors();
-      //testAsyncPlayers();
+      //testMapReduceActors();
+      testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
       //testLeftRightList();
 
-      //testConfigureAwaitTester();
+      testConfigureAwaitTester();
       //runTestSoftPcAwaiter();
       Console.ReadLine();
     }
 
-    private static async Task runTestSoftPcAwaiter()
-    {
-      var tester = new Spc_Await_Tester();
-      ConsoleRunner.Run(()=>tester.TestAwaiter());
-    }
+    //private static async Task runTestSoftPcAwaiter()
+    //{
+    //  var tester = new Spc_Await_Tester();
+    //  ConsoleRunner.Run(()=>tester.TestAwaiter());
+    //}
 
     private static void testConfigureAwaitTester()
     {
@@ -82,7 +81,7 @@ namespace RStein.Async.Examples
 
     private static async Task<int> DownloadWebPages()
     {
-      var downloader = new AsyncDownloader();
+      var downloader = new AsyncDownloaderTester();
       int successfulTasks = await downloader.DownloadPages(_urls);
       return successfulTasks;
 

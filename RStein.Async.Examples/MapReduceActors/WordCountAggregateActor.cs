@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Castle.Core;
+using RStein.Async.Examples.Extensions;
 
 namespace RStein.Async.Examples.MapReduceActors
 {
@@ -25,7 +26,10 @@ namespace RStein.Async.Examples.MapReduceActors
 
     public virtual void ProcessNextWordCountDictionary(IReadOnlyDictionary<string, int> nextWordCounter)
     {
-      nextWordCounter.ForEach(accumulateNextPair);
+      foreach (var keyValuePair in nextWordCounter)
+      {
+        accumulateNextPair(keyValuePair);
+      }
     }
 
     protected override void DoInnerComplete()

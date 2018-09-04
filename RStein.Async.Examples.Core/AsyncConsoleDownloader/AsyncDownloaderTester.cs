@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RStein.Async.Examples.AsyncConsoleDownloader
 {
-  public class AsyncDownloaderTester
+  public class AsyncDownloader
   {
     private static readonly string _pageSeparator = new string('=', 100);
 
