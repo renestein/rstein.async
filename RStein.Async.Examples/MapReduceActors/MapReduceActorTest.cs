@@ -6,7 +6,7 @@ namespace RStein.Async.Examples.MapReduceActors
 {
   public class MapReduceActorTest
   {
-    public const string BOOK_NAME = "shakespeare.txt";
+    public const string BOOK_NAME = "Shakespeare.txt";
 
     public async Task Run()
     {

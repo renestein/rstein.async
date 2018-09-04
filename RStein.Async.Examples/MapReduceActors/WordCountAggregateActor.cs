@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Castle.Core;
 using RStein.Async.Examples.Extensions;
 
 namespace RStein.Async.Examples.MapReduceActors
