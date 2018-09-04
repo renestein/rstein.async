@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Castle.Core.Interceptor;
+using Castle.DynamicProxy;
 using RStein.Async.Schedulers;
 using RStein.Async.Tasks;
 

@@ -11,7 +11,7 @@ namespace RStein.Async.Actors.ActorsCore
     public const string NO_VIRTUAL_MEMBER_MESSAGE = "Non virtual member function {0}-{1}";
     public const string UNKNOWN_RETURN_TYPE_MEMBER_MESSAGE = "Function with unknown return type {0}-{1}";
 
-    public void NonVirtualMemberNotification(Type type, MemberInfo memberInfo)
+    public void NonProxyableMemberNotification(Type type, MemberInfo memberInfo)
     {
       Debug.WriteLine(NO_VIRTUAL_MEMBER_MESSAGE, type.FullName, memberInfo.Name);
     }
@@ -30,6 +30,11 @@ namespace RStein.Async.Actors.ActorsCore
     }
 
     public virtual void MethodsInspected() {}
+
+    public void NonVirtualMemberNotification(Type type, MemberInfo memberInfo)
+    {
+     
+    }
 
     public override bool Equals(object obj)
     {
