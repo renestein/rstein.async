@@ -21,3 +21,4 @@ ProtocolMessage.pb.*
 *sln.DotSettings.user
 *.suo
 .vs/
+packages
