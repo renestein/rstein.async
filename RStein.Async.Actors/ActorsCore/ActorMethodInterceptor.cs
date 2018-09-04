@@ -116,8 +116,10 @@ namespace RStein.Async.Actors.ActorsCore
 
                               try
                               {
-                                invocation.Proceed();
-                                resultTask = invocation.ReturnValue as Task;
+                                resultTask =  invocation.GetConcreteMethodInvocationTarget()
+                                  .Invoke(invocation.InvocationTarget, invocation.Arguments) as Task;
+                                //Problems with Castle implementation (call from other thread does not work after upgrade to 4.3.1. version)
+                                //invocation.Proceed();
                               }
                               catch (Exception e)
                               {

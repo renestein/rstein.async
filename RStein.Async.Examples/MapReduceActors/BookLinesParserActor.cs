@@ -36,7 +36,7 @@ namespace RStein.Async.Examples.MapReduceActors
 
     public virtual async Task ProcessLastBook()
     {
-      var lastBook = await m_library.GetLastBook();
+      var lastBook = await m_library.GetLastBook().ConfigureAwait(false);
       parseLines(lastBook);
     }
 

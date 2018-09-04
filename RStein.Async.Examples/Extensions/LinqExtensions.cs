@@ -25,8 +25,9 @@ namespace RStein.Async.Examples.Extensions
         foreach (var src in source)
         {
           action(src);
-          yield return src;
+          
         }
+        return source;
       }
     }
   }

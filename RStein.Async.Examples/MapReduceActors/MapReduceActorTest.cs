@@ -28,7 +28,7 @@ namespace RStein.Async.Examples.MapReduceActors
 
       library.AddBook(BOOK_NAME);
 
-      await linesParserActor.ProcessLastBook();
+      await linesParserActor.ProcessLastBook().ConfigureAwait(false);
 
 
       linesParserActor.Complete();
