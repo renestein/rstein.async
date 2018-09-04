@@ -11,7 +11,7 @@ namespace RStein.Async.Examples.MapReduceActors
 {
   public class BookLinesParserActor : ActorBase, IBookLinesParserActor
   {
-    private const string FILE_ENCODING = "windows-1250";
+    private const string FILE_ENCODING = "utf-8";
     public static readonly int NUMBER_OF_CONSUMERS = Environment.ProcessorCount;
     private readonly ILibraryActor m_library;
     private readonly IBookLineConsumerFactory m_lineConcumerFactory;
