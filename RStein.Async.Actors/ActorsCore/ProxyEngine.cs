@@ -36,8 +36,8 @@ namespace RStein.Async.Actors.ActorsCore
       var retProxy = m_proxyGenerator.CreateInterfaceProxyWithTargetInterface(typeof (TActorInterface),
         targetObject,
         m_proxyOptions,
-        new ActorMethodInterceptor(m_primaryScheduler),
-        new PreventArgumentBaseTypeLeakInterceptor());
+        new PreventArgumentBaseTypeLeakInterceptor(),
+        new ActorMethodInterceptor(m_primaryScheduler));
 
       ProxyContext.Current
         .SubjectProxyMapping

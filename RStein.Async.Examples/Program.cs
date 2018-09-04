@@ -30,14 +30,14 @@ namespace RStein.Async.Examples
     {
       //testBrokenPromises();
       //testDownloadPages();
-      //testMapReduceActors();
-      testAsyncPlayers();
+      testMapReduceActors();
+      //testAsyncPlayers();
       //testPlayerActors();
       //testConcurrentExclusiveSchedulers();
       //testCoroutines();
       //testLeftRightList();
 
-      testConfigureAwaitTester();
+      //testConfigureAwaitTester();
       //runTestSoftPcAwaiter();
       Console.ReadLine();
     }

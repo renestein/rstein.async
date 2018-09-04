@@ -91,7 +91,13 @@ namespace RStein.Async.Actors.ActorsCore
 
     private void postTargetSub(StrandSchedulerDecorator strand, IInvocation invocation)
     {
-      Action action = invocation.Proceed;
+      Action action = ()=>
+      {
+        invocation.GetConcreteMethodInvocationTarget()
+          .Invoke(invocation.InvocationTarget, invocation.Arguments);
+        //Problems with Castle implementation (call from other thread does not work after upgrade to 4.3.1. version)
+        //invocation.Proceed();
+      };
       strand.Post(action);
     }
 
