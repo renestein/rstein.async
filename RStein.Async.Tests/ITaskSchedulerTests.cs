@@ -5,6 +5,7 @@ using RStein.Async.Schedulers;
 
 namespace RStein.Async.Tests
 {
+  [TestClass]
   public abstract class ITaskSchedulerTests
   {
     protected abstract ITaskScheduler Scheduler

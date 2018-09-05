@@ -14,8 +14,8 @@
     <Compile Include="..\RStein.Async.Examples\Actors\PlayerTest.cs" Link="Actors\PlayerTest.cs" />
     <Compile Include="..\RStein.Async.Examples\AsyncConsoleDownloader\AsyncDownloader.cs" Link="AsyncConsoleDownloader\AsyncDownloader.cs" />
     <Compile Include="..\RStein.Async.Examples\BrokenPromise\LeakTaskCompletionSource.cs" Link="BrokenPromise\LeakTaskCompletionSource.cs" />
-    <Compile Include="..\RStein.Async.Examples\ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" Link="ConsurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" />
-    <Compile Include="..\RStein.Async.Examples\ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" Link="ConsurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" />
+    <Compile Include="..\RStein.Async.Examples\ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" Link="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementStatistics.cs" />
+    <Compile Include="..\RStein.Async.Examples\ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" Link="ConcurrentExclusive\ConcurrentExclusiveSimpleIncrementTasks.cs" />
     <Compile Include="..\RStein.Async.Examples\ConfigureAwait\ConfigureAwaitTester.cs" Link="ConfigureAwait\ConfigureAwaitTester.cs" />
     <Compile Include="..\RStein.Async.Examples\ConfigureAwait\SimpleDelay.cs" Link="ConfigureAwait\SimpleDelay.cs" />
     <Compile Include="..\RStein.Async.Examples\Coroutines\Coroutine.cs" Link="Coroutines\Coroutine.cs" />
@@ -53,7 +53,7 @@
   <ItemGroup>
     <Folder Include="Actors\" />
     <Folder Include="BrokenPromise\" />
-    <Folder Include="ConsurrentExclusive\" />
+    <Folder Include="ConcurrentExclusive\" />
     <Folder Include="ConfigureAwait\" />
     <Folder Include="Coroutines\" />
     <Folder Include="LeftRight\" />
