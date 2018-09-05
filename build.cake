@@ -130,6 +130,7 @@ Task("TestCore")
 });
 
 Task("BuildNet")
+.WithCriteria(IsRunningOnWindows)
 .Does(()=>
 {
      var prefix = "[.NetF]: ";
@@ -148,6 +149,7 @@ Task("BuildNet")
 });
 
 Task("TestNet")
+.WithCriteria(IsRunningOnWindows)
 .Does(()=>
 {
     var prefix = "[Net_TEST]: ";
@@ -199,8 +201,9 @@ Task("NugetPublishLocal")
         {
             Source = nugetLocalRepo
         };
-        
+
         DotNetCoreNuGetPush(nuget.FullPath, settings);
     }
 });
+
 RunTarget(target);
