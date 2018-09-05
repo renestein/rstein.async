@@ -6,6 +6,8 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var tmpDirectory = Argument("tmpdir", MakeAbsolute(Directory("./tmp/" + configuration)));
 var nugetDirectory = Argument("nugetdir", tmpDirectory.FullPath + "/nuget" );
+var nugetLocalRepo = Argument("nugetlocalrepo", @"c:\NuGetLocal");
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLobal variables
@@ -66,6 +68,7 @@ Task("Build")
 .IsDependentOn("BuildNet")
 .IsDependentOn("TestNet")
 .IsDependentOn("PackNuget")
+.IsDependentOn("NugetPublishLocal")
 .Does(()=>
 {
     
@@ -185,4 +188,19 @@ Task("PackNuget")
 
 });
 
+Task("NugetPublishLocal")
+	.Does(()=>
+{
+    var nugets = GetFiles(nugetDirectory + "/*.nupkg");
+
+    foreach(var nuget in nugets)
+    {				
+        var settings = new DotNetCoreNuGetPushSettings()
+        {
+            Source = nugetLocalRepo
+        };
+        
+        DotNetCoreNuGetPush(nuget.FullPath, settings);
+    }
+});
 RunTarget(target);
