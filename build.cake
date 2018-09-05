@@ -7,6 +7,7 @@ var configuration = Argument("configuration", "Release");
 var tmpDirectory = Argument("tmpdir", MakeAbsolute(Directory("./tmp/" + configuration)));
 var nugetDirectory = Argument("nugetdir", tmpDirectory.FullPath + "/nuget" );
 var nugetLocalRepo = Argument("nugetlocalrepo", @"c:\NuGetLocal");
+var publishNuget = Argument("publishNuget", false);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,6 +201,7 @@ Task("PackNuget")
 });
 
 Task("NugetPublishLocal")
+    .WithCriteria(publishNuget)
 	.Does(()=>
 {
     var nugets = GetFiles(nugetDirectory + "/*.nupkg");
