@@ -16,6 +16,7 @@ var publishNuget = Argument("publishNuget", false);
 var asyncLib = "RStein.Async.csproj";
 var actorsLib = "RStein.Async.Actors.csproj";
 var currentPath = MakeAbsolute(Directory("."));
+var isTravisCIBuild = TravisCI.IsRunningOnTravisCI;
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
@@ -118,7 +119,7 @@ Task("TestCore")
     var projects = GetFiles(currentPath + "/*Tests.Core/*.csproj");
     var settings = new DotNetCoreTestSettings
     {
-        NoBuild = true,
+        NoBuild = !isTravisCIBuild,
         DiagnosticOutput = true,
         Configuration = configuration
     };
