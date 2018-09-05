@@ -10,7 +10,7 @@ var nugetDirectory = Argument("nugetdir", tmpDirectory.FullPath + "/nuget" );
 ///////////////////////////////////////////////////////////////////////////////
 // GLobal variables
 ///////////////////////////////////////////////////////////////////////////////
-var asyncLibProj = "RStein.Async.csproj";
+var asyncLib = "RStein.Async.csproj";
 var actorsLib = "RStein.Async.Actors.csproj";
 var currentPath = MakeAbsolute(Directory("."));
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,7 @@ Task("Build")
 .IsDependentOn("TestCore")
 .IsDependentOn("BuildNet")
 .IsDependentOn("TestNet")
+.IsDependentOn("PackNuget")
 .Does(()=>
 {
     
@@ -83,7 +84,7 @@ Task("BuildLibs")
         };
         
         Information(prefix + $"Building {actorsLib}...");
-        Information(prefix + $"Building {asyncLibProj}...");
+        Information(prefix + $"Building {asyncLib}...");
         Information(prefix + $"Building project {libsProjPath}...");
         DotNetCoreBuild(libsProjPath.FullPath, settings);
     }
@@ -131,7 +132,7 @@ Task("BuildNet")
      var prefix = "[.NetF]: ";
      var projects = GetFiles(currentPath + "/**/*.csproj")
                     .Where(file => file.GetFilename().FullPath != actorsLib 
-                            && file.GetFilename().FullPath != asyncLibProj
+                            && file.GetFilename().FullPath != asyncLib
                             && !file.FullPath.Contains("Core"));
 
    
@@ -159,6 +160,28 @@ Task("TestNet")
         
          MSTest(dll.FullPath);
      }
+
+});
+
+Task("PackNuget")
+.Does(()=>
+{
+    
+        var prefix = "[nuget_pack:]: ";
+        var libsProjPath = GetFiles(currentPath + "/**/" + asyncLib)
+                                    .Concat(GetFiles(currentPath + "/**/" + actorsLib));
+
+        var settings = new DotNetCorePackSettings
+        {
+          OutputDirectory = nugetDirectory,
+          NoBuild = true
+        };
+        
+        foreach(var lib in libsProjPath)
+        {
+            Information(prefix + $"{lib}...");
+            DotNetCorePack(lib.FullPath, settings);
+        }
 
 });
 

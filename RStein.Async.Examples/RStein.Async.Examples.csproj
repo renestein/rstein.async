@@ -109,6 +109,7 @@
     <Content Include="hovory_s_t_g_masarykem.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="LICENSE.txt" />
     <Content Include="Shakespeare.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

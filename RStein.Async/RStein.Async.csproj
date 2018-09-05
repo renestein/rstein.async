@@ -3,6 +3,10 @@
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <Authors>René Stein</Authors>
         <Company>René Stein</Company>
+        <Copyright>Copyright (c) 2018 Rene Stein</Copyright>
+        <PackageProjectUrl>https://github.com/renestein/rstein.async</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/renestein/rstein.async</RepositoryUrl>
+        <RepositoryType />
     </PropertyGroup>
     <ItemGroup>
       <Folder Include="Properties\" />
