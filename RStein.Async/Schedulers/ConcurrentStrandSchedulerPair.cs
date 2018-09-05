@@ -136,42 +136,19 @@ namespace RStein.Async.Schedulers
         init(controlScheduler, maxTasksConcurrency);
       }
       
-      public IProxyScheduler ConcurrentProxyScheduler
-      {
-        get
-        {
-          return m_concurrentProxyScheduler;
-        }
-      }
+      public IProxyScheduler ConcurrentProxyScheduler => m_concurrentProxyScheduler;
 
-      public IProxyScheduler StrandProxyScheduler
-      {
-        get
-        {
-          return m_strandProxyScheduler;
-        }
-      }
+      public IProxyScheduler StrandProxyScheduler => m_strandProxyScheduler;
 
-      public ITaskScheduler AsioConcurrentScheduler
-      {
-        get
-        {
-          return m_concurrentAccumulateScheduler;
-        }
-      }
-      public ITaskScheduler AsioStrandcheduler
-      {
-        get
-        {
-          return m_strandAccumulateScheduler;
-        }
-      }
+      public ITaskScheduler AsioConcurrentScheduler => m_concurrentAccumulateScheduler;
+
+      public ITaskScheduler AsioStrandcheduler => m_strandAccumulateScheduler;
 
       private void init(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
         if (maxTasksConcurrency <= 0)
         {
-          throw new ArgumentOutOfRangeException("maxTasksConcurrency");
+          throw new ArgumentOutOfRangeException(nameof(maxTasksConcurrency));
         }
 
         m_maxConcurrentTaskBatch = Math.Min(CONCURRENT_TASK_BATCH_LIMIT, maxTasksConcurrency);
@@ -249,7 +226,7 @@ namespace RStein.Async.Schedulers
         return (task != null);
       }
 
-      private async void runInnerTaskLoop()
+      private void runInnerTaskLoop()
       {
         QueueTasksResult exclusiveQueueResult = null;
         QueueTasksResult concurrentQueueResult = null;
@@ -261,7 +238,7 @@ namespace RStein.Async.Schedulers
             m_exlusiveTaskAdded.TryReset();
             m_exclusiveQueueTasksParams = m_exclusiveQueueTasksParams ?? new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH);
             exclusiveQueueResult = m_strandAccumulateScheduler.QueueTasksToInnerScheduler(m_exclusiveQueueTasksParams);
-            await exclusiveQueueResult.WhenAllTask;
+            exclusiveQueueResult.WhenAllTask.Wait();
           } while (m_exlusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
 
           do
@@ -269,7 +246,7 @@ namespace RStein.Async.Schedulers
             m_concurrentTaskAdded.TryReset();
             m_concurrentQueueTaskParams = m_concurrentQueueTaskParams ?? new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch);
             concurrentQueueResult = m_concurrentAccumulateScheduler.QueueTasksToInnerScheduler(m_concurrentQueueTaskParams);
-            await concurrentQueueResult.WhenAllTask;
+            concurrentQueueResult.WhenAllTask.Wait();
           } while (!m_exlusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
         } while (existsTasksToProcess(exclusiveQueueResult, concurrentQueueResult));
 

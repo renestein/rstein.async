@@ -130,15 +130,10 @@ namespace RStein.Async.Schedulers
 
     private void queueTasks(QueueTasksParams currentParams, List<Task> currentTasks)
     {
-      Task task;
-
-      while (canQueueTask(currentParams, currentTasks) && m_tasks.TryDequeue(out task))
+      while (canQueueTask(currentParams, currentTasks) && m_tasks.TryDequeue(out var task))
       {
         currentTasks.Add(task);
-        if (currentParams.BeforeTaskQueuedAction != null)
-        {
-          currentParams.BeforeTaskQueuedAction(task);
-        }
+        currentParams.BeforeTaskQueuedAction?.Invoke(task);
 
         if (currentParams.TaskContinuation != null)
         {
@@ -147,10 +142,7 @@ namespace RStein.Async.Schedulers
 
         m_innerScheduler.QueueTask(task);
 
-        if (currentParams.AfterTaskQueuedAction != null)
-        {
-          currentParams.AfterTaskQueuedAction(task);
-        }
+        currentParams.AfterTaskQueuedAction?.Invoke(task);
       }
     }
 
