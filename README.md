@@ -1,5 +1,6 @@
 # rstein.async
-[![Build Status](https://travis-ci.org/renestein/rstein.async#)](https://travis-ci.org/renestein/rstein.async#)
+
+[![Build Status](https://travis-ci.org/renestein/rstein.async.svg?branch=master)](https://travis-ci.org/renestein/rstein.async)
 Boost Asio .Net
 IoService  
 Strand  
