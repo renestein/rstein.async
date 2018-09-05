@@ -30,8 +30,14 @@ Setup(ctx =>
 
 Teardown(ctx =>
 {
+    if (ctx.ThrownException != null)
+    {
+        Error("Build failed.");
+        return;
+    }
+
    // Executed AFTER the last task.
-   Information("Finished running tasks.");
+   Information("Build succeeded.");
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +63,8 @@ Task("Build")
 .IsDependentOn("BuildLibs")
 .IsDependentOn("BuildCore")
 .IsDependentOn("TestCore")
-//.IsDependentOn("BuildNet")
+.IsDependentOn("BuildNet")
+.IsDependentOn("TestNet")
 .Does(()=>
 {
     
@@ -116,6 +123,43 @@ Task("TestCore")
         
          DotNetCoreTest(project.FullPath, settings);
      }
+});
+
+Task("BuildNet")
+.Does(()=>
+{
+     var prefix = "[.NetF]: ";
+     var projects = GetFiles(currentPath + "/**/*.csproj")
+                    .Where(file => file.GetFilename().FullPath != actorsLib 
+                            && file.GetFilename().FullPath != asyncLibProj
+                            && !file.FullPath.Contains("Core"));
+
+   
+     
+     foreach(var project in projects)
+     {
+         Information(prefix + $"Building {project}...");
+         MSBuild(project.FullPath, configurator => configurator.Configuration = configuration);
+     }
+});
+
+Task("TestNet")
+.Does(()=>
+{
+    var prefix = "[Net_TEST]: ";
+     var dlls = GetFiles(currentPath + $"/**/*Tests*/bin/{configuration}/*.dll")
+                    .Where(file=>!file.FullPath.Contains("Core") 
+                                && file.GetFilenameWithoutExtension().FullPath.StartsWith("RStein") 
+                                && file.GetFilenameWithoutExtension().FullPath.EndsWith("Tests"));
+                    
+     
+     foreach(var dll in dlls)
+     {
+         Information(prefix + $"Running tests {dll}...");
+        
+         MSTest(dll.FullPath);
+     }
+
 });
 
 RunTarget(target);
