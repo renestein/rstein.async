@@ -189,6 +189,7 @@ Task("PackNuget")
         var settings = new DotNetCorePackSettings
         {
           OutputDirectory = nugetDirectory,
+          Configuration = configuration,
           NoBuild = true
         };
         
