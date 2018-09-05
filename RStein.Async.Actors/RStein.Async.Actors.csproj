@@ -5,6 +5,10 @@
         <Company>René Stein</Company>
         <Copyright>Copyright (c) 2018 Rene Stein</Copyright>
         <PackageProjectUrl>https://github.com/renestein/rstein.async/tree/master/RStein.Async.Actors</PackageProjectUrl>
+        <Description>A toy actors library which uses BOOST ASIO like schedulers from RStein.Async
+
+Examples:
+https://github.com/renestein/rstein.async/tree/master/RStein.Async.Examples</Description>
     </PropertyGroup>
     <ItemGroup>
       <Folder Include="Properties\" />

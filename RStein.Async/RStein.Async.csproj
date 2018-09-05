@@ -7,6 +7,15 @@
         <PackageProjectUrl>https://github.com/renestein/rstein.async</PackageProjectUrl>
         <RepositoryUrl>https://github.com/renestein/rstein.async</RepositoryUrl>
         <RepositoryType />
+        <Description>Just a toy library for TAP/async/threading
+
+Boost Asio .Net :)
+IoService
+Left
+Strand
+LeftRight
+Samples
+https://github.com/renestein/rstein.async/tree/master/RStein.Async.Examples</Description>
     </PropertyGroup>
     <ItemGroup>
       <Folder Include="Properties\" />
