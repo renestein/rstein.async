@@ -119,18 +119,22 @@ Task("TestCore")
     var projects = GetFiles(currentPath + "/*Tests.Core/*.csproj");
     var settings = new DotNetCoreTestSettings
     {
-        NoBuild = !isTravisCIBuild,
+        NoBuild = true,
         DiagnosticOutput = true,
         Configuration = configuration
     };
 
     var publishSettings = new DotNetCorePublishSettings
     {
-        NoBuild = true,
         DiagnosticOutput = true,
         Configuration = configuration
         
     };
+    
+    if (!isTravisCIBuild)
+    {
+        publishSettings.NoBuild = true;
+    }
 
     foreach(var project in projects)
     {
