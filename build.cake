@@ -114,19 +114,28 @@ Task("TestCore")
 .Does(()=>
 {
     var prefix = "[CORE_TEST]: ";
-     var projects = GetFiles(currentPath + "/*Tests.Core/*.csproj");
-     var settings = new DotNetCoreTestSettings()
-     {
-             NoBuild = true,
-             DiagnosticOutput = true
-     };
+    var projects = GetFiles(currentPath + "/*Tests.Core/*.csproj");
+    var settings = new DotNetCoreTestSettings
+    {
+        NoBuild = true,
+        DiagnosticOutput = true,
+        Configuration = configuration
+    };
 
-     foreach(var project in projects)
-     {
-         Information(prefix + $"Running tests {project}...");
+    var publishSettings = new DotNetCorePublishSettings
+    {
+        NoBuild = true,
+        DiagnosticOutput = true,
+        Configuration = configuration
         
+    };
+
+    foreach(var project in projects)
+    {
+         Information(prefix + $"Running tests {project}...");
+         DotNetCorePublish(project.FullPath, publishSettings);
          DotNetCoreTest(project.FullPath, settings);
-     }
+    }
 });
 
 Task("BuildNet")
