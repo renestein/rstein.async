@@ -7,6 +7,7 @@ using RStein.Async.Schedulers;
 
 namespace RStein.Async.Tests
 {
+  [TestClass]
   public abstract class IAutonomousSchedulerTests : ITaskSchedulerTests
   {
     private TaskFactory m_testTaskFactory;
