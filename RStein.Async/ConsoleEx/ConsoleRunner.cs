@@ -8,8 +8,8 @@ namespace RStein.Async.ConsoleEx
 {
   public class ConsoleRunner
   {
-    private IoServiceScheduler m_scheduler;
-    private LogSynchronizationContextDecorator m_synchContext;
+    private readonly IoServiceScheduler m_scheduler;
+    private readonly LogSynchronizationContextDecorator m_synchContext;
 
     public ConsoleRunner()
     {
@@ -28,7 +28,7 @@ namespace RStein.Async.ConsoleEx
     public static TResult Run<TResult>(Func<TResult> function)
     {
       var runner = getConsoleRunner();
-      TResult result = default(TResult);
+      var result = default(TResult);
       runner.startInner(() => runner.m_scheduler.Post(() => result = function()));
       return result;
     }
@@ -36,7 +36,7 @@ namespace RStein.Async.ConsoleEx
     public static TResult Run<TResult>(Func<Task<TResult>> function)
     {
       var runner = getConsoleRunner();
-      TResult result = default(TResult);
+      var result = default(TResult);
       runner.startInner(() => runner.m_scheduler.Post(async () => result = await function()));
       return result;
     }
@@ -56,7 +56,7 @@ namespace RStein.Async.ConsoleEx
 
     private void startInner(Func<Task> schedulerAction)
     {
-      using (var ioServiceScope = new ScopedSynchronizationContext(m_synchContext))
+      using (new ScopedSynchronizationContext(m_synchContext))
       {
         m_synchContext.OperationStarted();
         var actionTask = schedulerAction();

@@ -128,7 +128,7 @@ namespace RStein.Async.Tests
       var tasks = Enumerable.Range(0, numberOfTasks)
         .Select(i => TestTaskFactory.StartNew(() =>
                                               {
-                                                bool lockTaken = false;
+                                                var lockTaken = false;
                                                 Monitor.TryEnter(lockRoot, ref lockTaken);
                                                 try
                                                 {
@@ -146,7 +146,7 @@ namespace RStein.Async.Tests
         .ToArray();
 
       await Task.WhenAll(tasks);
-      bool executedSequentially = tasks.All(task => task.Result);
+      var executedSequentially = tasks.All(task => task.Result);
       Assert.IsTrue(executedSequentially);
     }
 
@@ -234,7 +234,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Wrap_When_Wrapped_Action_Is_Not_Invoked_Then_Original_Action_Does_Not_Execute()
     {
-      bool wasActionExecuted = false;
+      var wasActionExecuted = false;
       var wrappedAction = m_strandScheduler.Wrap(() => wasActionExecuted = true);
       m_strandScheduler.Dispose();
       Assert.IsFalse(wasActionExecuted);
@@ -243,7 +243,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Wrap_When_Wrapped_Action_Is_Invoked_Then_Original_Action_Executed()
     {
-      bool wasActionExecuted = false;
+      var wasActionExecuted = false;
       var wrappedAction = m_strandScheduler.Wrap(() => wasActionExecuted = true);
 
       wrappedAction();
@@ -255,7 +255,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void WrapAsTask_When_Wrapped_Action_Is_Not_Invoked_Then_Original_Action_Does_Not_Execute()
     {
-      bool wasActionExecuted = false;
+      var wasActionExecuted = false;
       var wrappedAction = m_strandScheduler.WrapAsTask(() => wasActionExecuted = true);
 
       m_strandScheduler.Dispose();
@@ -265,7 +265,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public async Task WrapAsTask_When_Wrapped_Action_Is_Invoked_Then_Original_Action_Executed()
     {
-      bool wasActionExecuted = false;
+      var wasActionExecuted = false;
       var wrappedAction = m_strandScheduler.WrapAsTask(() => wasActionExecuted = true);
 
       await wrappedAction();

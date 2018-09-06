@@ -11,27 +11,27 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         return MAXIMUM_CONCURRENCY_LEVEL;
       }
     }
 
     public override void QueueTask(Task task)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       ProxyScheduler.DoTryExecuteTask(task);
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       ProxyScheduler.DoTryExecuteTask(task);
       return true;
     }
 
     public override IEnumerable<Task> GetScheduledTasks()
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return Enumerable.Empty<Task>();
     }
 

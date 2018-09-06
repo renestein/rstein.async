@@ -10,22 +10,11 @@ namespace RStein.Async.Schedulers
 
     public ProxyScheduler(ITaskScheduler realScheduler)
     {
-      if (realScheduler == null)
-      {
-        throw new ArgumentNullException("realScheduler");
-      }
-
-      m_realScheduler = realScheduler;
+      m_realScheduler = realScheduler ?? throw new ArgumentNullException(nameof(realScheduler));
       m_realScheduler.ProxyScheduler = this;
     }
 
-    public override int MaximumConcurrencyLevel
-    {
-      get
-      {
-        return m_realScheduler.MaximumConcurrencyLevel;
-      }
-    }
+    public override int MaximumConcurrencyLevel => m_realScheduler.MaximumConcurrencyLevel;
 
     public void Dispose()
     {
@@ -36,10 +25,10 @@ namespace RStein.Async.Schedulers
     {
       if (task == null)
       {
-        throw new ArgumentNullException("task");
+        throw new ArgumentNullException(nameof(task));
       }
 
-      bool taskExecuted = TryExecuteTask(task);
+      var taskExecuted = TryExecuteTask(task);
 
       if (taskExecuted)
       {

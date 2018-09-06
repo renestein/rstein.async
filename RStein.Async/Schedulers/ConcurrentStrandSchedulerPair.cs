@@ -104,9 +104,8 @@ namespace RStein.Async.Schedulers
 
     private class InterleaveExclusiveConcurrentTasksEngine
     {
-      public const int MAX_STRAND_TASK_BATCH = 64;
-      public const int CONCURRENT_TASK_BATCH_LIMIT = 64;
-      public const int CONCURRENCY_TASK_BATCH_MULTIPLIER = 2;
+      private const int MAX_STRAND_TASK_BATCH = 64;
+      private const int CONCURRENT_TASK_BATCH_LIMIT = 64;
 
       private const int CONTROL_SCHEDULER_CONCURRENCY = 1;
       private TaskCompletionSource<object> m_completedTcs;
@@ -118,7 +117,7 @@ namespace RStein.Async.Schedulers
 
       private TaskFactory m_controlTaskFactory;
       private QueueTasksParams m_exclusiveQueueTasksParams;
-      private ThreadSafeSwitch m_exlusiveTaskAdded;
+      private ThreadSafeSwitch m_exclusiveTaskAdded;
       private IoServiceThreadPoolScheduler m_ioControlScheduler;
       private bool m_isDisposed;
       private int m_maxConcurrentTaskBatch;
@@ -136,13 +135,41 @@ namespace RStein.Async.Schedulers
         init(controlScheduler, maxTasksConcurrency);
       }
       
-      public IProxyScheduler ConcurrentProxyScheduler => m_concurrentProxyScheduler;
+      public IProxyScheduler ConcurrentProxyScheduler
+      {
+        get
+        {
+          checkIfDisposed();
+          return m_concurrentProxyScheduler;
+        }
+      }
 
-      public IProxyScheduler StrandProxyScheduler => m_strandProxyScheduler;
+      public IProxyScheduler StrandProxyScheduler
+      {
+        get
+        {
+          checkIfDisposed();
+          return m_strandProxyScheduler;
+        }
+      }
 
-      public ITaskScheduler AsioConcurrentScheduler => m_concurrentAccumulateScheduler;
+      public ITaskScheduler AsioConcurrentScheduler
+      {
+        get
+        {
+          checkIfDisposed();
+          return m_concurrentAccumulateScheduler;
+        }
+      }
 
-      public ITaskScheduler AsioStrandcheduler => m_strandAccumulateScheduler;
+      public ITaskScheduler AsioStrandcheduler
+      {
+        get
+        {
+          checkIfDisposed();
+          return m_strandAccumulateScheduler;
+        }
+      }
 
       private void init(TaskScheduler controlScheduler, int maxTasksConcurrency)
       {
@@ -153,7 +180,7 @@ namespace RStein.Async.Schedulers
 
         m_maxConcurrentTaskBatch = Math.Min(CONCURRENT_TASK_BATCH_LIMIT, maxTasksConcurrency);
 
-        m_exlusiveTaskAdded = new ThreadSafeSwitch();
+        m_exclusiveTaskAdded = new ThreadSafeSwitch();
         m_concurrentTaskAdded = new ThreadSafeSwitch();
 
         m_ownControlTaskScheduler = (controlScheduler == null);
@@ -175,7 +202,7 @@ namespace RStein.Async.Schedulers
         m_concurrentAccumulateScheduler = new AccumulateTasksSchedulerDecorator(m_threadPoolScheduler, _ => taskAdded(m_concurrentTaskAdded));
         var strandScheduler = new StrandSchedulerDecorator(m_threadPoolScheduler);
         var innerStrandProxyScheduler = new ProxyScheduler(strandScheduler);
-        m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, _ => taskAdded(m_exlusiveTaskAdded));
+        m_strandAccumulateScheduler = new AccumulateTasksSchedulerDecorator(strandScheduler, _ => taskAdded(m_exclusiveTaskAdded));
         m_strandProxyScheduler = new ProxyScheduler(m_strandAccumulateScheduler);
         m_concurrentProxyScheduler = new ProxyScheduler(m_concurrentAccumulateScheduler);
         m_processTaskLoop = null;
@@ -197,7 +224,7 @@ namespace RStein.Async.Schedulers
 
       private void isTaskLoopRequired()
       {
-        if ((m_exlusiveTaskAdded.IsSet || m_concurrentTaskAdded.IsSet) && tryCreateLoopTask())
+        if ((m_exclusiveTaskAdded.IsSet || m_concurrentTaskAdded.IsSet) && tryCreateLoopTask())
         {
           m_processTaskLoop.Start(m_controlTaskFactory.Scheduler);
         }
@@ -235,29 +262,29 @@ namespace RStein.Async.Schedulers
         {
           do
           {
-            m_exlusiveTaskAdded.TryReset();
-            m_exclusiveQueueTasksParams = m_exclusiveQueueTasksParams ?? new QueueTasksParams(maxNumberOfQueuedtasks: MAX_STRAND_TASK_BATCH);
+            m_exclusiveTaskAdded.TryReset();
+            m_exclusiveQueueTasksParams = m_exclusiveQueueTasksParams ?? new QueueTasksParams(maxNumberOfQueuedTasks: MAX_STRAND_TASK_BATCH);
             exclusiveQueueResult = m_strandAccumulateScheduler.QueueTasksToInnerScheduler(m_exclusiveQueueTasksParams);
             exclusiveQueueResult.WhenAllTask.Wait();
-          } while (m_exlusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
+          } while (m_exclusiveTaskAdded.IsSet || exclusiveQueueResult.HasMoreTasks);
 
           do
           {
             m_concurrentTaskAdded.TryReset();
-            m_concurrentQueueTaskParams = m_concurrentQueueTaskParams ?? new QueueTasksParams(maxNumberOfQueuedtasks: m_maxConcurrentTaskBatch);
+            m_concurrentQueueTaskParams = m_concurrentQueueTaskParams ?? new QueueTasksParams(maxNumberOfQueuedTasks: m_maxConcurrentTaskBatch);
             concurrentQueueResult = m_concurrentAccumulateScheduler.QueueTasksToInnerScheduler(m_concurrentQueueTaskParams);
             concurrentQueueResult.WhenAllTask.Wait();
-          } while (!m_exlusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
+          } while (!m_exclusiveTaskAdded.IsSet && (m_concurrentTaskAdded.IsSet || concurrentQueueResult.HasMoreTasks));
         } while (existsTasksToProcess(exclusiveQueueResult, concurrentQueueResult));
 
-        bool resetTaskResult = tryResetLoopTask();
+        var resetTaskResult = tryResetLoopTask();
         Debug.Assert(resetTaskResult);
         isTaskLoopRequired();
       }
 
       private bool existsTasksToProcess(QueueTasksResult exclusiveQueueResult, QueueTasksResult concurrentQueueResult)
       {
-        return m_exlusiveTaskAdded.IsSet ||
+        return m_exclusiveTaskAdded.IsSet ||
                m_concurrentTaskAdded.IsSet ||
                exclusiveQueueResult.HasMoreTasks ||
                concurrentQueueResult.HasMoreTasks;
@@ -292,6 +319,13 @@ namespace RStein.Async.Schedulers
         }
       }
 
+      private void checkIfDisposed()
+      {
+        if (m_isDisposed)
+        {
+          throw new ObjectDisposedException(GetType().FullName);
+        }
+      }
       private void waitForCompletion()
       {
         m_completedTcs.Task.Wait();

@@ -13,12 +13,7 @@ namespace RStein.Async.Examples.MapReduceActors
     public WordCountAggregateActor(IResultProcessorActor resultProcessor, int completeCountDownCount)
       : base(completeCountDownCount)
     {
-      if (resultProcessor == null)
-      {
-        throw new ArgumentNullException("resultProcessor");
-      }
-
-      m_resultProcessor = resultProcessor;
+      m_resultProcessor = resultProcessor ?? throw new ArgumentNullException(nameof(resultProcessor));
       m_wordCountDictionary = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
     }
 

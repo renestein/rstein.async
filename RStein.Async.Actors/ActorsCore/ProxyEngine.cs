@@ -12,13 +12,7 @@ namespace RStein.Async.Actors.ActorsCore
 
     public ProxyEngine(ITaskScheduler primaryScheduler)
     {
-      if (primaryScheduler == null)
-      {
-        throw new ArgumentNullException("primaryScheduler");
-      }
-
-
-      m_primaryScheduler = primaryScheduler;
+      m_primaryScheduler = primaryScheduler ?? throw new ArgumentNullException(nameof(primaryScheduler));
 
 
       m_proxyGenerator = new ProxyGenerator();
@@ -30,7 +24,7 @@ namespace RStein.Async.Actors.ActorsCore
     {
       if (targetObject == null)
       {
-        throw new ArgumentNullException("targetObject");
+        throw new ArgumentNullException(nameof(targetObject));
       }
 
       var retProxy = m_proxyGenerator.CreateInterfaceProxyWithTargetInterface(typeof (TActorInterface),

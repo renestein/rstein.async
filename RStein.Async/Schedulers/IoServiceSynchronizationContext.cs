@@ -10,32 +10,24 @@ namespace RStein.Async.Schedulers
     private readonly bool m_disposeIoServiceAfterComplete;
     private readonly IoServiceScheduler m_ioServiceScheduler;
     private int m_outstandingOperationCount;
-    private Work m_work;
+    private readonly Work m_work;
 
     public IoServiceSynchronizationContext(IoServiceScheduler ioServiceScheduler)
       : this(ioServiceScheduler, disposeIoServiceAfterComplete: false) {}
 
     public IoServiceSynchronizationContext(IoServiceScheduler ioServiceScheduler, bool disposeIoServiceAfterComplete)
     {
-      if (ioServiceScheduler == null)
-      {
-        throw new ArgumentNullException("ioServiceScheduler");
-      }
-
       m_disposeIoServiceAfterComplete = disposeIoServiceAfterComplete;
-      m_ioServiceScheduler = ioServiceScheduler;
+      m_ioServiceScheduler = ioServiceScheduler ?? throw new ArgumentNullException(nameof(ioServiceScheduler));
       m_outstandingOperationCount = 0;
       m_work = new Work(ioServiceScheduler);
     }
 
-    public override void Post(SendOrPostCallback d, object state)
-    {
-      m_ioServiceScheduler.Post(() => d(state));
-    }
+    public override void Post(SendOrPostCallback d, object state) => m_ioServiceScheduler.Post(() => d(state));
 
     public override void Send(SendOrPostCallback d, object state)
     {
-      Task sendTask = m_ioServiceScheduler.Dispatch(() => d(state));
+      var sendTask = m_ioServiceScheduler.Dispatch(() => d(state));
       sendTask.WaitAndPropagateException();
     }
 
@@ -46,14 +38,11 @@ namespace RStein.Async.Schedulers
 
     public override void OperationCompleted()
     {
-      int oustandingOperations = Interlocked.Decrement(ref m_outstandingOperationCount);
-      tryCompleteContext(oustandingOperations);
+      var outstandingOperations = Interlocked.Decrement(ref m_outstandingOperationCount);
+      tryCompleteContext(outstandingOperations);
     }
 
-    public override SynchronizationContext CreateCopy()
-    {
-      return this;
-    }
+    public override SynchronizationContext CreateCopy() => this;
 
     private void tryCompleteContext(int outstandingOperations)
     {

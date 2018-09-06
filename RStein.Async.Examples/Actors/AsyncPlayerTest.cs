@@ -41,8 +41,8 @@ namespace RStein.Async.Examples.Actors
 
       var duration = await StopWatchUtils.MeasureActionTime(async () =>
                                                                   {
-                                                                    Task firstPlayer = m_player1.Ping(PING_COUNT, m_player2, GAME_1_NAME);
-                                                                    Task secondPlayer = m_player2.Ping(PING_COUNT, m_player1, GAME_2_NAME);
+                                                                    var firstPlayer = m_player1.Ping(PING_COUNT, m_player2, GAME_1_NAME);
+                                                                    var secondPlayer = m_player2.Ping(PING_COUNT, m_player1, GAME_2_NAME);
                                                                     await Task.WhenAll(firstPlayer, secondPlayer);
                                                                   });
 

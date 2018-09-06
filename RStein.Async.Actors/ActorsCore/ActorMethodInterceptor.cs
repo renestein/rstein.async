@@ -16,12 +16,7 @@ namespace RStein.Async.Actors.ActorsCore
 
     public ActorMethodInterceptor(ITaskScheduler primaryScheduler)
     {
-      if (primaryScheduler == null)
-      {
-        throw new ArgumentNullException("primaryScheduler");
-      }
-
-      m_primaryScheduler = primaryScheduler;
+      m_primaryScheduler = primaryScheduler ?? throw new ArgumentNullException(nameof(primaryScheduler));
       m_strandActorDictionary = new ConditionalWeakTable<object, StrandSchedulerDecorator>();
     }
 
@@ -32,7 +27,7 @@ namespace RStein.Async.Actors.ActorsCore
 
     public virtual void Intercept(IInvocation invocation)
     {
-      StrandSchedulerDecorator strand = getStrand(invocation.InvocationTarget);
+      var strand = getStrand(invocation.InvocationTarget);
       if (isVoidMethod(invocation.MethodInvocationTarget))
       {
         postTargetSub(strand, invocation);
@@ -85,7 +80,7 @@ namespace RStein.Async.Actors.ActorsCore
 
     private bool isMethodReturningTask(MethodInfo methodInvocation)
     {
-      Type returnMethodType = methodInvocation.ReturnType;
+      var returnMethodType = methodInvocation.ReturnType;
       return typeof (Task).IsAssignableFrom(returnMethodType);
     }
 
@@ -107,12 +102,12 @@ namespace RStein.Async.Actors.ActorsCore
       dynamic proxyTcs = null;
 
       proxyTcs = getProxyTcs(methodInvocationTarget);
-      bool isGenericReturnType = methodInvocationTarget.ReturnType.IsGenericType;
+      var isGenericReturnType = methodInvocationTarget.ReturnType.IsGenericType;
 
       Func<Task> function = () =>
                             {
                               Task resultTask = null;
-                              bool hasException = false;
+                              var hasException = false;
 
                               try
                               {

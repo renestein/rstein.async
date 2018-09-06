@@ -12,7 +12,7 @@ namespace RStein.Async.Actors.ActorsCore
 
     private void preventProxySubjectLeakForAllArgs(IInvocation invocation)
     {
-      for (int i = 0; i < invocation.Arguments.Length; i++)
+      for (var i = 0; i < invocation.Arguments.Length; i++)
       {
         var currentArg = invocation.Arguments[i];
         invocation.Arguments[i] = ProxyContext.Current.SubjectProxyMapping.TryFindProxy(currentArg) ?? currentArg;

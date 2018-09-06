@@ -16,11 +16,11 @@ namespace RStein.Async.Actors.ActorsCore
     {
       if (realObject == null)
       {
-        throw new ArgumentNullException("realObject");
+        throw new ArgumentNullException(nameof(realObject));
       }
       if (proxy == null)
       {
-        throw new ArgumentNullException("proxy");
+        throw new ArgumentNullException(nameof(proxy));
       }
 
       m_baseProxyMapping.Add(realObject, proxy);
@@ -30,7 +30,7 @@ namespace RStein.Async.Actors.ActorsCore
     {
       if (realObject == null)
       {
-        throw new ArgumentNullException("realObject");
+        throw new ArgumentNullException(nameof(realObject));
       }
 
       object proxy;

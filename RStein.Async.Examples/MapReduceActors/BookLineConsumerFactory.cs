@@ -11,18 +11,8 @@ namespace RStein.Async.Examples.MapReduceActors
 
     public BookLineConsumerFactory(ICountWordAggregateActor aggregateActor, ProxyEngine proxyEngine)
     {
-      if (aggregateActor == null)
-      {
-        throw new ArgumentNullException("aggregateActor");
-      }
-
-      if (proxyEngine == null)
-      {
-        throw new ArgumentNullException("proxyEngine");
-      }
-
-      m_aggregateActor = aggregateActor;
-      m_proxyEngine = proxyEngine;
+      m_aggregateActor = aggregateActor ?? throw new ArgumentNullException(nameof(aggregateActor));
+      m_proxyEngine = proxyEngine ?? throw new ArgumentNullException(nameof(proxyEngine));
     }
 
     public virtual IBookLineConsumerActor CreateConsumer(int consumerId)

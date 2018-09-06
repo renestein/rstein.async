@@ -21,6 +21,7 @@ namespace RStein.Async.Schedulers
     {
       get;
     }
+
     void QueueTask(Task task);
     bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued);
     IEnumerable<Task> GetScheduledTasks();

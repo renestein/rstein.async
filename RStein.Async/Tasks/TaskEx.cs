@@ -17,7 +17,7 @@ namespace RStein.Async.Tasks
     {
       if (action == null)
       {
-        throw new ArgumentNullException("action");
+        throw new ArgumentNullException(nameof(action));
       }
 
       try
@@ -56,12 +56,12 @@ namespace RStein.Async.Tasks
     {
       if (originaltask == null)
       {
-        throw new ArgumentNullException("originaltask");
+        throw new ArgumentNullException(nameof(originaltask));
       }
 
       if (taskcompletionSource == null)
       {
-        throw new ArgumentNullException("taskcompletionSource");
+        throw new ArgumentNullException(nameof(taskcompletionSource));
       }
     }
 
@@ -69,7 +69,7 @@ namespace RStein.Async.Tasks
     {
       if (originalTask == null)
       {
-        throw new ArgumentNullException("originalTask");
+        throw new ArgumentNullException(nameof(originalTask));
       }
 
       var tcs = addTaskFromExistingTaskProblemContinuation<T>(originalTask);
@@ -82,7 +82,7 @@ namespace RStein.Async.Tasks
     {
       if (task == null)
       {
-        throw new ArgumentNullException("task");
+        throw new ArgumentNullException(nameof(task));
       }
 
       task.GetAwaiter().GetResult();
@@ -100,7 +100,7 @@ namespace RStein.Async.Tasks
     {
       if (originalTask == null)
       {
-        throw new ArgumentNullException("originalTask");
+        throw new ArgumentNullException(nameof(originalTask));
       }
 
       var tcs = addTaskFromExistingTaskProblemContinuation<Object>(originalTask);

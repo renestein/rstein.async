@@ -23,12 +23,7 @@ namespace RStein.Async.Schedulers
 
     public StrandSchedulerDecorator(ITaskScheduler originalScheduler)
     {
-      if (originalScheduler == null)
-      {
-        throw new ArgumentNullException("originalScheduler");
-      }
-
-      m_originalScheduler = originalScheduler;
+      m_originalScheduler = originalScheduler ?? throw new ArgumentNullException(nameof(originalScheduler));
 
       m_tasks = new ConcurrentQueue<Task>();
       m_canExecuteTaskSwitch = new ThreadSafeSwitch();
@@ -41,7 +36,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         return MAX_CONCURRENCY_IN_STRAND;
       }
     }
@@ -50,12 +45,12 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         return base.ProxyScheduler;
       }
       set
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         if (m_originalScheduler.ProxyScheduler == null)
         {
           m_originalScheduler.ProxyScheduler = value;
@@ -66,7 +61,7 @@ namespace RStein.Async.Schedulers
 
     public virtual Task Dispatch(Action action)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
 
       if (isCurrentThreadInThisStrand())
       {
@@ -88,56 +83,59 @@ namespace RStein.Async.Schedulers
 
     public virtual Task Post(Action action)
     {
-      Func<Task> postTaskFunc = () => Task.Factory.StartNew(action,
+      Task PostTaskFunc() => Task.Factory.StartNew(action,
         SchedulerRunCanceledToken,
         TaskCreationOptions.None,
         ProxyScheduler.AsTplScheduler());
-      return postToScheduler(postTaskFunc);
+
+      return postToScheduler(PostTaskFunc);
     }
 
     public Task Post(Func<Task> function)
     {
-      Func<Task> postTaskFunc = () => Task.Factory.StartNew(function,
-        SchedulerRunCanceledToken,
-        TaskCreationOptions.None,
-        ProxyScheduler.AsTplScheduler()).Unwrap();
+      Task PostTaskFunc() => Task.Factory.StartNew(function,
+                            SchedulerRunCanceledToken,
+                            TaskCreationOptions.None,
+                            ProxyScheduler.AsTplScheduler())
+        .Unwrap();
 
-      return postToScheduler(postTaskFunc);
+      return postToScheduler(PostTaskFunc);
     }
 
     public virtual Action Wrap(Action action)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return () => Dispatch(action);
     }
 
     public virtual Action Wrap(Func<Task> function)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return () => Dispatch(function);
     }
 
     public virtual Func<Task> WrapAsTask(Action action)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return () => Dispatch(action);
     }
 
     public virtual Func<Task> WrapAsTask(Func<Task> action)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return () => Dispatch(action);
     }
 
     public virtual bool RunningInThisThread()
     {
+      CheckIfDisposed();
       return isCurrentThreadInThisStrand();
     }
 
 
     public override void QueueTask(Task task)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
 
       if (taskAlreadyQueued(task))
       {
@@ -159,7 +157,35 @@ namespace RStein.Async.Schedulers
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
+      CheckIfDisposed();
       return safeTryExecuteTaskInline(task, taskWasPreviouslyQueued, callFromStrand: false);
+    }
+
+
+    public override IEnumerable<Task> GetScheduledTasks()
+    {
+      CheckIfDisposed();
+      return m_tasks.ToArray();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        Task DisposeAction() => Task.Factory.StartNew(() =>
+        {
+          Trace.WriteLine("Running dispose task");
+          SchedulerRunCancellationTokenSource.Cancel();
+        }, CancellationToken.None,
+          TaskCreationOptions.None,
+          ProxyScheduler.AsTplScheduler());
+
+        var disposeTask = postToScheduler(DisposeAction);
+
+        disposeTask.Wait();
+
+        m_postOnCallStack.Dispose();
+      }
     }
 
     private void resetPostMethodContext()
@@ -170,7 +196,7 @@ namespace RStein.Async.Schedulers
 
     private bool safeTryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued, bool callFromStrand = false)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
 
       if (!callFromStrand || !taskWasPreviouslyQueued || isCurrentThreadInPostMethodContext())
       {
@@ -189,38 +215,12 @@ namespace RStein.Async.Schedulers
 
     private bool taskAlreadyQueued(Task task)
     {
-      ThreadSafeSwitch taskAlreadyQueued;
-      return m_alreadyQueuedTasksTable.TryGetValue(task, out taskAlreadyQueued);
-    }
-
-
-    public override IEnumerable<Task> GetScheduledTasks()
-    {
-      checkIfDisposed();
-      return m_tasks.ToArray();
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        Func<Task> disposeAction = () => Task.Factory.StartNew(() =>
-                                                               {
-                                                                 Trace.WriteLine("Running dispose task");
-                                                                 SchedulerRunCancellationTokenSource.Cancel();
-                                                               }, CancellationToken.None, TaskCreationOptions.None, ProxyScheduler.AsTplScheduler());
-
-        var disposeTask = postToScheduler(disposeAction);
-
-        disposeTask.Wait();
-
-        m_postOnCallStack.Dispose();
-      }
+      return m_alreadyQueuedTasksTable.TryGetValue(task, out var taskAlreadyQueued);
     }
 
     private TryAddTaskResult tryProcessTask(Task task, bool taskWasPreviouslyQueued)
     {
-      var exceptionFromInnerTaskschedulerRaised = false;
+      var exceptionFromInnerTaskSchedulerRaised = false;
       var lockTaken = false;
 
       if (!isOriginalSchedulerInImplicitStrand())
@@ -234,7 +234,7 @@ namespace RStein.Async.Schedulers
       }
 
 
-      bool canExecuteTask = false;
+      var canExecuteTask = false;
 
 
       try
@@ -251,12 +251,12 @@ namespace RStein.Async.Schedulers
       catch (Exception ex)
       {
         Trace.WriteLine(ex);
-        exceptionFromInnerTaskschedulerRaised = true;
+        exceptionFromInnerTaskSchedulerRaised = true;
         throw;
       }
       finally
       {
-        if ((exceptionFromInnerTaskschedulerRaised || !canExecuteTask) && lockTaken)
+        if ((exceptionFromInnerTaskSchedulerRaised || !canExecuteTask) && lockTaken)
         {
           resetTaskLock();
         }
@@ -265,7 +265,7 @@ namespace RStein.Async.Schedulers
 
     private Task postToScheduler(Func<Task> postFunction)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       try
       {
         setPostMethodContext();
@@ -279,7 +279,7 @@ namespace RStein.Async.Schedulers
 
     private TryAddTaskResult executeTaskOnInnerScheduler(Task task)
     {
-      bool taskExecutedInline = m_originalScheduler.TryExecuteTaskInline(task, false);
+      var taskExecutedInline = m_originalScheduler.TryExecuteTaskInline(task, false);
 
       if (taskExecutedInline)
       {
@@ -320,23 +320,20 @@ namespace RStein.Async.Schedulers
 
     private void popQueuedTask(Task previousTask)
     {
-      Task task;
-      bool result = m_tasks.TryDequeue(out task);
+      var result = m_tasks.TryDequeue(out var task);
       Debug.Assert(result);
       Debug.Assert(ReferenceEquals(task, previousTask));
     }
 
     private void resetTaskLock()
     {
-      bool lockReset = m_canExecuteTaskSwitch.TryReset();
+      var lockReset = m_canExecuteTaskSwitch.TryReset();
       Debug.Assert(lockReset);
     }
 
     private void tryExecuteNextTask()
     {
-      Task nextTask;
-
-      if (m_tasks.TryPeek(out nextTask) && !taskAlreadyQueued(nextTask))
+      if (m_tasks.TryPeek(out var nextTask) && !taskAlreadyQueued(nextTask))
       {
         safeTryExecuteTaskInline(nextTask, taskWasPreviouslyQueued: true, callFromStrand: true);
       }
@@ -344,8 +341,7 @@ namespace RStein.Async.Schedulers
 
     private bool isCurrentThreadInThisStrand()
     {
-      Task currentTask;
-      if (!m_tasks.TryPeek(out currentTask))
+      if (!m_tasks.TryPeek(out var currentTask))
       {
         return false;
       }

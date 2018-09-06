@@ -7,7 +7,7 @@ namespace RStein.Async.Schedulers
 {
   public class TaskExternalProxyService
   {
-    private ConditionalWeakTable<Task, IProxyScheduler> m_taskSchedulerDictionary;
+    private readonly ConditionalWeakTable<Task, IProxyScheduler> m_taskSchedulerDictionary;
 
     public TaskExternalProxyService()
     {
@@ -18,14 +18,14 @@ namespace RStein.Async.Schedulers
     {
       if (task == null)
       {
-        throw new ArgumentNullException("task");
+        throw new ArgumentNullException(nameof(task));
       }
 
       if (scheduler == null)
       {
-        throw new ArgumentNullException("scheduler");
+        throw new ArgumentNullException(nameof(scheduler));
       }
-      bool schedulerAssociatedNow = false;
+      var schedulerAssociatedNow = false;
       m_taskSchedulerDictionary.GetValue(task, _ =>
                                                {
                                                  schedulerAssociatedNow = true;
@@ -39,11 +39,10 @@ namespace RStein.Async.Schedulers
     {
       if (task == null)
       {
-        throw new ArgumentNullException("task");
+        throw new ArgumentNullException(nameof(task));
       }
 
-      IProxyScheduler scheduler;
-      bool result = m_taskSchedulerDictionary.TryGetValue(task, out scheduler);
+      m_taskSchedulerDictionary.TryGetValue(task, out var scheduler);
       return scheduler;
     }
 
@@ -51,10 +50,10 @@ namespace RStein.Async.Schedulers
     {
       if (task == null)
       {
-        throw new ArgumentNullException("task");
+        throw new ArgumentNullException(nameof(task));
       }
 
-      bool removedNow = m_taskSchedulerDictionary.Remove(task);
+      var removedNow = m_taskSchedulerDictionary.Remove(task);
       Debug.Assert(removedNow);
       return removedNow;
     }

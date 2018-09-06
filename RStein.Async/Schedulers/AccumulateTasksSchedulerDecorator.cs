@@ -13,20 +13,15 @@ namespace RStein.Async.Schedulers
     private readonly ThreadLocal<bool> m_ignoreCancellationToken;
     private readonly ITaskScheduler m_innerScheduler;
     private readonly Action<Task> m_newTaskQueuedAction;
-    private readonly ThreadSafeSwitch m_queingToInnerSchedulerSwitch;
+    private readonly ThreadSafeSwitch m_queueToInnerSchedulerSwitch;
     private readonly ConcurrentQueue<Task> m_tasks;
 
     public AccumulateTasksSchedulerDecorator(ITaskScheduler innerScheduler, Action<Task> newTaskQueuedAction)
     {
-      if (innerScheduler == null)
-      {
-        throw new ArgumentNullException("innerScheduler");
-      }
-
-      m_innerScheduler = innerScheduler;
+      m_innerScheduler = innerScheduler ?? throw new ArgumentNullException(nameof(innerScheduler));
       m_newTaskQueuedAction = newTaskQueuedAction;
       m_tasks = new ConcurrentQueue<Task>();
-      m_queingToInnerSchedulerSwitch = new ThreadSafeSwitch();
+      m_queueToInnerSchedulerSwitch = new ThreadSafeSwitch();
       m_ignoreCancellationToken = new ThreadLocal<bool>(() => false);
     }
 
@@ -34,7 +29,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         return m_innerScheduler.MaximumConcurrencyLevel;
       }
     }
@@ -43,12 +38,12 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         return base.ProxyScheduler;
       }
       set
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         if (m_innerScheduler.ProxyScheduler == null)
         {
           m_innerScheduler.ProxyScheduler = value;
@@ -60,36 +55,33 @@ namespace RStein.Async.Schedulers
 
     public override void QueueTask(Task task)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       m_tasks.Enqueue(task);
 
-      if (m_newTaskQueuedAction != null)
-      {
-        m_newTaskQueuedAction(task);
-      }
+      m_newTaskQueuedAction?.Invoke(task);
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return false;
 
     }
 
     public override IEnumerable<Task> GetScheduledTasks()
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return m_tasks.ToArray();
     }
 
     public virtual QueueTasksResult QueueTasksToInnerScheduler(QueueTasksParams queueTasksParams = null)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
 
       var currentParams = queueTasksParams ?? new QueueTasksParams();
       var currentTasks = new List<Task>();
 
-      bool hasMoreTasks = false;
+      var hasMoreTasks = false;
 
       try
       {
@@ -100,7 +92,7 @@ namespace RStein.Async.Schedulers
             hasMoreTasks: false);
         }
 
-        if (!m_queingToInnerSchedulerSwitch.TrySet())
+        if (!m_queueToInnerSchedulerSwitch.TrySet())
         {
           return new QueueTasksResult(numberOfQueuedTasks: 0,
             whenAllTask: PredefinedTasks.CompletedTask,
@@ -113,7 +105,7 @@ namespace RStein.Async.Schedulers
       }
       finally
       {
-        m_queingToInnerSchedulerSwitch.TryReset();
+        m_queueToInnerSchedulerSwitch.TryReset();
       }
 
       var whenAllTask = Task.WhenAll(currentTasks);
@@ -148,7 +140,7 @@ namespace RStein.Async.Schedulers
 
     private static bool canQueueTask(QueueTasksParams currentParams, List<Task> currentTasks)
     {
-      return currentTasks.Count < currentParams.MaxNumberOfQueuedtasks;
+      return currentTasks.Count < currentParams.MaxNumberOfQueuedTasks;
     }
 
     protected override void Dispose(bool disposing)

@@ -8,7 +8,7 @@ namespace RStein.Async.Examples.BrokenPromise
   {
     public Task Leak()
     {
-      Task task = getTask();
+      var task = getTask();
       return task;
     }
 

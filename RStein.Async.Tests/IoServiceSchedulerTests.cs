@@ -75,7 +75,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Run_When_One_Task_Added_Then_Task_Is_Executed()
     {
-      bool wasTaskCalled = false;
+      var wasTaskCalled = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTaskCalled = true;
@@ -88,8 +88,8 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Run_When_More_Tasks_Added_Then_All_Tasks_Are_Executed()
     {
-      bool wasTask1Called = false;
-      bool wasTask2Called = false;
+      var wasTask1Called = false;
+      var wasTask2Called = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTask1Called = true;
@@ -141,7 +141,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Run_When_One_Task_Added_And_Cancel_Work_Then_Task_Is_Executed()
     {
-      bool wasTaskCalled = false;
+      var wasTaskCalled = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTaskCalled = true;
@@ -156,8 +156,8 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Run_When_More_Tasks_Added_And_Cancel_Work_Then_All_Tasks_Are_Executed()
     {
-      bool wasTask1Called = false;
-      bool wasTask2Called = false;
+      var wasTask1Called = false;
+      var wasTask2Called = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTask1Called = true;
@@ -228,13 +228,13 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_WORKER_THREAD = 3;
       var countDownEvent = new CountdownEvent(NUMBER_OF_WORKER_THREAD);
 
-      int executedTasks = 0;
+      var executedTasks = 0;
 
       var allTasks = Enumerable.Range(0, NUMBER_OF_SCHEDULED_TASKS).Select(_ => m_scheduler.Post(() => Thread.Sleep(DEFAULT_TASK_SLEEP))).ToArray();
 
       Enumerable.Range(0, NUMBER_OF_WORKER_THREAD).Select(_ => ThreadPool.QueueUserWorkItem(__ =>
       {
-        int tasksExecutedInThisThread = m_scheduler.Run();
+        var tasksExecutedInThisThread = m_scheduler.Run();
         Interlocked.Add(ref executedTasks, tasksExecutedInThisThread);
         countDownEvent.Signal();
       })).ToArray();
@@ -260,7 +260,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void RunOne_When_One_Task_Added_Then_Task_Is_Executed()
     {
-      bool wasTaskCalled = false;
+      var wasTaskCalled = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTaskCalled = true;
@@ -273,8 +273,8 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void RunOne_When_More_Tasks_Added_Then_Only_First_Task_Is_Executed()
     {
-      bool wasTask1Called = false;
-      bool wasTask2Called = false;
+      var wasTask1Called = false;
+      var wasTask2Called = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTask1Called = true;
@@ -321,7 +321,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void RunOne_When_One_Task_Added_And_Cancel_Work_Then_Task_Is_Executed()
     {
-      bool wasTaskCalled = false;
+      var wasTaskCalled = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTaskCalled = true;
@@ -336,8 +336,8 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void RunOne_When_More_Tasks_Added_And_Cancel_Work_Then_Only_First_Task_Is_Executed()
     {
-      bool wasTask1Called = false;
-      bool wasTask2Called = false;
+      var wasTask1Called = false;
+      var wasTask2Called = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTask1Called = true;
@@ -461,7 +461,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Poll_When_One_Task_Added_Then_Task_Is_Executed()
     {
-      bool wasTaskCalled = false;
+      var wasTaskCalled = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTaskCalled = true;
@@ -474,8 +474,8 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Poll_When_More_Tasks_Added_Then_All_Tasks_Are_Executed()
     {
-      bool wasTask1Called = false;
-      bool wasTask2Called = false;
+      var wasTask1Called = false;
+      var wasTask2Called = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTask1Called = true;
@@ -533,7 +533,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void PollOne_When_One_Task_Added_Then_Task_Is_Executed()
     {
-      bool wasTaskCalled = false;
+      var wasTaskCalled = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTaskCalled = true;
@@ -546,8 +546,8 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void PollOne_When_More_Tasks_Added_Then_Only_First_Task_Is_Executed()
     {
-      bool wasTask1Called = false;
-      bool wasTask2Called = false;
+      var wasTask1Called = false;
+      var wasTask2Called = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTask1Called = true;
@@ -594,7 +594,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void PollOne_When_One_Task_Added_And_Cancel_Work_Then_Task_Is_Executed()
     {
-      bool wasTaskCalled = false;
+      var wasTaskCalled = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTaskCalled = true;
@@ -609,8 +609,8 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void PollOne_When_More_Tasks_Added_And_Cancel_Work_Then_Only_First_Task_Is_Executed()
     {
-      bool wasTask1Called = false;
-      bool wasTask2Called = false;
+      var wasTask1Called = false;
+      var wasTask2Called = false;
       m_scheduler.Dispatch(() =>
                            {
                              wasTask1Called = true;

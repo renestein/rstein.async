@@ -5,49 +5,35 @@ namespace RStein.Async.Schedulers
 {
   public class QueueTasksParams
   {
-    private readonly int m_maxNumberOfQueuedtasks;
-    private Action<Task> m_afterTaskQueuedAction;
-    private Action<Task> m_beforeTaskQueuedAction;
-    private Action<Task> m_taskContinuation;
-
-    public QueueTasksParams(int maxNumberOfQueuedtasks = Int32.MaxValue,
+    public QueueTasksParams(int maxNumberOfQueuedTasks = Int32.MaxValue,
       Action<Task> beforeTaskQueuedAction = null,
       Action<Task> taskContinuation = null,
       Action<Task> afterTaskQueuedAction = null)
     {
-      m_maxNumberOfQueuedtasks = maxNumberOfQueuedtasks;
-      m_beforeTaskQueuedAction = beforeTaskQueuedAction;
-      m_taskContinuation = taskContinuation;
-      m_afterTaskQueuedAction = afterTaskQueuedAction;
+      MaxNumberOfQueuedTasks = maxNumberOfQueuedTasks;
+      BeforeTaskQueuedAction = beforeTaskQueuedAction;
+      TaskContinuation = taskContinuation;
+      AfterTaskQueuedAction = afterTaskQueuedAction;
     }
 
     public Action<Task> BeforeTaskQueuedAction
     {
-      get
-      {
-        return m_beforeTaskQueuedAction;
-      }
+      get;
     }
+
     public Action<Task> TaskContinuation
     {
-      get
-      {
-        return m_taskContinuation;
-      }
+      get;
     }
+
     public Action<Task> AfterTaskQueuedAction
     {
-      get
-      {
-        return m_afterTaskQueuedAction;
-      }
+      get;
     }
-    public int MaxNumberOfQueuedtasks
+
+    public int MaxNumberOfQueuedTasks
     {
-      get
-      {
-        return m_maxNumberOfQueuedtasks;
-      }
+      get;
     }
   }
 }

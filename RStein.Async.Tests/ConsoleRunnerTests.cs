@@ -21,7 +21,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public void Run_When_Action_Arg_Then_Action_Executed()
     {
-      bool wasExecuted = false;
+      var wasExecuted = false;
       ConsoleRunner.Run(() =>
                         {
                           wasExecuted = true;
@@ -45,7 +45,7 @@ namespace RStein.Async.Tests
     {
       Func<int> intFunc = () => DEFAULT_INT_RESULT;
 
-      int currentResult = ConsoleRunner.Run(intFunc);
+      var currentResult = ConsoleRunner.Run(intFunc);
 
       Assert.AreEqual(DEFAULT_INT_RESULT, currentResult);
     }
@@ -71,7 +71,7 @@ namespace RStein.Async.Tests
                                             return DEFAULT_INT_RESULT;
                                           };
 
-      int currentResult = ConsoleRunner.Run(taskIntFunc);
+      var currentResult = ConsoleRunner.Run(taskIntFunc);
       Assert.AreEqual(DEFAULT_INT_RESULT, currentResult);
     }
 
@@ -85,7 +85,7 @@ namespace RStein.Async.Tests
                                             throw new InvalidOperationException();
                                           };
 
-      int currentResult = ConsoleRunner.Run(taskIntFunc);
+      var currentResult = ConsoleRunner.Run(taskIntFunc);
     }
 
     [TestMethod]
@@ -98,7 +98,7 @@ namespace RStein.Async.Tests
                                             return DEFAULT_INT_RESULT;
                                           };
 
-      int currentResult = ConsoleRunner.Run(taskIntFunc);
+      var currentResult = ConsoleRunner.Run(taskIntFunc);
       Assert.AreEqual(DEFAULT_INT_RESULT, currentResult);
     }
 
@@ -116,7 +116,7 @@ namespace RStein.Async.Tests
                                             return DEFAULT_INT_RESULT;
                                           };
 
-      int currentResult = ConsoleRunner.Run(taskIntFunc);
+      var currentResult = ConsoleRunner.Run(taskIntFunc);
     }
   }
 }

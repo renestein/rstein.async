@@ -25,6 +25,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return m_synchronizationContext;
       }
     }
@@ -33,6 +34,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return m_ioServiceScheduler.MaximumConcurrencyLevel;
       }
     }
@@ -41,10 +43,12 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return base.ProxyScheduler;
       }
       set
       {
+        CheckIfDisposed();
         base.ProxyScheduler = value;
         m_ioServiceScheduler.ProxyScheduler = value;
       }
@@ -54,17 +58,20 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return m_taskFactory;
       }
     }
 
     public virtual int GetScheduledTaskCount()
     {
+      CheckIfDisposed();
       return GetScheduledTasks().Count();
     }
 
     public virtual int RunOneTask()
     {
+      CheckIfDisposed();
       assertTaskExists();
       return m_ioServiceScheduler.RunOne();
     }
@@ -77,14 +84,15 @@ namespace RStein.Async.Schedulers
 
     public virtual int RunTasks(int maxTasksCount)
     {
+      CheckIfDisposed();
       if (maxTasksCount <= 0)
       {
         return 0;
       }
 
-      int tasksRemaining = maxTasksCount;
-      int tasksExecuted = 0;
-      bool lastTaskExecuted = false;
+      var tasksRemaining = maxTasksCount;
+      var tasksExecuted = 0;
+      var lastTaskExecuted = false;
 
       do
       {
@@ -102,18 +110,19 @@ namespace RStein.Async.Schedulers
 
     public override void QueueTask(Task task)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       m_ioServiceScheduler.QueueTask(task);
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return m_ioServiceScheduler.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
     }
 
     public override IEnumerable<Task> GetScheduledTasks()
     {
+      CheckIfDisposed();
       return m_ioServiceScheduler.GetScheduledTasks();
     }
 
@@ -133,8 +142,8 @@ namespace RStein.Async.Schedulers
 
     private bool tryExecuteNextTask()
     {
-      int taskCount = m_ioServiceScheduler.PollOne();
-      return (taskCount == IoServiceScheduler.POLLONE_RUNONE_MAX_TASKS);
+      var taskCount = m_ioServiceScheduler.PollOne();
+      return (taskCount == IoServiceScheduler.POLL_ONE_RUN_ONE_MAX_TASKS);
     }
 
     public override string ToString()

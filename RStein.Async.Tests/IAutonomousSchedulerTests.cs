@@ -35,7 +35,7 @@ namespace RStein.Async.Tests
     [TestMethod]
     public async Task WithTaskFactory_When_One_Task_Is_Queued_Then_Task_is_Executed()
     {
-      bool wasTaskExecuted = false;
+      var wasTaskExecuted = false;
       await TestTaskFactory.StartNew(() => wasTaskExecuted = true);
 
       Assert.IsTrue(wasTaskExecuted);
@@ -45,7 +45,7 @@ namespace RStein.Async.Tests
     public async Task WithTaskFactory_When_Tasks_Are_Queued_Then_All_Tasks_Are_Executed()
     {
       const int NUMBER_OF_TASKS = 8096;
-      int numberOfTasksExecuted = 0;
+      var numberOfTasksExecuted = 0;
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)
         .Select(_ => TestTaskFactory.StartNew(() => Interlocked.Increment(ref numberOfTasksExecuted))).ToArray();
@@ -61,7 +61,7 @@ namespace RStein.Async.Tests
       const int NUMBER_OF_TASKS = 10000;
       const int DELAY_TASK_CAN_CONTINUE_SIGNAL_S = 1;
 
-      int numberOfTasksExecuted = 0;
+      var numberOfTasksExecuted = 0;
       var waitForSignalCts = new CancellationTokenSource();
 
       var tasks = Enumerable.Range(0, NUMBER_OF_TASKS)

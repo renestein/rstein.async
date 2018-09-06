@@ -18,7 +18,7 @@ namespace RStein.Async.Actors.ActorsCore
 
     public virtual bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
     {
-      bool shouldIntercept = methodInfo.ReturnType.Equals(typeof (void)) ||
+      var shouldIntercept = methodInfo.ReturnType.Equals(typeof (void)) ||
                              typeof (Task).IsAssignableFrom(methodInfo.ReturnType);
 
       if (!shouldIntercept)

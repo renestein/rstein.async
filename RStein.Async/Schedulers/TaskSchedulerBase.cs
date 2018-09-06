@@ -10,10 +10,10 @@ namespace RStein.Async.Schedulers
   public abstract class TaskSchedulerBase : ITaskScheduler
   {
     private const string PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE = "ProxyScheduler is already set and cannot be modified!";
-    private readonly CancellationTokenSource m_schedulerCancellationTokenSource;
 
     private readonly TaskCompletionSource<object> m_serviceCompleteTcs;
     private readonly object m_serviceLockObject;
+    private readonly CancellationTokenSource m_schedulerCancellationTokenSource;
     private bool m_disposed;
     private IProxyScheduler m_proxyScheduler;
 
@@ -29,13 +29,16 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return m_serviceLockObject;
       }
     }
+
     protected virtual CancellationToken SchedulerRunCanceledToken
     {
       get
       {
+        CheckIfDisposed();
         return m_schedulerCancellationTokenSource.Token;
       }
     }
@@ -44,6 +47,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return m_schedulerCancellationTokenSource;
       }
     }
@@ -57,6 +61,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return m_proxyScheduler;
       }
 
@@ -64,18 +69,13 @@ namespace RStein.Async.Schedulers
       {
         lock (GetServiceLockObject)
         {
-          checkIfDisposed();
-          if (value == null)
-          {
-            throw new ArgumentNullException("value");
-          }
-
+          CheckIfDisposed();
           if (m_proxyScheduler != null)
           {
             throw new InvalidOperationException(PROXY_SCHEDULER_ALREADY_SET_EXCEPTION_MESSAGE);
           }
 
-          m_proxyScheduler = value;
+          m_proxyScheduler = value ?? throw new ArgumentNullException(nameof(value));
         }
       }
     }
@@ -84,6 +84,7 @@ namespace RStein.Async.Schedulers
     {
       get
       {
+        CheckIfDisposed();
         return m_serviceCompleteTcs.Task;
       }
     }
@@ -118,13 +119,12 @@ namespace RStein.Async.Schedulers
 
     protected abstract void Dispose(bool disposing);
 
-    protected void checkIfDisposed()
+    protected void CheckIfDisposed()
     {
       if (m_disposed)
       {
         throw new ObjectDisposedException(GetType().FullName);
       }
     }
-    
   }
 }

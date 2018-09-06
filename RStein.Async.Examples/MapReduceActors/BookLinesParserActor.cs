@@ -19,18 +19,8 @@ namespace RStein.Async.Examples.MapReduceActors
 
     public BookLinesParserActor(ILibraryActor library, IBookLineConsumerFactory lineConcumerFactory)
     {
-      if (library == null)
-      {
-        throw new ArgumentNullException("library");
-      }
-
-      if (lineConcumerFactory == null)
-      {
-        throw new ArgumentNullException("lineConcumerFactory");
-      }
-
-      m_library = library;
-      m_lineConcumerFactory = lineConcumerFactory;
+      m_library = library ?? throw new ArgumentNullException(nameof(library));
+      m_lineConcumerFactory = lineConcumerFactory ?? throw new ArgumentNullException(nameof(lineConcumerFactory));
       createBookLineConsumers();
     }
 
@@ -70,8 +60,8 @@ namespace RStein.Async.Examples.MapReduceActors
 
     private IEnumerable<IBookLineConsumerActor> iterateConsumers()
     {
-      int consumersCount = m_consumers.Length;
-      int currentIndex = 0;
+      var consumersCount = m_consumers.Length;
+      var currentIndex = 0;
       while (true)
       {
         yield return m_consumers[currentIndex++%consumersCount];

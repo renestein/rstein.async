@@ -16,7 +16,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
       var downloadTasks = (from url in urls
         select new WebClient().DownloadStringTaskAsync(url)).ToList();
 
-      int successfullyCompletedTasks = 0;
+      var successfullyCompletedTasks = 0;
       while (downloadTasks.Any())
       {
         Task<String> currentTask = null;

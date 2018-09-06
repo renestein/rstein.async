@@ -20,7 +20,7 @@ namespace RStein.Async.Examples.Coroutines
     {
       if (numberOfIterations <= 0)
       {
-        throw new ArgumentOutOfRangeException("numberOfIterations");
+        throw new ArgumentOutOfRangeException(nameof(numberOfIterations));
       }
 
       if (String.IsNullOrEmpty(logCoroutineName))
@@ -36,10 +36,10 @@ namespace RStein.Async.Examples.Coroutines
     {
       if (coroutine == null)
       {
-        throw new ArgumentNullException("coroutine");
+        throw new ArgumentNullException(nameof(coroutine));
       }
 
-      for (int i = 0; i < m_numberOfIterations; i++)
+      for (var i = 0; i < m_numberOfIterations; i++)
       {
         logMessage(ITERATION_MESSAGE_FORMAT, i);
         await coroutine;

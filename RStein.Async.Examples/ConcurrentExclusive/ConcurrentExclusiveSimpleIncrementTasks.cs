@@ -54,19 +54,19 @@ namespace RStein.Async.Examples.ConcurrentExclusive
 
       const int BATCH_SIZE = 5;
 
-      int concurrentVariable = 0;
+      var concurrentVariable = 0;
       var concurrentTaskFactory = new TaskFactory(concurrentScheduler);
       var exclusiveFactory = new TaskFactory(exclusiveScheduler);
 
-      int numberOfProducers = numberOfConcurrentTasks/BATCH_SIZE;
+      var numberOfProducers = numberOfConcurrentTasks/BATCH_SIZE;
       numberOfProducers = (numberOfConcurrentTasks%BATCH_SIZE == 0 ? numberOfProducers : numberOfProducers + 1);
       var concurrentTasks = new ConcurrentBag<Task>();
 
       Parallel.For(0, numberOfProducers, producedIndex =>
                                          {
-                                           int startIndex = producedIndex;
-                                           int endIndex = Math.Min(startIndex + BATCH_SIZE, numberOfConcurrentTasks);
-                                           for (int i = startIndex; i < endIndex; i++)
+                                           var startIndex = producedIndex;
+                                           var endIndex = Math.Min(startIndex + BATCH_SIZE, numberOfConcurrentTasks);
+                                           for (var i = startIndex; i < endIndex; i++)
                                            {
                                              var task = concurrentTaskFactory.StartNew(() => Interlocked.Increment(ref concurrentVariable));
                                              concurrentTasks.Add(task);

@@ -15,13 +15,8 @@ namespace RStein.Async.Examples.MapReduceActors
 
     public CountWordsInLineActor(int id, ICountWordAggregateActor countWordAggregateActor)
     {
-      if (countWordAggregateActor == null)
-      {
-        throw new ArgumentNullException("countWordAggregateActor");
-      }
-
       m_id = id;
-      m_countWordAggregateActor = countWordAggregateActor;
+      m_countWordAggregateActor = countWordAggregateActor ?? throw new ArgumentNullException(nameof(countWordAggregateActor));
     }
 
     public virtual void AddBookLine(string line)

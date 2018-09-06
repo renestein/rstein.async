@@ -10,7 +10,7 @@ namespace RStein.Async.Schedulers
   public class IoServiceThreadPoolScheduler : TaskSchedulerBase
   {
     public const string POOL_THREAD_NAME_FORMAT = "IoServiceThreadPoolSchedulerThread#{0}";
-    private const int EXPECTED_MIMINUM_THREADS = 1;
+    private const int EXPECTED_MININUM_THREADS = 1;
 
     private readonly IoServiceScheduler m_ioService;
     private readonly Work m_ioServiceWork;
@@ -23,17 +23,12 @@ namespace RStein.Async.Schedulers
 
     public IoServiceThreadPoolScheduler(IoServiceScheduler ioService, int numberOfThreads)
     {
-      if (ioService == null)
+      if (numberOfThreads < EXPECTED_MININUM_THREADS)
       {
-        throw new ArgumentNullException("ioService");
+        throw new ArgumentOutOfRangeException(nameof(numberOfThreads));
       }
 
-      if (numberOfThreads < EXPECTED_MIMINUM_THREADS)
-      {
-        throw new ArgumentOutOfRangeException("numberOfThreads");
-      }
-
-      m_ioService = ioService;
+      m_ioService = ioService ?? throw new ArgumentNullException(nameof(ioService));
       m_ioServiceWork = new Work(m_ioService);
       initThreads(numberOfThreads);
     }
@@ -42,8 +37,8 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        checkIfDisposed();
-        return m_threads.Count();
+        CheckIfDisposed();
+        return m_threads.Count;
       }
     }
 
@@ -51,12 +46,12 @@ namespace RStein.Async.Schedulers
     {
       get
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         return base.ProxyScheduler;
       }
       set
       {
-        checkIfDisposed();
+        CheckIfDisposed();
         m_ioService.ProxyScheduler = value;
         base.ProxyScheduler = value;
       }
@@ -65,19 +60,19 @@ namespace RStein.Async.Schedulers
 
     public override void QueueTask(Task task)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       m_ioService.QueueTask(task);
     }
 
     public override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return m_ioService.TryExecuteTaskInline(task, taskWasPreviouslyQueued);
     }
 
     public override IEnumerable<Task> GetScheduledTasks()
     {
-      checkIfDisposed();
+      CheckIfDisposed();
       return m_ioService.GetScheduledTasks();
     }
 
@@ -97,28 +92,28 @@ namespace RStein.Async.Schedulers
         .Select(threadNumber =>
                 {
                   var poolThread = new Thread(() =>
-                                              {
-                                                try
-                                                {
-                                                  m_ioService.Run();
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                  Trace.WriteLine(ex);
-                                                  if (Debugger.IsAttached)
-                                                  {
-                                                    Debugger.Break();
-                                                  }
-                                                  else
-                                                  {
-                                                    Environment.FailFast(null, ex);
-                                                  }
+                  {
+                    try
+                    {
+                      m_ioService.Run();
+                    }
+                    catch (Exception ex)
+                    {
+                      Trace.WriteLine(ex);
+                      if (Debugger.IsAttached)
+                      {
+                        Debugger.Break();
+                      }
+                      else
+                      {
+                        Environment.FailFast(null, ex);
+                      }
+                    }
+                  })
+                  {
+                    IsBackground = true,
+                    Name = String.Format(POOL_THREAD_NAME_FORMAT, threadNumber)};
 
-                                                }
-                                              });
-
-                  poolThread.IsBackground = true;
-                  poolThread.Name = String.Format(POOL_THREAD_NAME_FORMAT, threadNumber);
                   return poolThread;
                 }).ToList();
 
