@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.String;
 
 namespace RStein.Async.Examples.Coroutines
 {
@@ -23,7 +24,7 @@ namespace RStein.Async.Examples.Coroutines
         throw new ArgumentOutOfRangeException(nameof(numberOfIterations));
       }
 
-      if (String.IsNullOrEmpty(logCoroutineName))
+      if (IsNullOrEmpty(logCoroutineName))
       {
         throw new ArgumentException("logCoroutineName");
       }

@@ -41,13 +41,8 @@ namespace RStein.Async.Examples.MapReduceActors
       m_completedTaskTcs.SetResult(true);
     }
 
-    public Task Completed
-    {
-      get
-      {
-        return m_completedTaskTcs.Task;
-      }
-    }
+    public Task Completed => m_completedTaskTcs.Task;
+
     protected virtual void DoInnerComplete() {}
   }
 }

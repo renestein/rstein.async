@@ -32,7 +32,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
         
         downloadTasks.Remove(currentTask);
 
-        if (taskHasresult(currentTask))
+        if (taskHasResult(currentTask))
         {
           successfullyCompletedTasks++;
         }
@@ -43,7 +43,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
       return successfullyCompletedTasks;
     }
 
-    private bool taskHasresult(Task<string> currentTask)
+    private bool taskHasResult(Task<string> currentTask)
     {
       return currentTask.Status == TaskStatus.RanToCompletion;
     }
@@ -56,7 +56,7 @@ namespace RStein.Async.Examples.AsyncConsoleDownloader
         return;
       }
       Console.WriteLine(_pageSeparator);
-      Console.WriteLine("Current thread: {0}", Thread.CurrentThread.ManagedThreadId);
+      Console.WriteLine($"Current thread: {Thread.CurrentThread.ManagedThreadId}");
 
       if (currentTask.IsFaulted)
       {

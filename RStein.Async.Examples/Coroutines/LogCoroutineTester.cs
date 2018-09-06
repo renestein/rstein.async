@@ -32,6 +32,14 @@ namespace RStein.Async.Examples.Coroutines
       m_coroutine.Run();
     }
 
+    protected void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        m_scheduler.Dispose();
+      }
+    }
+
     private void addCoroutineMethods()
     {
       const int NUMBER_OF_COROUTINES = 30;
@@ -49,14 +57,6 @@ namespace RStein.Async.Examples.Coroutines
                                Console.WriteLine("All coroutines finished!");
                                m_work.Dispose();
                              });
-    }
-
-    protected void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        m_scheduler.Dispose();
-      }
     }
   }
 }

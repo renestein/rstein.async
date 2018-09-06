@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static System.String;
 
 namespace RStein.Async.Examples.MapReduceActors
 {
@@ -22,13 +23,12 @@ namespace RStein.Async.Examples.MapReduceActors
     public virtual void AddBookLine(string line)
     {
       IEnumerable<String> words = Regex.Split(line, SPLIT_WORDS_REGEX);
-      words = words.Where(word => !String.IsNullOrWhiteSpace(word));
+      words = words.Where(word => !IsNullOrWhiteSpace(word));
       var wordCountDictionary = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
 
       foreach (var word in words)
       {
-        int currentValue;
-        if (wordCountDictionary.TryGetValue(word, out currentValue))
+        if (wordCountDictionary.TryGetValue(word, out var currentValue))
         {
           wordCountDictionary[word] = ++currentValue;
         }

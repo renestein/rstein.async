@@ -7,7 +7,7 @@ namespace RStein.Async.Examples.ConcurrentExclusive
   {
     public const int NUMBER_OF_EXCLUSIVE_TASKS = 1 << 5;
     public const int NUMBER_OF_CONCURRENT_TASKS = 1 << 10;
-    private ConcurrentExclusiveSimpleIncrementTasks m_engine;
+    private readonly ConcurrentExclusiveSimpleIncrementTasks m_engine;
 
     public ConcurrentExclusiveSimpleIncrementStatistics()
     {

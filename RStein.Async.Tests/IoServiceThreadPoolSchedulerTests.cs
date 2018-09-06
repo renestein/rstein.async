@@ -11,21 +11,9 @@ namespace RStein.Async.Tests
     private IoServiceScheduler m_ioService;
     private ITaskScheduler m_threadPool;
 
-    protected override IProxyScheduler ProxyScheduler
-    {
-      get
-      {
-        return m_proxyScheduler;
-      }
-    }
+    protected override IProxyScheduler ProxyScheduler => m_proxyScheduler;
 
-    protected override ITaskScheduler Scheduler
-    {
-      get
-      {
-        return m_threadPool;
-      }
-    }
+    protected override ITaskScheduler Scheduler => m_threadPool;
 
 
     public override void InitializeTest()

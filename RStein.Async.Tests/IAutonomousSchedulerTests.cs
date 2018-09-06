@@ -17,13 +17,7 @@ namespace RStein.Async.Tests
       get;
     }
 
-    public TaskFactory TestTaskFactory
-    {
-      get
-      {
-        return m_testTaskFactory;
-      }
-    }
+    public TaskFactory TestTaskFactory => m_testTaskFactory;
 
     public override void InitializeTest()
     {

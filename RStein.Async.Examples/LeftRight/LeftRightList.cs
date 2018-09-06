@@ -9,9 +9,9 @@ namespace RStein.Async.Examples.LeftRight
 {
   public class LeftRightList
   {
-    private LeftRight<List<int>> m_leftRight;
     const int readers = 10;
     const int writers = 5;
+    private readonly LeftRight<List<int>> m_leftRight;
 
     public LeftRightList()
     {

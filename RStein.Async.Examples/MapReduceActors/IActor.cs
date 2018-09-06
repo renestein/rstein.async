@@ -8,6 +8,7 @@ namespace RStein.Async.Examples.MapReduceActors
     {
       get;
     }
+
     void Complete();
   }
 }

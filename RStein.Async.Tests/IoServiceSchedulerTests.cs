@@ -18,25 +18,13 @@ namespace RStein.Async.Tests
     {
     }
 
-    protected override ITaskScheduler Scheduler
-    {
-      get
-      {
-        return m_scheduler;
-      }
-    }
+    protected override ITaskScheduler Scheduler => m_scheduler;
 
 
     public TestContext TestContext
     {
-      get
-      {
-        return testContextInstance;
-      }
-      set
-      {
-        testContextInstance = value;
-      }
+      get => testContextInstance;
+      set => testContextInstance = value;
     }
 
     public override void InitializeTest()

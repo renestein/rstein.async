@@ -15,7 +15,7 @@ namespace RStein.Async.Examples.BrokenPromise
     private Task getTask()
     {
       var dtcs = new DebugTaskCompletionSource<Object>();
-      var task =  dtcs.Task;      
+      var task =  dtcs.Task;
       return task;
     }
   }

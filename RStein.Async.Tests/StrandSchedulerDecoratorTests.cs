@@ -18,21 +18,9 @@ namespace RStein.Async.Tests
     private ProxyScheduler m_proxyScheduler;
     private ITaskScheduler m_innerScheduler;
     private StrandSchedulerDecorator m_strandScheduler;
-    protected override ITaskScheduler Scheduler
-    {
-      get
-      {
-        return m_strandScheduler;
-      }
-    }
+    protected override ITaskScheduler Scheduler => m_strandScheduler;
 
-    protected override IProxyScheduler ProxyScheduler
-    {
-      get
-      {
-        return m_proxyScheduler;
-      }
-    }
+    protected override IProxyScheduler ProxyScheduler => m_proxyScheduler;
 
     public override void InitializeTest()
     {

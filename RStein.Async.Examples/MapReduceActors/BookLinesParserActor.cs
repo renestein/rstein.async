@@ -14,13 +14,13 @@ namespace RStein.Async.Examples.MapReduceActors
     private const string FILE_ENCODING = "utf-8";
     public static readonly int NUMBER_OF_CONSUMERS = Environment.ProcessorCount;
     private readonly ILibraryActor m_library;
-    private readonly IBookLineConsumerFactory m_lineConcumerFactory;
+    private readonly IBookLineConsumerFactory m_lineConsumerFactory;
     private IBookLineConsumerActor[] m_consumers;
 
-    public BookLinesParserActor(ILibraryActor library, IBookLineConsumerFactory lineConcumerFactory)
+    public BookLinesParserActor(ILibraryActor library, IBookLineConsumerFactory lineConsumerFactory)
     {
       m_library = library ?? throw new ArgumentNullException(nameof(library));
-      m_lineConcumerFactory = lineConcumerFactory ?? throw new ArgumentNullException(nameof(lineConcumerFactory));
+      m_lineConsumerFactory = lineConsumerFactory ?? throw new ArgumentNullException(nameof(lineConsumerFactory));
       createBookLineConsumers();
     }
 
@@ -30,16 +30,16 @@ namespace RStein.Async.Examples.MapReduceActors
       parseLines(lastBook);
     }
 
-    private void createBookLineConsumers()
-    {
-      m_consumers = Enumerable.Range(0, NUMBER_OF_CONSUMERS)
-        .Select(index => m_lineConcumerFactory.CreateConsumer(index))
-        .ToArray();
-    }
-
     protected override void DoInnerComplete()
     {
       m_consumers.ForEach(actor => actor.Complete());
+    }
+
+    private void createBookLineConsumers()
+    {
+      m_consumers = Enumerable.Range(0, NUMBER_OF_CONSUMERS)
+        .Select(index => m_lineConsumerFactory.CreateConsumer(index))
+        .ToArray();
     }
 
     private void parseLines(string lastBookName)

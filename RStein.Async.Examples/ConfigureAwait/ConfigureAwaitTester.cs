@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using RStein.Async.Schedulers;
-using RStein.Async.Threading;
 
 namespace RStein.Async.Examples.ConfigureAwait
 {

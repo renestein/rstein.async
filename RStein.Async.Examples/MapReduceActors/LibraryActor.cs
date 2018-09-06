@@ -5,7 +5,7 @@ namespace RStein.Async.Examples.MapReduceActors
 {
   public class LibraryActor : ActorBase, ILibraryActor
   {
-    private List<string> m_books;
+    private readonly List<string> m_books;
     private string m_lastBook;
 
     public LibraryActor()

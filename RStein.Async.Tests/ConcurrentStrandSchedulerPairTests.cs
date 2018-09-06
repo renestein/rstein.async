@@ -167,20 +167,9 @@ namespace RStein.Async.Tests
       private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
       private ITaskScheduler m_strandScheduler;
 
-      protected override ITaskScheduler Scheduler
-      {
-        get
-        {
-          return m_strandScheduler;
-        }
-      }
-      protected override IProxyScheduler ProxyScheduler
-      {
-        get
-        {
-          return m_strandScheduler.ProxyScheduler;
-        }
-      }
+      protected override ITaskScheduler Scheduler => m_strandScheduler;
+
+      protected override IProxyScheduler ProxyScheduler => m_strandScheduler.ProxyScheduler;
 
       public override void InitializeTest()
       {
@@ -202,20 +191,9 @@ namespace RStein.Async.Tests
       private ITaskScheduler m_concurrentScheduler;
       private ConcurrentStrandSchedulerPair m_concurrentStrandSchedulerPair;
 
-      protected override ITaskScheduler Scheduler
-      {
-        get
-        {
-          return m_concurrentScheduler;
-        }
-      }
-      protected override IProxyScheduler ProxyScheduler
-      {
-        get
-        {
-          return m_concurrentScheduler.ProxyScheduler;
-        }
-      }
+      protected override ITaskScheduler Scheduler => m_concurrentScheduler;
+
+      protected override IProxyScheduler ProxyScheduler => m_concurrentScheduler.ProxyScheduler;
 
       public override void InitializeTest()
       {

@@ -13,9 +13,9 @@ namespace RStein.Async.Examples.Actors
     public const string PLAYER_2_NAME = "Ioannes Fidanza";
     public const string GAME_1_NAME = "De virtutibus in communi";
     public const string GAME_2_NAME = "De spe";
+    private readonly ProxyEngine m_proxyEngine;
     private IAsyncPlayer m_player1;
     private IAsyncPlayer m_player2;
-    private ProxyEngine m_proxyEngine;
 
     public AsyncPlayerTest()
     {
@@ -25,14 +25,6 @@ namespace RStein.Async.Examples.Actors
       var externalProxyScheduler = new ProxyScheduler(threadPoolScheduler);
       m_proxyEngine = new ProxyEngine(threadPoolScheduler);
       createActors();
-    }
-
-    private void createActors()
-    {
-      m_player1 = new AsyncPlayer(PLAYER_1_NAME);
-      m_player2 = new AsyncPlayer(PLAYER_2_NAME);
-      m_player1 = m_proxyEngine.CreateProxy(m_player1);
-      m_player2 = m_proxyEngine.CreateProxy(m_player2);
     }
 
     public virtual async Task Run()
@@ -47,6 +39,14 @@ namespace RStein.Async.Examples.Actors
                                                                   });
 
       Console.WriteLine(RUN_DURATION_MESSAGE_FORMAT, duration.TotalMilliseconds);
+    }
+
+    private void createActors()
+    {
+      m_player1 = new AsyncPlayer(PLAYER_1_NAME);
+      m_player2 = new AsyncPlayer(PLAYER_2_NAME);
+      m_player1 = m_proxyEngine.CreateProxy(m_player1);
+      m_player2 = m_proxyEngine.CreateProxy(m_player2);
     }
   }
 }

@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Threading;
+using static System.String;
 
 namespace RStein.Async.Examples.Actors
 {
   public class Player : IPlayer
   {
     private readonly string m_name;
-    private int m_pingCounter;
 
     public Player(string name)
     {
-      m_pingCounter = 0;
-      m_name = name ?? String.Empty;
+      PingCounter = 0;
+      m_name = name ?? Empty;
     }
 
     public int PingCounter
     {
-      get
-      {
-        return m_pingCounter;
-      }
+      get;
+      private set;
     }
 
     public virtual void Ping(int pingCount, IPlayer secondPlayer)
@@ -29,7 +27,7 @@ namespace RStein.Async.Examples.Actors
       if (pingCount > 0)
       {
         secondPlayer.Ping(pingCount - 1, this);
-        m_pingCounter = PingCounter + 1;
+        PingCounter = PingCounter + 1;
       }
     }
   }
