@@ -13,7 +13,7 @@ namespace RStein.Async.Tests
   {
     private ProxyScheduler m_proxyScheduler;
     private IoServiceScheduler m_scheduler;
-    private TestContext testContextInstance;
+
     public IoServiceSchedulerTests()
     {
     }
@@ -23,11 +23,11 @@ namespace RStein.Async.Tests
 
     public TestContext TestContext
     {
-      get => testContextInstance;
-      set => testContextInstance = value;
+      get;
+      set;
     }
 
-    public override void InitializeTest()
+		public override void InitializeTest()
     {
       m_scheduler = new IoServiceScheduler();
       m_proxyScheduler = new ProxyScheduler(m_scheduler);

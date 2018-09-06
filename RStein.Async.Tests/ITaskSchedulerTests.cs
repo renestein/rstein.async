@@ -74,7 +74,7 @@ namespace RStein.Async.Tests
 
     [TestMethod]
     [ExpectedException(typeof (ObjectDisposedException))]
-    private void SetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
+    private void SetProxyScheduler_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       Scheduler.Dispose();
       Scheduler.ProxyScheduler = null;
@@ -82,7 +82,7 @@ namespace RStein.Async.Tests
 
     [TestMethod]
     [ExpectedException(typeof (ObjectDisposedException))]
-    private void GetProxyScheduler__When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
+    private void GetProxyScheduler_When_TaskScheduler_Disposed_Then_Throws_ObjectDisposedException()
     {
       Scheduler.Dispose();
       var proxyScheduler = Scheduler.ProxyScheduler;

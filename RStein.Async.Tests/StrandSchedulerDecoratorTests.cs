@@ -346,11 +346,8 @@ namespace RStein.Async.Tests
 
       await outerTask;
       await Task.WhenAll(postTask1, postTask2);
-
-      int? firstCompletedTaskId;
-      int? secondCompletedTaskId;
-      executedTasks.TryDequeue(out firstCompletedTaskId);
-      executedTasks.TryDequeue(out secondCompletedTaskId);
+      executedTasks.TryDequeue(out int? firstCompletedTaskId);
+      executedTasks.TryDequeue(out int? secondCompletedTaskId);
 
       Assert.AreEqual(postTask1.Id, firstCompletedTaskId);
       Assert.AreEqual(postTask2.Id, secondCompletedTaskId);
@@ -374,11 +371,8 @@ namespace RStein.Async.Tests
 
       await outerTask;
       await Task.WhenAll(postTask1, postTask2);
-
-      int? firstCompletedTaskId;
-      int? secondCompletedTaskId;
-      executedTasks.TryDequeue(out firstCompletedTaskId);
-      executedTasks.TryDequeue(out secondCompletedTaskId);
+      executedTasks.TryDequeue(out int? firstCompletedTaskId);
+      executedTasks.TryDequeue(out int? secondCompletedTaskId);
 
       Assert.AreEqual(postTask1.Id, firstCompletedTaskId);
       Assert.AreEqual(postTask2.Id, secondCompletedTaskId);

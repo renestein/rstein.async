@@ -27,8 +27,8 @@ namespace RStein.Async.Tests
 
       await Task.WhenAll(tasks);
       var threadId = tasks.First().Result;
-      var allTaksInSameThread = tasks.All(task => task.Result == threadId);
-      Assert.IsTrue(allTaksInSameThread);
+      var allTasksInSameThread = tasks.All(task => task.Result == threadId);
+      Assert.IsTrue(allTasksInSameThread);
     }
   }
 }

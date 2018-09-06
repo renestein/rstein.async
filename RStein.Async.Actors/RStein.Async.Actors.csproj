@@ -9,6 +9,7 @@
 
 Examples:
 https://github.com/renestein/rstein.async/tree/master/RStein.Async.Examples</Description>
+        <Version>1.0.1</Version>
     </PropertyGroup>
     <ItemGroup>
       <Folder Include="Properties\" />
