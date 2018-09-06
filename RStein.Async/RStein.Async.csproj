@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
-        <Authors>René Stein</Authors>
-        <Company>René Stein</Company>
-        <Copyright>Copyright (c) 2018 Rene Stein</Copyright>
-        <PackageProjectUrl>https://github.com/renestein/rstein.async</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/renestein/rstein.async</RepositoryUrl>
-        <RepositoryType />
-        <Description>Just a toy library for TAP/async/threading
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <Authors>René Stein</Authors>
+    <Company>René Stein</Company>
+    <Copyright>Copyright (c) 2018 Rene Stein</Copyright>
+    <PackageProjectUrl>https://github.com/renestein/rstein.async</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/renestein/rstein.async</RepositoryUrl>
+    <RepositoryType />
+    <Description>Just a toy library for TAP/async/threading
 
 Boost Asio .Net :)
 IoService
@@ -16,9 +16,10 @@ Strand
 LeftRight
 Samples
 https://github.com/renestein/rstein.async/tree/master/RStein.Async.Examples</Description>
-        <Version>1.0.1</Version>
-    </PropertyGroup>
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
+    <Version>1.0.1-alpha</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 </Project>
