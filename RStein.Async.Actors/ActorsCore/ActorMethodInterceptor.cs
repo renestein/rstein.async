@@ -58,25 +58,13 @@ namespace RStein.Async.Actors.ActorsCore
     }
 
 
-    public override int GetHashCode()
-    {
-      return GetType().GetHashCode();
-    }
+    public override int GetHashCode() => GetType().GetHashCode();
 
-    public static bool operator ==(ActorMethodInterceptor left, ActorMethodInterceptor right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(ActorMethodInterceptor left, ActorMethodInterceptor right) => Equals(left, right);
 
-    public static bool operator !=(ActorMethodInterceptor left, ActorMethodInterceptor right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(ActorMethodInterceptor left, ActorMethodInterceptor right) => !Equals(left, right);
 
-    private bool isVoidMethod(MethodInfo methodInvocation)
-    {
-      return methodInvocation.ReturnType.Equals(typeof (void));
-    }
+    private bool isVoidMethod(MethodInfo methodInvocation) => methodInvocation.ReturnType.Equals(typeof (void));
 
     private bool isMethodReturningTask(MethodInfo methodInvocation)
     {
@@ -86,14 +74,15 @@ namespace RStein.Async.Actors.ActorsCore
 
     private void postTargetSub(StrandSchedulerDecorator strand, IInvocation invocation)
     {
-      Action action = ()=>
+      void postAction()
       {
         invocation.GetConcreteMethodInvocationTarget()
           .Invoke(invocation.InvocationTarget, invocation.Arguments);
         //Problems with Castle implementation (call from other thread does not work after upgrade to 4.3.1. version)
         //invocation.Proceed();
-      };
-      strand.Post(action);
+      }
+
+      strand.Post((Action) postAction);
     }
 
     private void postTargetFunc(StrandSchedulerDecorator strand, IInvocation invocation)
@@ -104,43 +93,44 @@ namespace RStein.Async.Actors.ActorsCore
       proxyTcs = getProxyTcs(methodInvocationTarget);
       var isGenericReturnType = methodInvocationTarget.ReturnType.IsGenericType;
 
-      Func<Task> function = () =>
-                            {
-                              Task resultTask = null;
-                              var hasException = false;
-
-                              try
-                              {
-                                resultTask =  invocation.GetConcreteMethodInvocationTarget()
-                                  .Invoke(invocation.InvocationTarget, invocation.Arguments) as Task;
-                                //Problems with Castle implementation (call from other thread does not work after upgrade to 4.3.1. version)
-                                //invocation.Proceed();
-                              }
-                              catch (Exception e)
-                              {
-                                hasException = true;
-                                if (resultTask == null)
-                                {
-                                  resultTask = TaskEx.TaskFromException(e);
-                                }
-                              }
-                              finally
-                              {
-                                if (!hasException && isGenericReturnType)
-                                {
-                                  TaskEx.PrepareTcsTaskFromExistingTask((dynamic) resultTask, proxyTcs);
-                                }
-                                else
-                                {
-                                  TaskEx.PrepareTcsTaskFromExistingTask(resultTask, proxyTcs);
-                                }
-                              }
-
-                              return resultTask;
-                            };
-
       invocation.ReturnValue = proxyTcs.Task;
-      strand.Post(function);
+
+      strand.Post(postFunc);
+
+      Task postFunc()
+      {
+        Task resultTask = null;
+        var hasException = false;
+
+        try
+        {
+          resultTask = invocation.GetConcreteMethodInvocationTarget()
+            .Invoke(invocation.InvocationTarget, invocation.Arguments) as Task;
+          //Problems with Castle implementation (call from other thread does not work after upgrade to 4.3.1. version)
+          //invocation.Proceed();
+        }
+        catch (Exception e)
+        {
+          hasException = true;
+          if (resultTask == null)
+          {
+            resultTask = TaskEx.TaskFromException(e);
+          }
+        }
+        finally
+        {
+          if (!hasException && isGenericReturnType)
+          {
+            TaskEx.PrepareTcsTaskFromExistingTask((dynamic) resultTask, proxyTcs);
+          }
+          else
+          {
+            TaskEx.PrepareTcsTaskFromExistingTask(resultTask, proxyTcs);
+          }
+        }
+
+        return resultTask;
+      }
     }
 
     private static dynamic getProxyTcs(MethodInfo methodInvocationTarget)

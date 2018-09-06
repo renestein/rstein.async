@@ -7,8 +7,8 @@ namespace RStein.Async.Actors.ActorsCore
   public class ProxyEngine
   {
     private readonly ITaskScheduler m_primaryScheduler;
-    private readonly ProxyGenerator m_proxyGenerator = new ProxyGenerator();
-    private readonly ProxyGenerationOptions m_proxyOptions = new ProxyGenerationOptions();
+    private readonly ProxyGenerator m_proxyGenerator;
+    private readonly ProxyGenerationOptions m_proxyOptions;
 
     public ProxyEngine(ITaskScheduler primaryScheduler)
     {

@@ -18,7 +18,7 @@ namespace RStein.Async.Actors.ActorsCore
 
     public virtual bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
     {
-      var shouldIntercept = methodInfo.ReturnType.Equals(typeof (void)) ||
+      var shouldIntercept = methodInfo.ReturnType == typeof (void) ||
                              typeof (Task).IsAssignableFrom(methodInfo.ReturnType);
 
       if (!shouldIntercept)
@@ -30,11 +30,6 @@ namespace RStein.Async.Actors.ActorsCore
     }
 
     public virtual void MethodsInspected() {}
-
-    public void NonVirtualMemberNotification(Type type, MemberInfo memberInfo)
-    {
-     
-    }
 
     public override bool Equals(object obj)
     {

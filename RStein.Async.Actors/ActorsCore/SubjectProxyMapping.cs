@@ -5,7 +5,7 @@ namespace RStein.Async.Actors.ActorsCore
 {
   public class SubjectProxyMapping
   {
-    public ConditionalWeakTable<Object, Object> m_baseProxyMapping;
+    private readonly ConditionalWeakTable<Object, Object> m_baseProxyMapping;
 
     public SubjectProxyMapping()
     {
@@ -33,8 +33,7 @@ namespace RStein.Async.Actors.ActorsCore
         throw new ArgumentNullException(nameof(realObject));
       }
 
-      object proxy;
-      m_baseProxyMapping.TryGetValue(realObject, out proxy);
+      m_baseProxyMapping.TryGetValue(realObject, out var proxy);
 
       return proxy;
     }
